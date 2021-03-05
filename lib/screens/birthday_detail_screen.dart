@@ -19,13 +19,13 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final birthdayId = ModalRoute.of(context).settings.arguments as String;
-    final loadedBirthday = Provider.of<Birthdays>(context).findById(birthdayId);
+    final loadedBirthday = Provider.of<Birthdays>(context,listen: false).findById(birthdayId);
     Color _categoryColor = loadedBirthday.categoryColor;
     int daysLeftforBirthday;
 
     int getAge() {
-      Duration dateTime = loadedBirthday.dateofbirth.difference(DateTime.now());
-      daysLeftforBirthday = dateTime.inDays;
+      int daysLeftforBirthday = loadedBirthday.dateofbirth.day - DateTime.now().day;
+      //daysLeftforBirthday = dateTime.inDays;
       if (daysLeftforBirthday < 0) {
         if (DateTime.now().year.toInt() % 4 == 0)
           daysLeftforBirthday = 367 - daysLeftforBirthday;
@@ -37,7 +37,41 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('YourDay'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: ()async{
+              // Navigator.of(context).pop();
+                await showDialog(
+                  context: context,
+                  builder: (ctx) =>
+                      AlertDialog(
+                        title: Text('Delete this birthday'),
+                        content: Text('Are you sure you want to delete ?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () {
+                              Provider.of<Birthdays>(context,listen: false).completeEvent(birthdayId);
+                              Navigator.of(ctx).pop();
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      ),
+                );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -76,7 +110,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                           backgroundColor: _categoryColor,
                         ),
                         Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                        Text('${getAge().toString()} days left'),
+                        Text(getAge()==0?'Today':'${getAge().toString()} days left'),
                       ],
                     ),
                   ],
@@ -398,7 +432,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
+                          horizontal: 12.0,vertical: 5.0,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +453,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                                     child: Text('None'),
                                   )
                                 : Container(
-                                    height: 80,
+                                    height: 60,
                                     width: MediaQuery.of(context).size.width *
                                         0.70,
                                     child: ListView.builder(

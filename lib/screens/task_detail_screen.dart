@@ -19,13 +19,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final taskId = ModalRoute.of(context).settings.arguments as String;
-    final loadedTask = Provider.of<Tasks>(context).findById(taskId);
+    final loadedTask = Provider.of<Tasks>(context,listen: false).findById(taskId);
     Color _categoryColor = loadedTask.priorityLevelColor;
     int daysleftforTask;
+    final format = DateFormat("dd / MM / yyyy -- HH:mm");
 
     int getAge() {
-      Duration dateTime = loadedTask.enddate.difference(DateTime.now());
-      daysleftforTask = dateTime.inDays;
+      int daysleftforTask = loadedTask.enddate.day - DateTime.now().day;
+      //daysleftforTask = dateTime.inDays;
       if (daysleftforTask < 0) {
         if (DateTime.now().year.toInt() % 4 == 0)
           daysleftforTask = 367 - daysleftforTask;
@@ -37,7 +38,43 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
 
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text('YourDay'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: ()async{
+                // Navigator.of(context).pop();
+                await showDialog(
+                    context: context,
+                    builder: (ctx) =>
+                    AlertDialog(
+                      title: Text('Delete the Task'),
+                      content: Text('Are you sure you want to delete ?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('No'),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text('Yes'),
+                          onPressed: () {
+                            Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+                            Navigator.of(ctx).pop();
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                );
+                // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+                // Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(15.0),
@@ -62,7 +99,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   backgroundColor: _categoryColor,
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                Text('${getAge().toString()} days left'),
+                Text(getAge()==0?'Today':'${getAge().toString()} days left'),
                 Padding(padding: EdgeInsets.all(8.0)),
                 Container(
                     padding: EdgeInsets.all(5.0),
@@ -165,7 +202,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Start Date',
+                              'Start Time',
                               textAlign: TextAlign.left,
                               textScaleFactor: 1.3,
                               style: TextStyle(
@@ -177,7 +214,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             Container(
                                 width: MediaQuery.of(context).size.width * 0.7,
                                 child: Text(
-                                  DateFormat('dd / MM / yyyy')
+                                  DateFormat('dd / MM / yyyy  --  HH:mm')
                                       .format(loadedTask.startdate),
                                   //textScaleFactor: 1.4,
                                   textAlign: TextAlign.start,
@@ -208,7 +245,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'End Date',
+                              'End Time',
                               textAlign: TextAlign.left,
                               textScaleFactor: 1.3,
                               style: TextStyle(
@@ -220,7 +257,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             Container(
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: Text(
-                                DateFormat('dd / MM / yyyy')
+                                DateFormat('dd / MM / yyyy  --  HH:mm')
                                     .format(loadedTask.enddate),
                                 //textScaleFactor: 1.4,
                                 textAlign: TextAlign.start,
@@ -281,7 +318,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       ],
                     )),
                 Divider(),
+                Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                RaisedButton(
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  onPressed: ()async{
+                    await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                      title: Text('Mark as complete'),
+                      content: Text('Are you sure you have completed this task ?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('No'),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text('Yes'),
+                          onPressed: () {
+                            Provider.of<Tasks>(context, listen: false)
+                                .completeEvent(taskId);
+                            Navigator.of(ctx).pop();
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                    );
+                  // Navigator.of(context).pop();
+                  // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+                  // Navigator.of(context).pop();
+                },child: Text('Mark as Complete',
+                ),
 
+                ),
                 // Divider(),
               ],
             ),

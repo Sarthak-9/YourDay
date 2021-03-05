@@ -10,9 +10,9 @@ class SignUp extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.red,
+          color: Theme.of(context).primaryColor,
           width: mdq.size.width,
-          height: mdq.size.height*1.3,
+          height: mdq.size.height*1.2,
           alignment: Alignment.topCenter,
           //margin: EdgeInsets.all(8.0),
           child: Padding(
@@ -22,16 +22,23 @@ class SignUp extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 30.0),
+                  padding: EdgeInsets.symmetric(vertical: 60.0),
                 ),
-                IconTheme(
-                  data: IconThemeData(),
-                  child: CircleAvatar(
-                    ///backgroundImage: AssetImage("assets/images/dsc_logo.jpg"),
-                    backgroundColor: Colors.white,
-                    radius: 60.0,
+                Card(
+                  child: Image(
+                    image : AssetImage("assets/images/YD.png"),
+                    width: 200,
+                    height: 100,
                   ),
                 ),
+                // IconTheme(
+                //   data: IconThemeData(),
+                //   child: CircleAvatar(
+                //     ///backgroundImage: AssetImage("assets/images/dsc_logo.jpg"),
+                //     backgroundColor: Colors.white,
+                //     radius: 60.0,
+                //   ),
+                // ),
                 Padding(padding: EdgeInsets.all(4.0)),
                 Text(
                   "Your Day",
@@ -72,7 +79,7 @@ class SignUp extends StatelessWidget {
                     Container(
                       width: 2.0,
                       height: 59.0,
-                      color: Colors.redAccent,
+                      color: Colors.green,
                     ),
                     Padding(padding: EdgeInsets.symmetric(horizontal: 2.0,),),
                     Container(
@@ -121,6 +128,7 @@ class SignUp extends StatelessWidget {
                       Padding(padding: EdgeInsets.symmetric(horizontal: 2.0,),),
                       Flexible(
                         child: TextField(
+                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: ' Phone Number',
                             hintText: ' Phone Number',

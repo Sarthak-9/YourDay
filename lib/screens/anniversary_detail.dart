@@ -22,14 +22,14 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
   Widget build(BuildContext context) {
     final anniversaryId = ModalRoute.of(context).settings.arguments as String;
     final loadedAnniversary =
-        Provider.of<Anniversaries>(context).findById(anniversaryId);
+        Provider.of<Anniversaries>(context,listen: false).findById(anniversaryId);
     Color _categoryColor = loadedAnniversary.categoryColor;
     int daysLeftforAnniversary;
 
     int getAge() {
-      Duration dateTime =
-          loadedAnniversary.dateofanniversary.difference(DateTime.now());
-      daysLeftforAnniversary = dateTime.inDays;
+      int daysLeftforAnniversary =
+          loadedAnniversary.dateofanniversary.day - DateTime.now().day;
+      //daysLeftforAnniversary = dateTime.inDays;
       if (daysLeftforAnniversary < 0) {
         if (DateTime.now().year.toInt() % 4 == 0)
           daysLeftforAnniversary = 367 - daysLeftforAnniversary;
@@ -41,7 +41,43 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('YourDay'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: ()async{
+              // Navigator.of(context).pop();
+              await showDialog(
+                  context: context,
+                  builder: (ctx) =>
+                  AlertDialog(
+                    title: Text('Delete the Anniversary'),
+                    content: Text('Are you sure you want to delete ?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('No'),
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Yes'),
+                        onPressed: () {
+                          Provider.of<Anniversaries>(context,listen: false).completeEvent(anniversaryId);
+                          Navigator.of(ctx).pop();
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  ),
+              );
+              // Provider.of<Anniversaries>(context,listen: false).completeEvent(anniversaryId);
+              // Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -49,7 +85,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
             children: [
               Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
               Text(
-                'Birthday Details',
+                'Anniversary Details',
                 style: TextStyle(
                   fontSize: 24.0,
                 ),
@@ -79,12 +115,36 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                           ),
                           backgroundColor: _categoryColor,
                         ),
-                        Text('${getAge().toString()} days left'),
+                        Text(getAge()==0?'Today':'${getAge().toString()} days left'),
                       ],
                     ),
                   ],
                 ),
               ),
+              // ListTile(
+              //   leading: Icon(
+              //     Icons.person_outline_rounded,
+              //     color: _categoryColor,
+              //     size: 28.0,
+              //   ),
+              //   title: Text(
+              //     'Husband\'s Name',
+              //     textAlign: TextAlign.left,
+              //     textScaleFactor: 1.3,
+              //     style: TextStyle(
+              //       color: _categoryColor,
+              //     ),
+              //   ),
+              //   subtitle: Text(
+              //     loadedAnniversary.husband_name,
+              //     style: TextStyle(
+              //       color: Colors.black
+              //     ),
+              //     //textScaleFactor: 1.4,
+              //     textAlign: TextAlign.start,
+              //     overflow: TextOverflow.ellipsis,
+              //   ),
+              // ),
               Padding(padding: EdgeInsets.all(4.0)),
               Container(
                 padding: EdgeInsets.all(5.0),
@@ -118,7 +178,6 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                               //textScaleFactor: 1.4,
                               textAlign: TextAlign.start,
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 5,
                             ),
                           ),
                         ],
@@ -127,6 +186,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                   ],
                 ),
               ),
+              Divider(),
               Container(
                 padding: EdgeInsets.all(5.0),
                 width: MediaQuery.of(context).size.width,
@@ -228,7 +288,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Birth Date',
+                            'Anniversary Date',
                             textAlign: TextAlign.left,
                             textScaleFactor: 1.3,
                             style: TextStyle(
@@ -347,7 +407,90 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                   )),
               Divider(),
               Container(
-                  height: 200,
+                  padding: EdgeInsets.all(5.0),
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.phone_android_rounded,
+                        color: _categoryColor,
+                        size: 28.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Phone',
+                              textAlign: TextAlign.left,
+                              textScaleFactor: 1.3,
+                              style: TextStyle(
+                                color: _categoryColor,
+                              ),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4.0)),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              child: Text(
+                                loadedAnniversary.phoneNumberofCouple==null?loadedAnniversary.phoneNumberofCouple:'None',
+                                //textScaleFactor: 1.4,
+                                textAlign: TextAlign.start,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+              Divider(),
+              Container(
+                  padding: EdgeInsets.all(5.0),
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.email_outlined,
+                        color: _categoryColor,
+                        size: 28.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Email',
+                              textAlign: TextAlign.left,
+                              textScaleFactor: 1.3,
+                              style: TextStyle(
+                                color: _categoryColor,
+                              ),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4.0)),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              child: Text(
+                                loadedAnniversary.emailofCouple==null?loadedAnniversary.emailofCouple:'None',
+                                //textScaleFactor: 1.4,
+                                textAlign: TextAlign.start,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+              Divider(),
+              Container(
+                  //height: 200,
                   padding: EdgeInsets.all(5.0),
                   //width: MediaQuery.of(context).size.width,
                   child: Row(
@@ -359,7 +502,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
+                            horizontal: 12.0, vertical: 5.0,),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -379,7 +522,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                                     child: Text('None'),
                                   )
                                 : Container(
-                                    height: 80,
+                                    height: 60,
                                     width: MediaQuery.of(context).size.width *
                                         0.70,
                                     child: ListView.builder(
@@ -396,7 +539,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                                       dragStartBehavior:
                                           DragStartBehavior.start,
                                       physics: ClampingScrollPhysics(),
-                                      padding: const EdgeInsets.all(10),
+                                      //padding: const EdgeInsets.all(10),
                                     ),
                                   ),
                           ],

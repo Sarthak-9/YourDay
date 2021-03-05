@@ -15,13 +15,14 @@ class _TaskWidgetState extends State<TaskWidget> {
   @override
   Widget build(BuildContext context) {
     final tasklist = Provider.of<Tasks>(context);
+    // tasklist.removeEvent();
     final tasks = tasklist.taskList;
     return Expanded(
       child: tasks.isEmpty
           ? Container(
               alignment: Alignment.center,
               child: Text(
-                'No Tasks Today',
+                'No Tasks',
                 style: TextStyle(
                   fontSize: 20,
                 ),
@@ -29,7 +30,7 @@ class _TaskWidgetState extends State<TaskWidget> {
             )
           : ListView.builder(
               itemBuilder: (ctx, i) => TaskItem(
-                tasks[i].taskId,
+                  tasks[i].taskId,
                   tasks[i].title,
                   tasks[i].startdate,
                   tasks[i].enddate,
@@ -52,7 +53,13 @@ class TaskItem extends StatelessWidget {
   final Color taskColor;
   final String taskLevelText;
 
-  TaskItem(this.taskId,this.title,this.startdate, this.enddate, this.prioritylevel, this.taskColor,
+  TaskItem(
+      this.taskId,
+      this.title,
+      this.startdate,
+      this.enddate,
+      this.prioritylevel,
+      this.taskColor,
       this.taskLevelText); //final PriorityLevel ,
 
   @override
@@ -60,11 +67,43 @@ class TaskItem extends StatelessWidget {
     return Column(
       children: [
         GestureDetector(
-          onTap: ()=>Navigator.of(context).pushNamed(TaskDetailScreen.routeName,arguments: taskId),
+          onTap: () => Navigator.of(context)
+              .pushNamed(TaskDetailScreen.routeName, arguments: taskId),
+          onLongPress: () async {
+            // Navigator.of(context).pop();
+            await showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text('Mark as complete'),
+                content: Text('Are you sure you have completed this task'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('No'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: Text('Yes'),
+                    onPressed: () {
+                      Provider.of<Tasks>(context, listen: false)
+                          .completeEvent(taskId);
+                      Navigator.of(ctx).pop();
+                      //Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              ),
+            );
+            // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+
+          },
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: taskColor,
-              //child: Text(taskLevelText),
+              child: Text('T',style: TextStyle(
+    color: Colors.white,
+    ),),
             ),
             title: Text(title),
             trailing: Chip(

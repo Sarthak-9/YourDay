@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yday/models/anniversary.dart';
 
+import '../models/anniversary.dart';
+
 class Anniversaries with ChangeNotifier{
   List<Anniversary> _anniversaryList=[];
 
@@ -29,5 +31,11 @@ class Anniversaries with ChangeNotifier{
   Anniversary findById(String annivId){
     return _anniversaryList.firstWhere((element) => element.anniversaryId == annivId);
   }
-
+  List<Anniversary> findByDate(DateTime birthdayDateTime){
+    return _anniversaryList.where((element) => element.dateofanniversary.day==birthdayDateTime.day&&element.dateofanniversary.month==birthdayDateTime.month).toList();
+  }
+  void completeEvent(String anniversaryid){
+    _anniversaryList.removeWhere((element) => element.anniversaryId==anniversaryid);
+    notifyListeners();
+  }
 }

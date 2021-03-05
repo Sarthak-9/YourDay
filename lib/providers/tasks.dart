@@ -39,14 +39,17 @@ class Tasks with ChangeNotifier {
 
   void addEvent(Task task){
     _taskList.add(task);
+    notifyListeners();
   }
 
-  void removeEvent(Task task){
-    _taskList.removeWhere((element) => task.enddate==DateTime.now());
-  }
+  // void removeEvent(){
+  //   _taskList.removeWhere((element) => element.enddate==DateTime.now());
+  //   notifyListeners();
+  // }
 
-  void completeEvent(Task task){
-    _taskList.remove(task);
+  void completeEvent(String taskid){
+    _taskList.removeWhere((element) => element.taskId==taskid);
+    notifyListeners();
   }
 
   Task findById(String taskid) {
@@ -61,8 +64,13 @@ class Tasks with ChangeNotifier {
       startdate: task.startdate,
       enddate: task.enddate,
       levelofpriority: task.levelofpriority,
+      setalarmfortask: task.setalarmfortask,
     );
     _taskList.add(newTask);
     notifyListeners();
   }
+  List<Task> findByDate(DateTime tasktime){
+    return _taskList.where((element) => element.startdate.day==tasktime.day&&element.startdate.month==tasktime.month&&element.startdate.year==tasktime.year).toList();
+  }
+
 }

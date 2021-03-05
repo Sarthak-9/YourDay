@@ -164,7 +164,7 @@ class LoginPage extends StatelessWidget {
               FlatButton(
                 onPressed: () {
                   Navigator.of(context)
-                      .pushReplacementNamed(HomePage.routeName);
+                      .pushNamed(HomePage.routeName);
                   //Navigator.pushReplacementNamed(context, MainHomePage.id);
                 },
                 child: Text(
@@ -175,6 +175,7 @@ class LoginPage extends StatelessWidget {
               // Padding(padding: EdgeInsets.all(2.0)),
               FlatButton(
                 onPressed: () {
+                  Navigator.of(context).pushNamed(HomePage.routeName);
                   //Navigator.pushReplacementNamed(context, MainHomePage.id);
                 },
                 child: Text(

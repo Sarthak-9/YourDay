@@ -20,6 +20,8 @@ import 'package:yday/providers/tasks.dart';
 import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/screens/homepage.dart';
 
+import '../providers/tasks.dart';
+
 class AddTask extends StatefulWidget {
   static const routeName = '/add-task-screen';
 
@@ -28,15 +30,9 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
-  BirthDay bday;
-
-  TextEditingController _nameController = TextEditingController();
-
-  TextEditingController _notesController = TextEditingController();
-
-  TextEditingController _relationController = TextEditingController();
 
   final _nameFocusNode = FocusNode();
+  final _descriptionFocusNode = FocusNode();
 
   final _form = GlobalKey<FormState>();
   String Id = DateTime.now().toString();
@@ -57,13 +53,10 @@ class _AddTaskState extends State<AddTask> {
   bool _yearofBirthProvidedStat = true;
   PriorityLevel _levelofTask;
   BorderRadius _categoryborderRadius = BorderRadius.all(Radius.circular(40));
+  DateTime _taskStartDate;
+  DateTime _taskEndDate;
 
   final format = DateFormat("dd / MM / yyyy -- HH:mm");
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   var _newTask = Task(
     taskId: '',
@@ -74,19 +67,48 @@ class _AddTaskState extends State<AddTask> {
     setalarmfortask: null,
     levelofpriority: null,
   );
-  var _newBirthday = BirthDay(
-    birthdayId: null,
-    nameofperson: '',
-    relation: '',
-    dateofbirth: null,
-    notes: '',
-    categoryofPerson: null,
-  );
 
-  void _saveForm() {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _saveForm() async {
+    print(_taskStartDate);
+    print(_taskEndDate);
+    if(_taskStartDate == null||_taskEndDate == null||_taskEndDate.isBefore(_taskStartDate)){
+      await showDialog(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+              title: Text('Set Duration!'),
+              content: Text('Enter a valid Duration.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                )
+              ],
+            ),
+      );
+    }
+    final isValid = _form.currentState.validate();
+    if (!isValid ||_taskStartDate == null||_taskEndDate == null||_taskEndDate.isBefore(_taskStartDate)) {
+      return;
+    }
     _form.currentState.save();
     Provider.of<Tasks>(context, listen: false).addTask(_newTask);
     Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _nameFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -151,7 +173,7 @@ class _AddTaskState extends State<AddTask> {
               children: [
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                 Text(
-                  'Add a Task',
+                  'Add Task',
                   style: TextStyle(
                     fontSize: 24.0,
                   ),
@@ -181,18 +203,18 @@ class _AddTaskState extends State<AddTask> {
                       textAlign: TextAlign.center,
                       format: format,
                       onShowPicker: (context, currentValue) async {
-                        final date = await showDatePicker(
+                        _taskStartDate = await showDatePicker(
                             context: context,
                             firstDate: DateTime(1900),
                             initialDate: currentValue ?? DateTime.now(),
                             lastDate: DateTime(2100));
-                        if (date != null) {
+                        if (_taskStartDate != null) {
                           final time = await showTimePicker(
                             context: context,
                             initialTime: TimeOfDay.fromDateTime(
                                 currentValue ?? DateTime.now()),
                           );
-                          return DateTimeField.combine(date, time);
+                          return DateTimeField.combine(_taskStartDate, time);
                         } else {
                           return currentValue;
                         }
@@ -202,7 +224,7 @@ class _AddTaskState extends State<AddTask> {
                           taskId: Id,
                           title: _newTask.title,
                           description: _newTask.description,
-                          startdate: value,
+                          startdate: _taskStartDate,
                           enddate: _newTask.enddate,
                           setalarmfortask: _newTask.setalarmfortask,
                           levelofpriority: _newTask.levelofpriority,
@@ -241,29 +263,30 @@ class _AddTaskState extends State<AddTask> {
                       textAlign: TextAlign.center,
                       format: format,
                       onShowPicker: (context, currentValue) async {
-                        final date = await showDatePicker(
+                        _taskEndDate = await showDatePicker(
                             context: context,
                             firstDate: DateTime(1900),
                             initialDate: currentValue ?? DateTime.now(),
                             lastDate: DateTime(2100));
-                        if (date != null) {
+                        if (_taskEndDate != null) {
                           final time = await showTimePicker(
                             context: context,
                             initialTime: TimeOfDay.fromDateTime(
                                 currentValue ?? DateTime.now()),
                           );
-                          return DateTimeField.combine(date, time);
+                          return DateTimeField.combine(_taskEndDate, time);
                         } else {
                           return currentValue;
                         }
                       },
+
                       onSaved: (value) {
                         _newTask = Task(
                           taskId: Id,
                           title: _newTask.title,
                           description: _newTask.description,
                           startdate: _newTask.startdate,
-                          enddate: value,
+                          enddate: _taskEndDate,
                           setalarmfortask: _newTask.setalarmfortask,
                           levelofpriority: _newTask.levelofpriority,
                         );
@@ -276,8 +299,16 @@ class _AddTaskState extends State<AddTask> {
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Title'),
                   textInputAction: TextInputAction.next,
+                  focusNode: _nameFocusNode,
                   onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_nameFocusNode);
+                    FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                  },
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please provide a valid name';
+                    }
+                    return null;
                   },
                   onSaved: (value) {
                     _newTask = Task(
@@ -296,9 +327,11 @@ class _AddTaskState extends State<AddTask> {
                   decoration: InputDecoration(
                     labelText: 'Description',
                   ),
+                  focusNode: _descriptionFocusNode,
                   textInputAction: TextInputAction.next,
+                  textCapitalization: TextCapitalization.sentences,
                   onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_nameFocusNode);
+                    FocusScope.of(context).dispose();
                   },
                   maxLines: 2,
                   onSaved: (value) {
@@ -365,6 +398,16 @@ class _AddTaskState extends State<AddTask> {
                               _categoryColor = Colors.amber;
                               _categoryBorder = false;
                             });
+                            _newTask = Task(
+                              taskId: Id,
+                              title: _newTask.title,
+                              description: _newTask.description,
+                              startdate: _newTask.startdate,
+                              enddate: _newTask.enddate,
+                              setalarmfortask: _newTask.setalarmfortask,
+                              levelofpriority: _levelofTask,
+                            );
+                            setState(() {});
                           },
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey[300]),

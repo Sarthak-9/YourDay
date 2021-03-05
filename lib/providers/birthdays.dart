@@ -56,8 +56,12 @@ class Birthdays with ChangeNotifier {
       dateofbirth: bday.dateofbirth,
       yearofbirthProvided: bday.yearofbirthProvided,
       //interests: ['Music','Reading'],
+      setAlarmforBirthday: bday.setAlarmforBirthday,
       categoryofPerson: bday.categoryofPerson,
       interestsofPerson: bday.interestsofPerson,
+      phoneNumberofPerson: bday.phoneNumberofPerson,
+      emailofPerson: bday.emailofPerson,
+      imageofPerson: bday.imageofPerson,
       //catergory: CategoryofPerson.work,
     );
     _birthdayList.add(newBday);
@@ -66,6 +70,14 @@ class Birthdays with ChangeNotifier {
 
   BirthDay findById(String bdayId) {
     return birthdayList.firstWhere((bday) => bday.birthdayId == bdayId);
+  }
+
+  List<BirthDay> findByDate(DateTime birthdayDateTime){
+    return birthdayList.where((element) => element.dateofbirth.day==birthdayDateTime.day&&element.dateofbirth.month==birthdayDateTime.month).toList();
+  }
+  void completeEvent(String birthdayid){
+    _birthdayList.removeWhere((element) => element.birthdayId==birthdayid);
+    notifyListeners();
   }
 
 }

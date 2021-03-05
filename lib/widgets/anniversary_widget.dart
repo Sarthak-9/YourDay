@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +24,7 @@ class _AnniversaryWidgetState extends State<AnniversaryWidget> {
     return Expanded(
       child: anniversaries.isEmpty ? Container(
         alignment: Alignment.center,
-        child: Text('No Anniversaries Today',style: TextStyle(
+        child: Text('No Anniversaries',style: TextStyle(
           fontSize: 20,
         ),),
       ) :ListView.builder(
@@ -58,7 +59,9 @@ class AnniversaryItem extends StatelessWidget {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: categoryColor,
-              //child: Text('BDay'),
+              child: Text('A',style: TextStyle(
+                color: Colors.white,
+              ),),
             ),
             title: Text('$husband_name-$wife_name'),
             trailing: Chip(

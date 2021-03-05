@@ -16,7 +16,7 @@ class Anniversary {
   final String wife_name;
   final String relation;
   final String notes;
-  final DateTime dateofanniversary;
+   DateTime dateofanniversary;
   bool yearofmarriageProvided = true;
   TimeOfDay setAlarmforAnniversary;
   final List<Interest> interestsofCouple;
@@ -62,16 +62,16 @@ class Anniversary {
   Color get categoryColor {
     switch (categoryofCouple) {
       case CategoryofCouple.friend:
-        return Colors.amber;
+        return Colors.green;
         break;
       case CategoryofCouple.family:
         return Colors.red;
         break;
       case CategoryofCouple.work:
-        return Colors.deepOrange;
+        return Colors.amber;
         break;
       default:
-        return Colors.black26;
+        return Colors.lightBlue;
     }
   }
 

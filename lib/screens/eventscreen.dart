@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/add_anniversary.dart';
+import 'package:yday/screens/all_event_screen.dart';
 import 'package:yday/widgets/anniversary_widget.dart';
 import 'package:yday/widgets/birthday_widget.dart';
 import 'package:yday/widgets/task_widget.dart';
@@ -27,8 +28,13 @@ class _EventScreenState extends State<EventScreen> {
       padding: const EdgeInsets.all(8.0),
       //height: MediaQuery.of(context).size.height*0.9,
       child: ListView(
-          children: [
-            Card(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pushNamed(AllEvents.routeName, arguments: 1);
+            },
+            child: Card(
               shadowColor: Colors.green,
               elevation: 5.0,
               shape: RoundedRectangleBorder(
@@ -53,12 +59,20 @@ class _EventScreenState extends State<EventScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('  Birthdays',style: TextStyle(
-                              fontSize: 20.0,
-                            ),),
-                            IconButton(icon: Icon(Icons.add), onPressed: () {
-                              Navigator.of(context).pushNamed(AddBirthday.routeName);
-                            },),
+                            Text(
+                              '  Birthdays',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.expand_more),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    AllEvents.routeName,
+                                    arguments: 1);
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -68,7 +82,13 @@ class _EventScreenState extends State<EventScreen> {
                 ),
               ),
             ),
-            Card(
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pushNamed(AllEvents.routeName, arguments: 2);
+            },
+            child: Card(
               shadowColor: Colors.green,
               elevation: 5.0,
               shape: RoundedRectangleBorder(
@@ -92,12 +112,20 @@ class _EventScreenState extends State<EventScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('  Anniversary',style: TextStyle(
-                              fontSize: 20.0,
-                            ),),
-                            IconButton(icon: Icon(Icons.add), onPressed: () {
-                              Navigator.of(context).pushNamed(AddAnniversary.routeName);
-                            },),
+                            Text(
+                              '  Anniversary',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.expand_more),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    AllEvents.routeName,
+                                    arguments: 2);
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -107,8 +135,14 @@ class _EventScreenState extends State<EventScreen> {
                 ),
               ),
             ),
-            // //Divider(),
-            Card(
+          ),
+          // //Divider(),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pushNamed(AllEvents.routeName, arguments: 3);
+            },
+            child: Card(
               shadowColor: Colors.green,
               elevation: 5.0,
               shape: RoundedRectangleBorder(
@@ -132,24 +166,33 @@ class _EventScreenState extends State<EventScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('  Todo Tasks',style: TextStyle(
-                              fontSize: 20.0,
-                            ),),
-                            IconButton(icon: Icon(Icons.add), onPressed: () {
-                              Navigator.of(context).pushNamed(AddTask.routeName);
-                            },),
+                            Text(
+                              '  Todo Tasks',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.expand_more),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    AllEvents.routeName,
+                                    arguments: 3);
+                              },
+                            ),
                           ],
                         ),
                       ),
                     ),
                     TaskWidget(),
                   ],
-             ),
+                ),
               ),
-            )
-            //Spacer(),
-          ],
-        ),
+            ),
+          )
+          //Spacer(),
+        ],
+      ),
     );
   }
 }

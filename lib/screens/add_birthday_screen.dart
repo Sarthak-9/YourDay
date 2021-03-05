@@ -119,27 +119,27 @@ class _AddBirthdayState extends State<AddBirthday> {
   }
 
   void _saveForm() async {
-    final isValid = _form.currentState.validate();
-    if (!isValid) {
-      return;
-    }
     if(_editedBirthday.dateofbirth == null){
       await showDialog(
-          context: context,
-          builder: (ctx) =>
-          AlertDialog(
-            title: Text('Select Date!'),
-            content: Text('Enter a valid Date of Birth.'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Okay'),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-              )
-            ],
-          ),
-    );
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+              title: Text('Select Date!'),
+              content: Text('Enter a valid Date of Birth.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                )
+              ],
+            ),
+      );
+    }
+    final isValid = _form.currentState.validate();
+    if (!isValid||_editedBirthday.dateofbirth == null) {
+      return;
     }
     _form.currentState.save();
     Provider.of<Birthdays>(context, listen: false).addBirthday(_editedBirthday);
@@ -247,7 +247,7 @@ class _AddBirthdayState extends State<AddBirthday> {
               children: [
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                 Text(
-                  'Add a Birthday',
+                  'Add Birthday',
                   style: TextStyle(
                     fontSize: 24.0,
                   ),
@@ -377,6 +377,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_relationFocusNode);
                   },
+                  textCapitalization: TextCapitalization.words,
                   focusNode: _nameFocusNode,
                   onSaved: (value) {
                     _editedBirthday = BirthDay(
@@ -404,6 +405,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Relation'),
                   textInputAction: TextInputAction.next,
+                  textCapitalization: TextCapitalization.words,
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_notesFocusNode);
                   },
@@ -441,6 +443,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                   // },
                   focusNode: _notesFocusNode,
                   keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
                   maxLines: 2,
                   onSaved: (value) {
                     _editedBirthday = BirthDay(
@@ -498,9 +501,9 @@ class _AddBirthdayState extends State<AddBirthday> {
                   decoration: InputDecoration(labelText: 'Email (Optional)'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
-                  // onFieldSubmitted: (_) {
-                  //   FocusScope.of(context).requestFocus(_nameFocusNode);
-                  // },
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).dispose();
+                  },
                   focusNode: _emailFocusNode,
                   onSaved: (value) {
                     _editedBirthday = BirthDay(
@@ -532,71 +535,113 @@ class _AddBirthdayState extends State<AddBirthday> {
                     padding: EdgeInsets.symmetric(
                   vertical: 4.0,
                 ),),
-                Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: MenuButton(
-                      child: CategoryButton, // Widget displayed as the button
-                      items: _categories, // List of your items
-                      topDivider: true,
-                      popupHeight:
-                          160, // This popupHeight is optional. The default height is the size of items
-                      scrollPhysics:
-                          AlwaysScrollableScrollPhysics(), // Change the physics of opened menu (example: you can remove or add scroll to menu)
-                      itemBuilder: (value) => Container(
-                          width: 100,
-                          height: 40,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(value)), // Widget displayed for each item
-                      toggledChild: Container(
-                        child:
-                            CategoryButton, // Widget displayed as the button,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: MenuButton(
+                          child: CategoryButton, // Widget displayed as the button
+                          items: _categories, // List of your items
+                          topDivider: true,
+                          popupHeight:
+                              160, // This popupHeight is optional. The default height is the size of items
+                          scrollPhysics:
+                              AlwaysScrollableScrollPhysics(), // Change the physics of opened menu (example: you can remove or add scroll to menu)
+                          itemBuilder: (value) => Container(
+                              width: 100,
+                              height: 40,
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(value)), // Widget displayed for each item
+                          toggledChild: Container(
+                            child:
+                                CategoryButton, // Widget displayed as the button,
+                          ),
+                          divider: Container(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                          onItemSelected: (value) {
+                            if (value == 'Friend')
+                              _categoryofPerson = CategoryofPerson.friend;
+                            else if (value == 'Family')
+                              _categoryofPerson = CategoryofPerson.family;
+                            else if (value == 'Work')
+                              _categoryofPerson = CategoryofPerson.work;
+                            _selectedCategory = value.toString();
+                            setState(() {
+                              _categorySelected = true;
+                              _categoryColor = Colors.amber;
+                              _categoryBorder = false;
+                            });
+                            _editedBirthday = BirthDay(
+                              birthdayId: DateTime.now().toString(),
+                              nameofperson: _editedBirthday.nameofperson,
+                              relation: _editedBirthday.relation,
+                              dateofbirth: _editedBirthday.dateofbirth,
+                              notes: _editedBirthday.notes,
+                              categoryofPerson: _categoryofPerson,
+                              interestsofPerson: _editedBirthday.interestsofPerson,
+                              yearofbirthProvided:
+                                  _editedBirthday.yearofbirthProvided,
+                              phoneNumberofPerson:
+                                  _editedBirthday.phoneNumberofPerson,
+                              emailofPerson: _editedBirthday.emailofPerson,
+                              setAlarmforBirthday: _editedBirthday.setAlarmforBirthday,
+                            );
+                          },
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(3.0))),
+                          itemBackgroundColor: Colors.amber,
+                          menuButtonBackgroundColor: Colors.amber,
+                          onMenuButtonToggle: (isToggle) {
+                            print(isToggle);
+                          },
+                        ),
                       ),
-                      divider: Container(
-                        height: 1,
-                        color: Colors.grey,
-                      ),
-                      onItemSelected: (value) {
-                        if (value == 'Friend')
-                          _categoryofPerson = CategoryofPerson.friend;
-                        else if (value == 'Family')
-                          _categoryofPerson = CategoryofPerson.family;
-                        else if (value == 'Work')
-                          _categoryofPerson = CategoryofPerson.work;
-                        _selectedCategory = value.toString();
-                        setState(() {
-                          _categorySelected = true;
-                          _categoryColor = Colors.amber;
-                          _categoryBorder = false;
-                        });
-                        _editedBirthday = BirthDay(
-                          birthdayId: DateTime.now().toString(),
-                          nameofperson: _editedBirthday.nameofperson,
-                          relation: _editedBirthday.relation,
-                          dateofbirth: _editedBirthday.dateofbirth,
-                          notes: _editedBirthday.notes,
-                          categoryofPerson: _categoryofPerson,
-                          interestsofPerson: _editedBirthday.interestsofPerson,
-                          yearofbirthProvided:
-                              _editedBirthday.yearofbirthProvided,
-                          phoneNumberofPerson:
-                              _editedBirthday.phoneNumberofPerson,
-                          emailofPerson: _editedBirthday.emailofPerson,
-                          setAlarmforBirthday: _editedBirthday.setAlarmforBirthday,
-                        );
-                      },
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(3.0))),
-                      itemBackgroundColor: Colors.amber,
-                      menuButtonBackgroundColor: Colors.amber,
-                      onMenuButtonToggle: (isToggle) {
-                        print(isToggle);
-                      },
                     ),
-                  ),
+                    Padding(padding: EdgeInsets.symmetric(horizontal: 4.0)),
+                    RaisedButton(
+                        child: Text(_alarmTime == null
+                            ? 'Set Alarm'
+                            : _alarmTime.format(context)),
+                        color: Theme.of(context).accentColor,
+                        onPressed: () async {
+                          _alarmTime = await showCustomTimePicker(
+                              context: context,
+                              // It is a must if you provide selectableTimePredicate
+                              onFailValidation: (context) =>
+                                  print('Unavailable selection'),
+                              initialTime: TimeOfDay(hour: 0, minute: 0));
+                          //     selectableTimePredicate: (time) =>
+                          //     time.hour > 1 &&
+                          //         time.hour < 14 &&
+                          //         time.minute % 10 == 0).then((time) =>
+                          //     setState(() => selectedTime = time?.format(context))
+                          // );
+                          _editedBirthday = BirthDay(
+                            birthdayId: Id,
+                            nameofperson: _editedBirthday.nameofperson,
+                            relation: _editedBirthday.relation,
+                            dateofbirth: _editedBirthday.dateofbirth,
+                            notes: _editedBirthday.notes,
+                            categoryofPerson: _editedBirthday.categoryofPerson,
+                            setAlarmforBirthday: _alarmTime,
+                            interestsofPerson: _editedBirthday.interestsofPerson,
+                            yearofbirthProvided:
+                            _editedBirthday.yearofbirthProvided,
+                            phoneNumberofPerson:
+                            _editedBirthday.phoneNumberofPerson,
+                            emailofPerson: _editedBirthday.emailofPerson,
+                          );
+                          setState(() {});
+                        }),
+                  ],
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                 MultiSelectDialogField(
@@ -650,41 +695,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                   },
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                RaisedButton(
-                    child: Text(_alarmTime == null
-                        ? 'Set Alarm'
-                        : _alarmTime.format(context)),
-                    color: Theme.of(context).accentColor,
-                    onPressed: () async {
-                      _alarmTime = await showCustomTimePicker(
-                          context: context,
-                          // It is a must if you provide selectableTimePredicate
-                          onFailValidation: (context) =>
-                              print('Unavailable selection'),
-                          initialTime: TimeOfDay(hour: 0, minute: 0));
-                      //     selectableTimePredicate: (time) =>
-                      //     time.hour > 1 &&
-                      //         time.hour < 14 &&
-                      //         time.minute % 10 == 0).then((time) =>
-                      //     setState(() => selectedTime = time?.format(context))
-                      // );
-                      _editedBirthday = BirthDay(
-                        birthdayId: Id,
-                        nameofperson: _editedBirthday.nameofperson,
-                        relation: _editedBirthday.relation,
-                        dateofbirth: _editedBirthday.dateofbirth,
-                        notes: _editedBirthday.notes,
-                        categoryofPerson: _editedBirthday.categoryofPerson,
-                        setAlarmforBirthday: _alarmTime,
-                        interestsofPerson: _editedBirthday.interestsofPerson,
-                        yearofbirthProvided:
-                            _editedBirthday.yearofbirthProvided,
-                        phoneNumberofPerson:
-                            _editedBirthday.phoneNumberofPerson,
-                        emailofPerson: _editedBirthday.emailofPerson,
-                      );
-                      setState(() {});
-                    }),
+
                 RaisedButton(
                   onPressed: _saveForm,
                   child: Text(

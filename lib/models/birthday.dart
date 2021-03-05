@@ -63,16 +63,16 @@ class BirthDay {
   Color get categoryColor {
     switch (categoryofPerson) {
       case CategoryofPerson.friend:
-        return Colors.amber;
+        return Colors.green;
         break;
       case CategoryofPerson.family:
         return Colors.red;
         break;
       case CategoryofPerson.work:
-        return Colors.deepOrange;
+        return Colors.amber;
         break;
       default:
-        return Colors.black26;
+        return Colors.lightBlue;
     }
   }
 

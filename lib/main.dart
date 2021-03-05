@@ -5,6 +5,7 @@ import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/add_anniversary.dart';
 import 'package:yday/screens/add_birthday_screen.dart';
 import 'package:yday/screens/add_task.dart';
+import 'package:yday/screens/all_event_screen.dart';
 import 'package:yday/screens/anniversary_detail.dart';
 import 'package:yday/screens/birthday_detail_screen.dart';
 import 'package:yday/screens/calender.dart';
@@ -12,9 +13,12 @@ import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/screens/login_page.dart';
 import 'package:yday/screens/signup_page.dart';
 import 'package:yday/screens/task_detail_screen.dart';
+import 'package:yday/screens/todays_events.dart';
 import 'package:yday/testfile.dart';
 import './screens/homepage.dart';
 import './providers/tasks.dart';
+import 'models/calenderId.dart';
+import 'widgets/add_popover_widget.dart';
 
 void main() {
   runApp(MyApp());
@@ -46,6 +50,8 @@ class MyApp extends StatelessWidget {
             AnniversaryDetailScreen.routeName: (ctx)=> AnniversaryDetailScreen(),
             AddTask.routeName: (ctx)=> AddTask(),
             TaskDetailScreen.routeName: (ctx)=> TaskDetailScreen(),
+            TodaysEventScreen.routeName: (ctx)=> TodaysEventScreen(),
+            AllEvents.routeName: (ctx) => AllEvents(),
           },
           theme: ThemeData(
             primaryColor: const Color(0xFF305496),

@@ -50,14 +50,16 @@ class Task {
   Color get priorityLevelColor {
     switch(levelofpriority){
       case PriorityLevel.Urgent :
-        return Colors.deepOrange;
+        return Colors.red;
         break;
       case PriorityLevel.Important :
-        return Colors.yellow;
+        return Colors.amber;
         break;
       case PriorityLevel.Normal :
-        return Colors.orangeAccent;
+        return Colors.green;
         break;
+      default:
+        return Colors.lightBlue;
     }
   }
   // String get priorityText{
