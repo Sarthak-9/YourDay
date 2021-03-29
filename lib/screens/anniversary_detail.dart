@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/util/horizontal_scrollbar.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/birthday.dart';
+import 'package:yday/models/constants.dart';
 import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/testfile.dart';
@@ -23,7 +24,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
     final anniversaryId = ModalRoute.of(context).settings.arguments as String;
     final loadedAnniversary =
         Provider.of<Anniversaries>(context,listen: false).findById(anniversaryId);
-    Color _categoryColor = loadedAnniversary.categoryColor;
+    Color _categoryColor = categoryColor(loadedAnniversary.categoryofCouple);
     int daysLeftforAnniversary;
 
     int getAge() {
@@ -107,7 +108,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                       children: [
                         Chip(
                           label: Text(
-                            loadedAnniversary.categoryText,
+                            categoryText(loadedAnniversary.categoryofCouple),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.0,

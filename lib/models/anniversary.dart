@@ -1,14 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:yday/screens/add_birthday_screen.dart';
-
-enum CategoryofCouple {
-  family,
-  friend,
-  work,
-  others,
-}
+import 'package:yday/models/constants.dart';
+import 'package:yday/models/interests.dart';
 
 class Anniversary {
   final String anniversaryId;
@@ -16,11 +10,11 @@ class Anniversary {
   final String wife_name;
   final String relation;
   final String notes;
-   DateTime dateofanniversary;
+  final DateTime dateofanniversary;
   bool yearofmarriageProvided = true;
   TimeOfDay setAlarmforAnniversary;
   final List<Interest> interestsofCouple;
-  final CategoryofCouple categoryofCouple;
+  final CategoryofPerson categoryofCouple;
   final String phoneNumberofCouple;
   final String emailofCouple;
   File imageofCouple;
@@ -40,40 +34,6 @@ class Anniversary {
     this.emailofCouple,
     this.imageofCouple
   });
-
-  String get categoryText {
-    switch (categoryofCouple) {
-      case CategoryofCouple.friend:
-        return 'Friend';
-        break;
-      case CategoryofCouple.family:
-        return 'Family';
-        break;
-      case CategoryofCouple.work:
-        return 'Work';
-        break;
-      case CategoryofCouple.others:
-        return 'Others';
-      default:
-        return 'Others';
-    }
-  }
-
-  Color get categoryColor {
-    switch (categoryofCouple) {
-      case CategoryofCouple.friend:
-        return Colors.green;
-        break;
-      case CategoryofCouple.family:
-        return Colors.red;
-        break;
-      case CategoryofCouple.work:
-        return Colors.amber;
-        break;
-      default:
-        return Colors.lightBlue;
-    }
-  }
 
   int interestListSize() {
     if (interestsofCouple == null || interestsofCouple.isEmpty) return 0;

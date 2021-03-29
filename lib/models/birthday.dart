@@ -3,18 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:yday/screens/add_birthday_screen.dart';
-
-enum CategoryofPerson {
-  family,
-  friend,
-  work,
-  others,
-}
+import 'package:yday/models/interests.dart';
+import 'constants.dart';
 
 class BirthDay {
   final String birthdayId;
-  String nameofperson;
+  final String nameofperson;
   final String relation;
   final String notes;
   final DateTime dateofbirth;
@@ -25,7 +19,6 @@ class BirthDay {
   final String phoneNumberofPerson;
   final String emailofPerson;
   File imageofPerson;
-
 
   BirthDay(
   {   this.birthdayId,
@@ -42,39 +35,6 @@ class BirthDay {
       this.imageofPerson,
   });
 
-  String get categoryText {
-    switch (categoryofPerson) {
-      case CategoryofPerson.friend:
-        return 'Friend';
-        break;
-      case CategoryofPerson.family:
-        return 'Family';
-        break;
-      case CategoryofPerson.work:
-        return 'Work';
-        break;
-      case CategoryofPerson.others:
-        return 'Others';
-      default:
-        return 'Others';
-    }
-  }
-
-  Color get categoryColor {
-    switch (categoryofPerson) {
-      case CategoryofPerson.friend:
-        return Colors.green;
-        break;
-      case CategoryofPerson.family:
-        return Colors.red;
-        break;
-      case CategoryofPerson.work:
-        return Colors.amber;
-        break;
-      default:
-        return Colors.lightBlue;
-    }
-  }
 
   int interestListSize() {
     if (interestsofPerson == null || interestsofPerson.isEmpty) return 0;

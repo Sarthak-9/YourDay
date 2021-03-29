@@ -12,35 +12,60 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidgetState extends State<TaskWidget> {
+  var _isLoading = false;
+
+  Future<void> _refreshTask(BuildContext context) async {
+    await Provider.of<Tasks>(context, listen: false).fetchTask();
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero).then((_) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<Tasks>(context, listen: false).fetchTask();
+      setState(() {
+        _isLoading = false;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tasklist = Provider.of<Tasks>(context);
-    // tasklist.removeEvent();
     final tasks = tasklist.taskList;
     return Expanded(
-      child: tasks.isEmpty
-          ? Container(
-              alignment: Alignment.center,
-              child: Text(
-                'No Tasks',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
+        child: RefreshIndicator(
+      onRefresh: () => _refreshTask(context),
+      child: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
             )
-          : ListView.builder(
-              itemBuilder: (ctx, i) => TaskItem(
-                  tasks[i].taskId,
-                  tasks[i].title,
-                  tasks[i].startdate,
-                  tasks[i].enddate,
-                  tasks[i].levelofpriority,
-                  tasks[i].priorityLevelColor,
-                  tasks[i].priorityLevelText),
-              itemCount: tasks.length,
-              //),
-            ),
-    );
+          : tasks.isEmpty
+              ? Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'No Tasks',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  itemBuilder: (ctx, i) => TaskItem(
+                      tasks[i].taskId,
+                      tasks[i].title,
+                      tasks[i].startdate,
+                      tasks[i].enddate,
+                      tasks[i].levelofpriority,
+                      tasks[i].priorityLevelColor,
+                      tasks[i].priorityLevelText),
+                  itemCount: tasks.length,
+                  //),
+                ),
+    ));
   }
 }
 
@@ -96,14 +121,16 @@ class TaskItem extends StatelessWidget {
               ),
             );
             // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
-
           },
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: taskColor,
-              child: Text('T',style: TextStyle(
-    color: Colors.white,
-    ),),
+              child: Text(
+                'T',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             title: Text(title),
             trailing: Chip(

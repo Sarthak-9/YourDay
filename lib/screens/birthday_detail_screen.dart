@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/util/horizontal_scrollbar.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/birthday.dart';
+import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/testfile.dart';
 
@@ -20,7 +21,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
   Widget build(BuildContext context) {
     final birthdayId = ModalRoute.of(context).settings.arguments as String;
     final loadedBirthday = Provider.of<Birthdays>(context,listen: false).findById(birthdayId);
-    Color _categoryColor = loadedBirthday.categoryColor;
+    Color _categoryColor = categoryColor(loadedBirthday.categoryofPerson);
     int daysLeftforBirthday;
 
     int getAge() {
@@ -101,7 +102,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                       children: [
                         Chip(
                           label: Text(
-                            loadedBirthday.categoryText,
+                            categoryText(loadedBirthday.categoryofPerson),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.0,

@@ -8,9 +8,6 @@ import 'package:yday/widgets/anniversary_widget.dart';
 import 'package:yday/widgets/birthday_widget.dart';
 import 'package:yday/widgets/task_widget.dart';
 
-import 'add_birthday_screen.dart';
-import 'add_task.dart';
-
 class EventScreen extends StatefulWidget {
   static const routeName = '/event-screen';
 

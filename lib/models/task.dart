@@ -62,6 +62,7 @@ class Task {
         return Colors.lightBlue;
     }
   }
+
   // String get priorityText{
   //   switch(levelofpriority){
   //     case PriorityLevel.Normal:
@@ -93,6 +94,20 @@ class Task {
   //       return Colors.green;
   //   }
   // }
+}
+PriorityLevel getPriorityLevel(String priorityLevel){
+  switch(priorityLevel){
+    case 'Normal' :
+      return PriorityLevel.Normal;
+      break;
+    case 'Important' :
+      return PriorityLevel.Important;
+      break;case 'Necessary' :
+    return PriorityLevel.Urgent;
+    break;
+    default:
+      return PriorityLevel.Normal;
+  }
 }
 
 // class EventList {

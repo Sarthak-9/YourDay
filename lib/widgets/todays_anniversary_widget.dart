@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/anniversary.dart';
 import 'package:yday/models/birthday.dart';
+import 'package:yday/models/constants.dart';
 import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/add_birthday_screen.dart';
@@ -13,38 +14,50 @@ import 'package:yday/screens/birthday_detail_screen.dart';
 import 'anniversary_widget.dart';
 
 class TodaysAnniversaryWidget extends StatefulWidget {
-  final  selectedDate;
+  final selectedDate;
 
   TodaysAnniversaryWidget(this.selectedDate);
 
   @override
-  _TodaysAnniversaryWidgetState createState() => _TodaysAnniversaryWidgetState();
+  _TodaysAnniversaryWidgetState createState() =>
+      _TodaysAnniversaryWidgetState();
 }
 
 class _TodaysAnniversaryWidgetState extends State<TodaysAnniversaryWidget> {
   @override
   Widget build(BuildContext context) {
-
     final anniversaryList = Provider.of<Anniversaries>(context);
     final todaysanniversaries = anniversaryList.findByDate(widget.selectedDate);
-    return todaysanniversaries.isEmpty ? Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Container(
-        alignment: Alignment.center,
-              child: Text('No Anniversaries',style: TextStyle(// alignment: Alignment.center,
-                fontSize: 16,// child: Text('',style: TextStyle(
-              ),//   fontSize: 20,
-              ),// ),),
-      ),
-    ) :Container(
-      height: 200,
-      child: ListView.builder(
-        // physics: NeverScrollableScrollPhysics(),
-        //shrinkWrap: true,
-        itemBuilder: (ctx, i) => AnniversaryItem(todaysanniversaries[i].anniversaryId,todaysanniversaries[i].husband_name,todaysanniversaries[i].wife_name,todaysanniversaries[i].dateofanniversary,todaysanniversaries[i].categoryofCouple,todaysanniversaries[i].relation,todaysanniversaries[i].categoryColor),
-        itemCount: todaysanniversaries.length,
-      ),
-    );
+    return todaysanniversaries.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'No Anniversaries',
+                style: TextStyle(
+                  // alignment: Alignment.center,
+                  fontSize: 16, // child: Text('',style: TextStyle(
+                ), //   fontSize: 20,
+              ), // ),),
+            ),
+          )
+        : Container(
+            height: 200,
+            child: ListView.builder(
+              // physics: NeverScrollableScrollPhysics(),
+              //shrinkWrap: true,
+              itemBuilder: (ctx, i) => AnniversaryItem(
+                  todaysanniversaries[i].anniversaryId,
+                  todaysanniversaries[i].husband_name,
+                  todaysanniversaries[i].wife_name,
+                  todaysanniversaries[i].dateofanniversary,
+                  todaysanniversaries[i].categoryofCouple,
+                  todaysanniversaries[i].relation,
+                  categoryColor(todaysanniversaries[i].categoryofCouple)),
+              itemCount: todaysanniversaries.length,
+            ),
+          );
   }
 }
 

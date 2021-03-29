@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:yday/providers/birthdays.dart';
 import 'package:yday/providers/tasks.dart';
 import 'package:yday/widgets/anniversary_widget.dart';
 import 'package:yday/widgets/birthday_widget.dart';
@@ -17,6 +19,7 @@ class AllEvents extends StatefulWidget {
 }
 
 class _AllEventsState extends State<AllEvents> {
+
   @override
   Widget build(BuildContext context) {
     int eventnumber = ModalRoute.of(context).settings.arguments;

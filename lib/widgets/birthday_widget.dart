@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/birthday.dart';
+import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/add_birthday_screen.dart';
 import 'package:yday/screens/birthday_detail_screen.dart';
@@ -13,53 +14,93 @@ class BirthdayWidget extends StatefulWidget {
 }
 
 class _BirthdayWidgetState extends State<BirthdayWidget> {
+  var _isLoading = false;
+
+  Future<void> _refreshBirthday (BuildContext context) async {
+    await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero).then((_) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
+      setState(() {
+        _isLoading = false;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-  final birthdaylist = Provider.of<Birthdays>(context);
-  final birthdays = birthdaylist.birthdayList;
-  var bd = birthdaylist.findByDate(DateTime.now());
+    final birthdaylist = Provider.of<Birthdays>(context);
+    final birthdays = birthdaylist.birthdayList;
     return Expanded(
-      child: birthdays.isEmpty ? Container(
-        alignment: Alignment.center,
-        child: Text('No Birthdays',style: TextStyle(
-          fontSize: 20,
-        ),),
-      ) : ListView.builder(
-        itemBuilder: (ctx, i) => BirthdayItem(birthdays[i].birthdayId,birthdays[i].nameofperson,birthdays[i].dateofbirth,birthdays[i].categoryofPerson,birthdays[i].relation,birthdays[i].categoryColor),
-        itemCount: birthdays.length,
-        ),
+      child: RefreshIndicator(
+        onRefresh: ()=>_refreshBirthday(context),
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : birthdays.isEmpty
+                ? Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'No Birthdays',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                            itemBuilder: (ctx, i) => BirthdayItem(
+                                birthdays[i].birthdayId,
+                                birthdays[i].nameofperson,
+                                birthdays[i].dateofbirth,
+                                birthdays[i].categoryofPerson,
+                                birthdays[i].relation,
+                                categoryColor(birthdays[i].categoryofPerson)),
+                            itemCount: birthdays.length,
+                          ),
+      ),
       //),
     );
   }
 }
+
 class BirthdayItem extends StatelessWidget {
   String birthdayId;
   final String title;
-  // final DateTime startdate;
+  final DateTime startdate;
   final CategoryofPerson category;
   final String relation;
   final Color categoryColor;
 
-  var startdate;
-
+  //var startdate;
 
   BirthdayItem(this.birthdayId, this.title, this.startdate, this.category,
       this.relation, this.categoryColor);
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
         GestureDetector(
-          onTap: ()=>Navigator.of(context).pushNamed(BirthdayDetailScreen.routeName,arguments: birthdayId),
+          onTap: () => Navigator.of(context)
+              .pushNamed(BirthdayDetailScreen.routeName, arguments: birthdayId),
           child: ListTile(
             leading: CircleAvatar(
               //radius: 30,
               backgroundColor: categoryColor,
-              child: Text('B',style: TextStyle(
-                color: Colors.white,
-              ),),
+              child: Text(
+                'B',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             title: Text(title),
             trailing: Chip(
@@ -85,7 +126,6 @@ class BirthdayItem extends StatelessWidget {
     );
   }
 }
-
 
 // class BirthdayItem extends StatelessWidget {
 //   String birthdayId;
