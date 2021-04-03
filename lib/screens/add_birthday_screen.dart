@@ -13,6 +13,7 @@ import 'package:time_picker_widget/time_picker_widget.dart';
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
+import 'package:yday/screens/auth/login_page.dart';
 import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/screens/homepage.dart';
 import 'package:yday/models/interests.dart';
@@ -50,6 +51,7 @@ class _AddBirthdayState extends State<AddBirthday> {
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
   var _isInit = true;
+  var _loggedIn = false;
   bool _dateSelected = false;
   bool _categorySelected = false;
   bool _yearofBirthProvidedStat = true;
@@ -113,13 +115,37 @@ class _AddBirthdayState extends State<AddBirthday> {
     if (!isValid || _editedBirthday.dateofbirth == null) {
       return;
     }
+    FocusScope.of(context).unfocus();
     _form.currentState.save();
     setState(() {
       isLoading = true;
     });
     try {
+      _loggedIn =
       await Provider.of<Birthdays>(context, listen: false)
           .addBirthday(_editedBirthday);
+      if(_loggedIn == false){
+        await showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              'You are not Logged-In',
+            ),
+            content: Text('Please Login with your credentials or Signup to YourDay to proceed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pushNamed(LoginPage.routename);
+                },
+                child: Text(
+                  'Okay',
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (error) {
       await showDialog<Null>(
         context: context,
@@ -144,7 +170,9 @@ class _AddBirthdayState extends State<AddBirthday> {
       setState(() {
         isLoading = false;
       });
-      Navigator.of(context).pop();
+      if(_loggedIn){
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -154,7 +182,9 @@ class _AddBirthdayState extends State<AddBirthday> {
   Future<void> _takePictureofPerson() async {
     pickedFile = await ImagePicker().getImage(
         source: ImageSource
-            .gallery); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
+            .gallery,
+      imageQuality: 60,
+    ); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
     if (pickedFile != null) {
       _imageofPersonToAdd = File(pickedFile.path);
     } else {
@@ -603,12 +633,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                                   color: Colors.grey,
                                 ),
                                 onItemSelected: (value) {
-                                  if (value == 'Friend')
-                                    _categoryofPerson = CategoryofPerson.friend;
-                                  else if (value == 'Family')
-                                    _categoryofPerson = CategoryofPerson.family;
-                                  else if (value == 'Work')
-                                    _categoryofPerson = CategoryofPerson.work;
+                                  _categoryofPerson = getCategory(value);
                                   _selectedCategory = value.toString();
                                   setState(() {
                                     _categorySelected = true;
@@ -616,7 +641,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                                     _categoryBorder = false;
                                   });
                                   _editedBirthday = BirthDay(
-                                    birthdayId: DateTime.now().toString(),
+                                    birthdayId: Id,
                                     nameofperson: _editedBirthday.nameofperson,
                                     relation: _editedBirthday.relation,
                                     dateofbirth: _editedBirthday.dateofbirth,
@@ -632,6 +657,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                                         _editedBirthday.emailofPerson,
                                     setAlarmforBirthday:
                                         _editedBirthday.setAlarmforBirthday,
+                                    imageofPerson: _editedBirthday.imageofPerson,
                                   );
                                 },
                                 decoration: BoxDecoration(
@@ -682,6 +708,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                                   phoneNumberofPerson:
                                       _editedBirthday.phoneNumberofPerson,
                                   emailofPerson: _editedBirthday.emailofPerson,
+                                  imageofPerson: _editedBirthday.imageofPerson,
                                 );
                                 setState(() {});
                               }),
@@ -738,6 +765,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                             emailofPerson: _editedBirthday.emailofPerson,
                             setAlarmforBirthday:
                                 _editedBirthday.setAlarmforBirthday,
+                            imageofPerson: _editedBirthday.imageofPerson,
                           );
                         },
                       ),

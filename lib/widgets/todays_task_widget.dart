@@ -17,39 +17,62 @@ class TodaysTaskWidget extends StatefulWidget {
 }
 
 class _TodaysTaskWidgetState extends State<TodaysTaskWidget> {
+  var _isLoading = false;
+
+  Future<void> _fetch()async{
+    Future.delayed(Duration.zero).then((_) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<Tasks>(context, listen: false).fetchTask();
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
   @override
   void initState() {
-    // TODO: implement initState
+    _fetch();
     super.initState();
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     final tasklist = Provider.of<Tasks>(context);
     final tasks = tasklist.findByDate(widget.selectedDate);
-    return tasks.isEmpty
-        ? Container(
-            alignment: Alignment.center,
-            child: Text(
-              'No Tasks',
-              style: TextStyle(
-                fontSize: 16,
+    return  LimitedBox(
+      child: _isLoading
+          ? Center(
+        child: CircularProgressIndicator(),
+      )
+          : tasks.isEmpty
+          ? Container(
+              alignment: Alignment.center,
+              child: Text(
+                'No Tasks',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
               ),
-            ),
-          )
-        : Expanded(
-            child: ListView.builder(
-              //physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (ctx, i) => TaskItem(
-                  tasks[i].taskId,
-                  tasks[i].title,
-                  tasks[i].startdate,
-                  tasks[i].enddate,
-                  tasks[i].levelofpriority,
-                  tasks[i].priorityLevelColor,
-                  tasks[i].priorityLevelText),
-              itemCount: tasks.length,
-              //),
-            ),
-          );
+            )
+          : ListView.builder(
+        shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (ctx, i) => TaskItem(
+                tasks[i].taskId,
+                tasks[i].title,
+                tasks[i].startdate,
+                tasks[i].enddate,
+                tasks[i].levelofpriority,
+                tasks[i].priorityLevelColor,
+                tasks[i].priorityLevelText),
+            itemCount: tasks.length,
+            //),
+          ),
+    );
   }
 }

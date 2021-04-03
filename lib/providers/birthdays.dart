@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ffi';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:googleapis/cloudtrace/v2.dart';
 import 'package:googleapis/dfareporting/v3_4.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/models/interests.dart';
 import 'package:yday/screens/add_birthday_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
+
 
 class CloudStorageService {
   Future<CloudStorageResult> uploadImage({
@@ -29,62 +31,38 @@ class CloudStorageResult {
 }
 
 class Birthdays with ChangeNotifier {
-  List<BirthDay> _birthdayList = [
-    BirthDay(
-      birthdayId: '1',
-      nameofperson: 'Person 1',
-      relation: 'Friend',
-      notes: 'Party at 6',
-      dateofbirth: DateTime.now(),
-      interestsofPerson: [
-        Interest(id: 1, name: "Music"),
-        Interest(id: 2, name: "Painting"),
-        Interest(id: 3, name: "Travelling"),
-      ],
-      categoryofPerson: CategoryofPerson.friend,
-    ),
-    BirthDay(
-      birthdayId: '2',
-      nameofperson: 'Person 2',
-      relation: 'Cousin',
-      notes: 'Lunch in Noida',
-      dateofbirth: DateTime.now(),
-      //interests: ['Cricket','Drawing'],
-      categoryofPerson: CategoryofPerson.family,
-    ),
-    BirthDay(
-      birthdayId: '3',
-      nameofperson: 'Person 3',
-      relation: 'Boss',
-      notes: 'Drinks in the evening',
-      dateofbirth: DateTime.now(),
-      //interests: ['Music','Reading'],
-      categoryofPerson: CategoryofPerson.work,
-    ),
-  ];
+  List<BirthDay> _birthdayList = [];
 
   List<BirthDay> get birthdayList => [..._birthdayList];
 
-  Future<void> fetchBirthday() async {
-    const url =
-        'https://yourday-306218-default-rtdb.firebaseio.com/birthdays.json';
+  Future<bool> fetchBirthday() async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    if(_auth == null||_auth.currentUser==null ){
+      return false;
+    }
+    _auth.currentUser.refreshToken;
+    var _userID = _auth.currentUser.uid;
+    var url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$_userID.json');
     try {
       final response = await http.get(url);
       final List<BirthDay> _loadedBirthday = [];
       final extractedBirthdays =
           json.decode(response.body) as Map<String, dynamic>;
       if (extractedBirthdays == null) {
-        return;
+        _birthdayList = _loadedBirthday;
+        return true;
       }
       extractedBirthdays.forEach((bdayId, bday) {
-        _loadedBirthday.add(BirthDay(
+       var dt = bday['setAlarmforBirthday'] == null? null :DateTime.parse(bday['setAlarmforBirthday']);
+        _loadedBirthday.add(
+            BirthDay(
           birthdayId: bdayId,
           nameofperson: bday['nameofperson'],
           relation: bday['relation'],
           notes: bday['notes'],
           dateofbirth: DateTime.parse(bday['birthdaystamp']),
           yearofbirthProvided: bday['yearofbirthProvided'],
-          // setAlarmforBirthday: bday['setAlarmforBirthday'],
+          setAlarmforBirthday: dt==null?null:TimeOfDay(hour:dt.hour,minute :dt.minute),
           categoryofPerson: getCategory(
               bday['categoryofPerson']), //CategoryofPerson.family,//,
           phoneNumberofPerson: bday['phoneNumberofPerson'],
@@ -95,27 +73,40 @@ class Birthdays with ChangeNotifier {
                   .map((interest) =>
                       Interest(id: interest['id'], name: interest['name']))
                   .toList(),
-          imageofPerson: null,
-        ));
+              imageUrl: bday['imageUrl']  ,
+            ));
       });
       _birthdayList = _loadedBirthday;
+      _birthdayList.sort((a,b)=>a.dateofbirth.compareTo(b.dateofbirth));
       notifyListeners();
+      return true;
     } catch (error) {
+      print(error);
       throw error;
     }
   }
 
-  Future<void> addBirthday(BirthDay bday) async {
-    const url =
-        'https://yourday-306218-default-rtdb.firebaseio.com/birthdays.json';
-    final timestamp = bday.dateofbirth;
-    final alarmstamp = bday.setAlarmforBirthday;
-    // CloudStorageService _cloudStorageService;
-    // print('done');
-    // // CloudStorageResult storageResult = await _cloudStorageService.uploadImage(imageToUpload: bday.imageofPerson, title: 'ABC');
-    // final Reference bdayref = firebase_storage.FirebaseStorage.instance.ref().child('Birthday').child('abc.jpg');
-    // print('done');
-    // await bdayref.putFile(bday.imageofPerson);
+  Future<bool> addBirthday(BirthDay bday) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    if(_auth ==null||_auth.currentUser==null){
+      return false ;
+    }
+    var photoUrl;
+    var _userID = _auth.currentUser.uid;
+    if(bday.imageofPerson!=null){
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref =
+          storage.ref().child('anniversaries').child(DateTime.now().toString());
+      UploadTask uploadTask = ref.putFile(bday.imageofPerson);
+      await uploadTask.whenComplete(() async {
+        photoUrl = await ref.getDownloadURL();
+      }).catchError((onError) {
+        throw onError;
+      });
+    }
+    var url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$_userID.json');
+
+    final alarmstamp = bday.setAlarmforBirthday==null? null:DateTimeField.combine(bday.dateofbirth, bday.setAlarmforBirthday);
     try {
       final response = await http.post(
         url,
@@ -124,17 +115,18 @@ class Birthdays with ChangeNotifier {
           'relation': bday.relation,
           'notes': bday.notes,
           'yearofbirthProvided': bday.yearofbirthProvided,
-          // 'setAlarmforBirthday': alarmstamp,
+          'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
           'categoryofPerson': categoryText(bday.categoryofPerson),
           'phoneNumberofPerson': bday.phoneNumberofPerson,
           'emailofPerson': bday.emailofPerson,
-          'birthdaystamp': timestamp.toIso8601String(),
+          'birthdaystamp': bday.dateofbirth.toIso8601String(),
           'interestsofperson': bday.interestsofPerson
               .map((intr) => {
                     'id': intr.id,
                     'name': intr.name,
                   })
               .toList(),
+          'imageUrl' : photoUrl,
         }),
       );
       final newBday = BirthDay(
@@ -151,32 +143,16 @@ class Birthdays with ChangeNotifier {
         phoneNumberofPerson: bday.phoneNumberofPerson,
         emailofPerson: bday.emailofPerson,
         imageofPerson: bday.imageofPerson,
+       imageUrl: photoUrl,
         //catergory: CategoryofPerson.work,
       );
-      //     print('donr');
-      // String fileName =
-      //    json.decode(response.body)['name'];
-      // final firebaseStorageRef =
-      // FirebaseStorage.instance.ref().child('uploads/$fileName');
-      // final uploadTask = firebaseStorageRef.putFile(bday.imageofPerson);
-      // final taskSnapshot = await uploadTask.whenComplete;
-      // taskSnapshot.ref.getDownloadURL().then(
-      //       (value) => print("Done: $value"),
-      // );
-      // String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      //
-      // Reference reference =
-      // FirebaseStorage.instance.ref().child('Birthday').child(fileName);
-      //
-      // TaskSnapshot storageTaskSnapshot =await reference.putFile(bday.imageofPerson);
-      //
-      // print(storageTaskSnapshot.ref.getDownloadURL());
-      //
-      // var dowUrl = await storageTaskSnapshot.ref.getDownloadURL();
-
       _birthdayList.add(newBday);
+      // _birthdayList.sort((a,b)=>a.dateofbirth.compareTo(b.dateofbirth));
       notifyListeners();
+      // return url;
+      return true;
     } catch (error) {
+      print(error);
       throw error;
     }
   }
@@ -186,6 +162,7 @@ class Birthdays with ChangeNotifier {
   }
 
   List<BirthDay> findByDate(DateTime birthdayDateTime) {
+    // fetchBirthday();
     return birthdayList
         .where((element) =>
             element.dateofbirth.day == birthdayDateTime.day &&
@@ -193,12 +170,22 @@ class Birthdays with ChangeNotifier {
         .toList();
   }
 
-  void completeEvent(String birthdayid) {
-    final url =
-        'https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$birthdayid.json';
+  void completeEvent(String birthdayid) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    if(_auth ==null||_auth.currentUser==null){
+      return ;
+    }
+    var _userID = _auth.currentUser.uid;
+    final url = Uri.parse(
+        'https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$_userID/$birthdayid.json');
     final existingBdayIndex =
         _birthdayList.indexWhere((element) => element.birthdayId == birthdayid);
     var existingBday = _birthdayList[existingBdayIndex];
+    // if(_birthdayList[existingBdayIndex].imageUrl != null){
+    //   Reference storageReference = FirebaseStorage.instance
+    //       .refFromURL(_birthdayList[existingBdayIndex].imageUrl);
+    //   await storageReference.delete();
+    // }
     _birthdayList.removeAt(existingBdayIndex);
     notifyListeners();
     http.delete(url).then((value) => {existingBday = null}).catchError((error) {

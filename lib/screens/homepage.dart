@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:popover/popover.dart';
 import 'package:yday/screens/add_birthday_screen.dart';
+import 'package:yday/screens/auth/user_account.dart';
 import 'package:yday/screens/calender.dart';
 import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/widgets/add_popover_widget.dart';
@@ -24,15 +25,10 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: Text('Your Day'),
-
+          automaticallyImplyLeading: false,centerTitle: true,
       ),
-      drawer: Drawer(),
       body: tabsWidget(),
-      // floatingActionButton: IconButton(
-      //   onPressed: () {
-      //     Navigator.of(context).pushNamed(AddBirthday.routeName);
-      //   },
-      // ),
+
       bottomNavigationBar: ConvexAppBar(
         backgroundColor: Theme.of(context).primaryColor,
         activeColor: Colors.green,
@@ -89,9 +85,7 @@ Widget tabsWidget() {
       return EventScreen();
     //
     case 4:
-      return Center(
-        child: Text('My Profile'),
-      );
+      return UserAccount();
   // case 4:
   //   return UserProfile();
 

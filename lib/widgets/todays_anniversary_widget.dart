@@ -24,40 +24,68 @@ class TodaysAnniversaryWidget extends StatefulWidget {
 }
 
 class _TodaysAnniversaryWidgetState extends State<TodaysAnniversaryWidget> {
+  var _isLoading = false;
+  var _loggedIn = false;
+  Future<void> _fetch() async{
+    Future.delayed(Duration.zero).then((_) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    _fetch();
+    super.initState();
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final anniversaryList = Provider.of<Anniversaries>(context);
     final todaysanniversaries = anniversaryList.findByDate(widget.selectedDate);
-    return todaysanniversaries.isEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Container(
-              alignment: Alignment.center,
-              child: Text(
-                'No Anniversaries',
-                style: TextStyle(
-                  // alignment: Alignment.center,
-                  fontSize: 16, // child: Text('',style: TextStyle(
-                ), //   fontSize: 20,
-              ), // ),),
-            ),
-          )
-        : Container(
-            height: 200,
-            child: ListView.builder(
-              // physics: NeverScrollableScrollPhysics(),
-              //shrinkWrap: true,
-              itemBuilder: (ctx, i) => AnniversaryItem(
-                  todaysanniversaries[i].anniversaryId,
-                  todaysanniversaries[i].husband_name,
-                  todaysanniversaries[i].wife_name,
-                  todaysanniversaries[i].dateofanniversary,
-                  todaysanniversaries[i].categoryofCouple,
-                  todaysanniversaries[i].relation,
-                  categoryColor(todaysanniversaries[i].categoryofCouple)),
-              itemCount: todaysanniversaries.length,
-            ),
-          );
+    return  LimitedBox(
+      child: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+      )
+          : todaysanniversaries.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  'No Anniversaries',
+                  style: TextStyle(
+                    // alignment: Alignment.center,
+                    fontSize: 16, // child: Text('',style: TextStyle(
+                  ), //   fontSize: 20,
+                ), // ),),
+              ),
+            )
+          : ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (ctx, i) => AnniversaryItem(
+                todaysanniversaries[i].anniversaryId,
+                todaysanniversaries[i].husband_name,
+                todaysanniversaries[i].wife_name,
+                todaysanniversaries[i].dateofanniversary,
+                todaysanniversaries[i].categoryofCouple,
+                todaysanniversaries[i].relation,
+                categoryColor(todaysanniversaries[i].categoryofCouple)),
+            itemCount: todaysanniversaries.length,
+          ),
+    );
   }
 }
 

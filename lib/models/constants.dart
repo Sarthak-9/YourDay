@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yday/models/interests.dart';
+
+class Constants{
+  static SharedPreferences prefs;
+}
+
 enum CategoryofPerson {
   family,
   friend,
@@ -43,7 +49,6 @@ CategoryofPerson getCategory(String catText){
   }
 }
 
-
 Color categoryColor(CategoryofPerson categoryofPerson) {
   switch (categoryofPerson) {
     case CategoryofPerson.friend:
@@ -59,3 +64,4 @@ Color categoryColor(CategoryofPerson categoryofPerson) {
       return Colors.lightBlue;
   }
 }
+

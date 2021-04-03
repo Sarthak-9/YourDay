@@ -17,6 +17,7 @@ import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/providers/birthdays.dart';
 
 import 'add_birthday_screen.dart';
+import 'auth/login_page.dart';
 
 class AddAnniversary extends StatefulWidget {
   static const routeName = '/add-anniversary-screen';
@@ -42,6 +43,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
   );
   var pickedFile;
   var isLoading = false;
+  var _loggedIn = false;
 
   String _selectedCategory = 'ABC';
   List<String> _categories = ['Family', 'Friend', 'Work'];
@@ -101,6 +103,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
   }
 
   Future<void> _saveForm() async {
+    FocusScope.of(context).unfocus();
     if (_editedAnniv.dateofanniversary == null) {
       await showDialog(
         context: context,
@@ -122,13 +125,35 @@ class _AddAnniversaryState extends State<AddAnniversary> {
     if (!isValid || _editedAnniv.dateofanniversary == null) {
       return;
     }
+    // FocusScope.of(context).unfocus();
     _form.currentState.save();
     setState(() {
       isLoading = true;
     });
     try {
-      await Provider.of<Anniversaries>(context, listen: false)
+      _loggedIn = await Provider.of<Anniversaries>(context, listen: false)
           .addAnniversary(_editedAnniv);
+      if(_loggedIn == false){
+        await showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              'You are not Logged-In',
+            ),
+            content: Text('Please Login with your credentials or Signup to YourDay to proceed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pushNamed(LoginPage.routename);
+                },
+                child: Text(
+                  'Okay',
+                ),
+              ),
+            ],
+          ),
+        );}
     } catch (error) {
       await showDialog<Null>(
         context: context,
@@ -154,7 +179,9 @@ class _AddAnniversaryState extends State<AddAnniversary> {
         isLoading = false;
       });
       // Provider.of<Anniversaries>(context, listen: false).addAnniversary(_editedAnniv);
-      Navigator.of(context).pop();
+         if(_loggedIn) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -164,7 +191,9 @@ class _AddAnniversaryState extends State<AddAnniversary> {
   Future<void> _takePictureofCouple() async {
     pickedFile = await ImagePicker().getImage(
         source: ImageSource
-            .gallery); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
+            .gallery,
+      imageQuality: 60,
+    ); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
     if (pickedFile != null) {
       _imageofCoupleToAdd = File(pickedFile.path);
     } else {

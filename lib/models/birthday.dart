@@ -19,6 +19,7 @@ class BirthDay {
   final String phoneNumberofPerson;
   final String emailofPerson;
   File imageofPerson;
+  String imageUrl = null;
 
   BirthDay(
   {   this.birthdayId,
@@ -33,6 +34,7 @@ class BirthDay {
       this.phoneNumberofPerson,
       this.emailofPerson,
       this.imageofPerson,
+    this.imageUrl,
   });
 
 

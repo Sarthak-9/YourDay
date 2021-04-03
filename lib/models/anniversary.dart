@@ -18,6 +18,7 @@ class Anniversary {
   final String phoneNumberofCouple;
   final String emailofCouple;
   File imageofCouple;
+  String imageUrl = null;
 
   Anniversary({
     this.anniversaryId,
@@ -32,7 +33,8 @@ class Anniversary {
     @required this.categoryofCouple,
     this.phoneNumberofCouple,
     this.emailofCouple,
-    this.imageofCouple
+    this.imageofCouple,
+    this.imageUrl,
   });
 
   int interestListSize() {

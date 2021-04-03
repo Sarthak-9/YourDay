@@ -19,7 +19,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final taskId = ModalRoute.of(context).settings.arguments as String;
-    final loadedTask = Provider.of<Tasks>(context,listen: false).findById(taskId);
+    final loadedTask =
+        Provider.of<Tasks>(context, listen: false).findById(taskId);
     Color _categoryColor = loadedTask.priorityLevelColor;
     int daysleftforTask;
     final format = DateFormat("dd / MM / yyyy -- HH:mm");
@@ -43,31 +44,31 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.delete),
-              onPressed: ()async{
+              onPressed: () async {
                 // Navigator.of(context).pop();
                 await showDialog(
-                    context: context,
-                    builder: (ctx) =>
-                    AlertDialog(
-                      title: Text('Delete the Task'),
-                      content: Text('Are you sure you want to delete ?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('No'),
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                          },
-                        ),
-                        TextButton(
-                          child: Text('Yes'),
-                          onPressed: () {
-                            Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
-                            Navigator.of(ctx).pop();
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    ),
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text('Delete the Task'),
+                    content: Text('Are you sure you want to delete ?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('No'),
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Yes'),
+                        onPressed: () {
+                          Provider.of<Tasks>(context, listen: false)
+                              .completeEvent(taskId);
+                          Navigator.of(ctx).pop();
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  ),
                 );
                 // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
                 // Navigator.of(context).pop();
@@ -99,260 +100,158 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   backgroundColor: _categoryColor,
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                Text(getAge()==0?'Today':'${getAge().toString()} days left'),
+                Text(getAge() == 0
+                    ? 'Today'
+                    : '${getAge().toString()} days left'),
                 Padding(padding: EdgeInsets.all(8.0)),
-                Container(
-                    padding: EdgeInsets.all(5.0),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline_rounded,
-                          color: _categoryColor,
-                          size: 28.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 5.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Title',
-                                textAlign: TextAlign.left,
-                                textScaleFactor: 1.3,
-                                style: TextStyle(
-                                  color: _categoryColor,
-                                ),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.0)),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.7,
-                                child: Text(
-                                  loadedTask.title,
-                                  //textScaleFactor: 1.4,
-                                  textAlign: TextAlign.start,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )),
-                Divider(),
-                Container(
-                    padding: EdgeInsets.all(5.0),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.note_outlined,
-                          color: _categoryColor,
-                          size: 28.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 5.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Description',
-                                textAlign: TextAlign.left,
-                                textScaleFactor: 1.3,
-                                style: TextStyle(
-                                  color: _categoryColor,
-                                ),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.0)),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.7,
-                                child: Text(
-                                  loadedTask.description,
-                                  //textScaleFactor: 1.4,
-                                  textAlign: TextAlign.start,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    )),
-                Divider(),
-                Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Start Time',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                                width: MediaQuery.of(context).size.width * 0.7,
-                                child: Text(
-                                  DateFormat('dd / MM / yyyy  --  HH:mm')
-                                      .format(loadedTask.startdate),
-                                  //textScaleFactor: 1.4,
-                                  textAlign: TextAlign.start,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                )),
-                          ],
-                        ),
-                      )
-                    ],
+                ListTile(
+                  leading: Icon(
+                    Icons.person_outline_rounded,
+                    color: _categoryColor,
+                    size: 28.0,
                   ),
-                ),
-                Divider(),
-                Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'End Time',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                DateFormat('dd / MM / yyyy  --  HH:mm')
-                                    .format(loadedTask.enddate),
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Divider(),
-                Container(
-                    padding: EdgeInsets.all(5.0),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.watch_later_outlined,
-                          color: _categoryColor,
-                          size: 28.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 5.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Alarm Set',
-                                textAlign: TextAlign.left,
-                                textScaleFactor: 1.3,
-                                style: TextStyle(
-                                  color: _categoryColor,
-                                ),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.0)),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.7,
-                                child: loadedTask.setalarmfortask != null
-                                    ? Text(
-                                        loadedTask.setalarmfortask
-                                            .format(context),
-                                        //textScaleFactor: 1.4,
-                                        textAlign: TextAlign.start,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 5,
-                                      )
-                                    : Text('No'),
-                              ),
-                              //),
-                            ],
-                          ),
-                        )
-                      ],
-                    )),
-                Divider(),
-                Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                RaisedButton(
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  onPressed: ()async{
-                    await showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                      title: Text('Mark as complete'),
-                      content: Text('Are you sure you have completed this task ?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('No'),
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                          },
-                        ),
-                        TextButton(
-                          child: Text('Yes'),
-                          onPressed: () {
-                            Provider.of<Tasks>(context, listen: false)
-                                .completeEvent(taskId);
-                            Navigator.of(ctx).pop();
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
+                  title: Text(
+                    'Title',
+                    textAlign: TextAlign.left,
+                    textScaleFactor: 1.3,
+                    style: TextStyle(
+                      color: _categoryColor,
                     ),
-                    );
-                  // Navigator.of(context).pop();
-                  // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
-                  // Navigator.of(context).pop();
-                },child: Text('Mark as Complete',
+                  ),
+                  subtitle: Text(
+                    loadedTask.title,
+                    //textScaleFactor: 1.4,
+                    textAlign: TextAlign.start,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-
+                ListTile(
+                  leading: Icon(
+                    Icons.note_outlined,
+                    color: _categoryColor,
+                    size: 28.0,
+                  ),
+                  title: Text(
+                    'Description',
+                    textAlign: TextAlign.left,
+                    textScaleFactor: 1.3,
+                    style: TextStyle(
+                      color: _categoryColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    loadedTask.description,
+                    //textScaleFactor: 1.4,
+                    textAlign: TextAlign.start,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                ListTile(
+                    leading: Icon(
+                      Icons.calendar_today_rounded,
+                      color: _categoryColor,
+                      size: 28.0,
+                    ),
+                    title: Text(
+                      'Start Time',
+                      textAlign: TextAlign.left,
+                      textScaleFactor: 1.3,
+                      style: TextStyle(
+                        color: _categoryColor,
+                      ),
+                    ),
+                    subtitle: Text(
+                      DateFormat('dd / MM / yyyy  --  HH:mm')
+                          .format(loadedTask.startdate),
+                      //textScaleFactor: 1.4,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                    )),
+                ListTile(
+                    leading: Icon(
+                      Icons.calendar_today_rounded,
+                      color: _categoryColor,
+                      size: 28.0,
+                    ),
+                    title: Text(
+                      'End Time',
+                      textAlign: TextAlign.left,
+                      textScaleFactor: 1.3,
+                      style: TextStyle(
+                        color: _categoryColor,
+                      ),
+                    ),
+                    subtitle: Text(
+                      DateFormat('dd / MM / yyyy  --  HH:mm')
+                          .format(loadedTask.enddate),
+                      //textScaleFactor: 1.4,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                    )),
+                ListTile(
+                  leading: Icon(
+                    Icons.watch_later_outlined,
+                    color: _categoryColor,
+                    size: 28.0,
+                  ),
+                  title: Text(
+                    'Alarm Set',
+                    textAlign: TextAlign.left,
+                    textScaleFactor: 1.3,
+                    style: TextStyle(
+                      color: _categoryColor,
+                    ),
+                  ),
+                  subtitle: loadedTask.setalarmfortask != null
+                      ? Text(
+                          loadedTask.setalarmfortask.format(context),
+                          //textScaleFactor: 1.4,
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 5,
+                        )
+                      : Text('No'),
+                ),
+                Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (states) => Theme.of(context).primaryColor)),
+                  // color: Theme.of(context).primaryColor,
+                  // textColor: Colors.white,
+                  onPressed: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text('Mark as complete'),
+                        content:
+                            Text('Are you sure you have completed this task ?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () {
+                              Provider.of<Tasks>(context, listen: false)
+                                  .completeEvent(taskId);
+                              Navigator.of(ctx).pop();
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      ),
+                    );
+                    // Navigator.of(context).pop();
+                    // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+                    // Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Mark as Complete',
+                  ),
                 ),
                 // Divider(),
               ],
@@ -361,52 +260,3 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ));
   }
 }
-//
-// class InterestOfPerson extends StatelessWidget {
-//   String _interestOfPerson;
-//
-//   InterestOfPerson(this._interestOfPerson);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 2.0),
-//       child: Chip(
-//         backgroundColor: Colors.amber,
-//         label: Text(
-//           _interestOfPerson,
-//           style: TextStyle(
-//             color: Colors.black,
-//           ),
-//           textAlign: TextAlign.center,
-//         ),
-//       ),
-//     );
-//   }
-// }
-// // Chip(
-// // label: Text(_interestOfPerson),
-// // );
-//
-// // Expanded(
-// // child: ListView.builder(
-// // scrollDirection: Axis.horizontal,
-// // itemBuilder: (ctx, i) {
-// // return InterestOfPerson(loadedBirthday
-// //     .interestsofPerson[i].name
-// //     .toString());
-// // },
-// // itemCount:
-// // loadedBirthday.interestListSize(),
-// // shrinkWrap: true,
-// // physics: ClampingScrollPhysics(),
-// // padding: const EdgeInsets.all(10),
-// // // gridDelegate: SliverGridRegularTileLayout(crossAxisStride: null
-// // //
-// // //  // crossAxisCount: 2,
-// // //   //crossAxisSpacing: 10,
-// // //   //childAspectRatio: 3 / 3,
-// // //   //mainAxisSpacing: 10,
-// // // ),
-// // ),
-// // ),

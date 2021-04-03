@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -15,23 +16,32 @@ class BirthdayWidget extends StatefulWidget {
 
 class _BirthdayWidgetState extends State<BirthdayWidget> {
   var _isLoading = false;
-
+  var _loggedIn = false;
   Future<void> _refreshBirthday (BuildContext context) async {
     await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
   }
 
-  @override
-  void initState() {
+  Future<void> _fetch()async{
     Future.delayed(Duration.zero).then((_) async {
       setState(() {
         _isLoading = true;
       });
-      await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
+      _loggedIn = await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
       setState(() {
         _isLoading = false;
       });
     });
+  }
+
+  @override
+  void initState() {
+    _fetch();
     super.initState();
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -45,7 +55,14 @@ class _BirthdayWidgetState extends State<BirthdayWidget> {
             ? Center(
                 child: CircularProgressIndicator(),
               )
-            : birthdays.isEmpty
+            : !_loggedIn ?Center(
+              child: Text(
+          'You are not Logged-in',
+          style: TextStyle(
+              fontSize: 20,
+          ),
+        ),
+            ): birthdays.isEmpty
                 ? Container(
                     alignment: Alignment.center,
                     child: Text(

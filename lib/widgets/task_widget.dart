@@ -13,25 +13,32 @@ class TaskWidget extends StatefulWidget {
 
 class _TaskWidgetState extends State<TaskWidget> {
   var _isLoading = false;
+  var _loggedIn = false;
 
   Future<void> _refreshTask(BuildContext context) async {
     await Provider.of<Tasks>(context, listen: false).fetchTask();
   }
-
-  @override
-  void initState() {
+  Future<void> _fetch()async{
     Future.delayed(Duration.zero).then((_) async {
       setState(() {
         _isLoading = true;
       });
-      await Provider.of<Tasks>(context, listen: false).fetchTask();
+      _loggedIn = await Provider.of<Tasks>(context, listen: false).fetchTask();
       setState(() {
         _isLoading = false;
       });
     });
+  }
+  @override
+  void initState() {
+    _fetch();
     super.initState();
   }
-
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final tasklist = Provider.of<Tasks>(context);
@@ -43,28 +50,37 @@ class _TaskWidgetState extends State<TaskWidget> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : tasks.isEmpty
-              ? Container(
-                  alignment: Alignment.center,
+          : !_loggedIn
+              ? Center(
                   child: Text(
-                    'No Tasks',
+                    'You are not Logged-in',
                     style: TextStyle(
                       fontSize: 20,
                     ),
                   ),
                 )
-              : ListView.builder(
-                  itemBuilder: (ctx, i) => TaskItem(
-                      tasks[i].taskId,
-                      tasks[i].title,
-                      tasks[i].startdate,
-                      tasks[i].enddate,
-                      tasks[i].levelofpriority,
-                      tasks[i].priorityLevelColor,
-                      tasks[i].priorityLevelText),
-                  itemCount: tasks.length,
-                  //),
-                ),
+              : tasks.isEmpty
+                  ? Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'No Tasks',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemBuilder: (ctx, i) => TaskItem(
+                          tasks[i].taskId,
+                          tasks[i].title,
+                          tasks[i].startdate,
+                          tasks[i].enddate,
+                          tasks[i].levelofpriority,
+                          tasks[i].priorityLevelColor,
+                          tasks[i].priorityLevelText),
+                      itemCount: tasks.length,
+                      //),
+                    ),
     ));
   }
 }

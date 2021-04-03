@@ -21,6 +21,7 @@ import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/screens/homepage.dart';
 
 import '../providers/tasks.dart';
+import 'auth/login_page.dart';
 
 class AddTask extends StatefulWidget {
   static const routeName = '/add-task-screen';
@@ -42,6 +43,7 @@ class _AddTaskState extends State<AddTask> {
     'assets/images/userimage.png',
   );
   var pickedFile;
+  var _loggedIn = false;
 
   String _selectedCategory = 'ABC';
   List<String> _categories = ['Normal', 'Important', 'Urgent'];
@@ -74,8 +76,7 @@ class _AddTaskState extends State<AddTask> {
   }
 
   void _saveForm() async {
-    print(_taskStartDate);
-    print(_taskEndDate);
+    FocusScope.of(context).unfocus();
     if(_taskStartDate == null||_taskEndDate == null||_taskEndDate.isBefore(_taskStartDate)){
       await showDialog(
         context: context,
@@ -99,8 +100,55 @@ class _AddTaskState extends State<AddTask> {
       return;
     }
     _form.currentState.save();
-    Provider.of<Tasks>(context, listen: false).addTask(_newTask);
-    Navigator.of(context).pop();
+    try{
+      _loggedIn = await Provider.of<Tasks>(context, listen: false).addTask(_newTask);
+      if (_loggedIn == false) {
+        await showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              'You are not Logged-In',
+            ),
+            content: Text(
+                'Please Login with your credentials or Signup to YourDay to proceed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pushNamed(LoginPage.routename);
+                },
+                child: Text(
+                  'Okay',
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }catch (error) {
+      await showDialog<Null>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(
+            'An error occurred !',
+          ),
+          content: Text('Something went wrong'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              child: Text(
+                'Okay',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if(_loggedIn){
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -209,12 +257,13 @@ class _AddTaskState extends State<AddTask> {
                             initialDate: currentValue ?? DateTime.now(),
                             lastDate: DateTime(2100));
                         if (_taskStartDate != null) {
-                          final time = await showTimePicker(
+                          final _time = await showTimePicker(
                             context: context,
                             initialTime: TimeOfDay.fromDateTime(
                                 currentValue ?? DateTime.now()),
                           );
-                          return DateTimeField.combine(_taskStartDate, time);
+                        _taskStartDate = DateTimeField.combine(_taskStartDate, _time);
+                        return _taskStartDate;
                         } else {
                           return currentValue;
                         }
@@ -274,7 +323,8 @@ class _AddTaskState extends State<AddTask> {
                             initialTime: TimeOfDay.fromDateTime(
                                 currentValue ?? DateTime.now()),
                           );
-                          return DateTimeField.combine(_taskEndDate, time);
+                          _taskEndDate = DateTimeField.combine(_taskEndDate, time);
+                          return _taskEndDate;
                         } else {
                           return currentValue;
                         }
@@ -483,137 +533,3 @@ class BasicDateTimeField extends StatelessWidget {
     //return
   }
 }
-
-// child: Column(
-// children: [
-// TextField(
-// decoration: InputDecoration(
-// hintText: 'Name',
-// ),
-// controller: _nameController,
-// //onSubmitted: addd//),
-// ),
-// TextField(
-// decoration: InputDecoration(
-// hintText: 'Relation',
-// ),
-// controller: _relationController,
-// //onSubmitted: addd//),
-// ),
-// TextField(
-// decoration: InputDecoration(
-// hintText: 'Notes',
-// ),
-// controller: _notesController,
-// //onSubmitted: addd//),
-// ),
-// RaisedButton(onPressed: addd,
-// child: Text('Add Birthday'),),
-// // TextField(
-// //     decoration: InputDecoration(
-// //       hintText: 'Name',
-// //     ),
-// //     controller: _nameController,
-// //     onSubmitted: addd//),
-// // ),
-// RaisedButton(onPressed:() {
-// Navigator.of(context).pushNamed(HomePage.routeName);
-// },
-// child: Text('Add '),),
-// ],
-//),
-
-// Row(
-//   children: [
-//     TextFormField(
-//
-//       decoration: InputDecoration(labelText: 'Date of Birth'),
-//       textInputAction: TextInputAction.next,
-//       onFieldSubmitted: (_) {
-//         FocusScope.of(context).requestFocus(_nameFocusNode);
-//       },
-//       onSaved: (value) {
-//         _editedBirthday = BirthDay(
-//           id: Id,
-//           name: _editedBirthday.name,
-//           relation: _editedBirthday.relation,
-//           dateofbirth: _editedBirthday.dateofbirth,
-//           notes: _editedBirthday.notes,
-//         );
-//       },
-//     ),
-//Text(''),
-
-//],
-// ),
-// TextFormField(
-//   decoration: InputDecoration(labelText: 'Date of Birthday'),
-//   textInputAction: TextInputAction.next,
-//   onFieldSubmitted: (_){
-//     FocusScope.of(context).requestFocus(_nameFocusNode);
-//   },
-//   onSaved: (value){
-//     _editedBirthday = BirthDay(
-//       id: DateTime.now().toString(),
-//       name: _editedBirthday.name,
-//       relation: _editedBirthday.relation,
-//       dateofbirth: value,
-//       notes: _editedBirthday.notes,
-//     );
-//   },
-// ),
-
-// Container(
-//   child: Padding(
-//     padding: const EdgeInsets.all(8.0),
-//     child: MenuButton(
-//       child: InterestButton,
-//       items: _interests, // List of your items
-//       topDivider: true,
-//       popupHeight:
-//       200, // This popupHeight is optional. The default height is the size of items
-//       scrollPhysics:
-//       AlwaysScrollableScrollPhysics(), // Change the physics of opened menu (example: you can remove or add scroll to menu)
-//       itemBuilder: (value) => Container(
-//           width: 100,
-//           height: 40,
-//           alignment: Alignment.centerLeft,
-//           padding: const EdgeInsets.symmetric(horizontal: 16),
-//           child: Text(value)), // Widget displayed for each item
-//       toggledChild: Container(
-//         child: InterestButton, // Widget displayed as the button,
-//       ),
-//       divider: Container(
-//         height: 1,
-//         color: Colors.grey,
-//       ),
-//       onItemSelected: (value) {
-//         if(value == 'Friend')
-//           _categoryofPerson = CategoryofPerson.friend;
-//         else if (value == ' Family')
-//           _categoryofPerson = CategoryofPerson.family;
-//         else if (value == 'Work')
-//           _categoryofPerson = CategoryofPerson.work;
-//         _selectedCategory = value;
-//         setState(() {});
-//         _editedBirthday = BirthDay(
-//           id: DateTime.now().toString(),
-//           name: _editedBirthday.name,
-//           relation: _editedBirthday.relation,
-//           dateofbirth: _editedBirthday.dateofbirth,
-//           notes: _editedBirthday.notes,
-//           catergory: _categoryofPerson,
-//         );
-//       },
-//       decoration: BoxDecoration(
-//           border: Border.all(color: Colors.grey[300]),
-//           borderRadius:
-//           const BorderRadius.all(Radius.circular(3.0))),
-//       itemBackgroundColor: Colors.amber,
-//       menuButtonBackgroundColor: Colors.amber,
-//       onMenuButtonToggle: (isToggle) {
-//         print(isToggle);
-//       },
-//     ),
-//   ),
-// ),

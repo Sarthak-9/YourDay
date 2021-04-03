@@ -19,25 +19,35 @@ class AnniversaryWidget extends StatefulWidget {
 
 class _AnniversaryWidgetState extends State<AnniversaryWidget> {
   var _isLoading = false;
+  var _loggedIn = false;
 
   Future<void> _refreshAnniversary (BuildContext context) async {
     await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
   }
 
-  @override
-  void initState() {
+  Future<void> _fetch() async{
     Future.delayed(Duration.zero).then((_) async {
       setState(() {
         _isLoading = true;
       });
-      await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
+      _loggedIn = await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
       setState(() {
         _isLoading = false;
       });
     });
+  }
+
+  @override
+  void initState() {
+    _fetch();
     super.initState();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final anniversaryList = Provider.of<Anniversaries>(context);
@@ -48,6 +58,13 @@ class _AnniversaryWidgetState extends State<AnniversaryWidget> {
         child: _isLoading
             ? Center(
           child: CircularProgressIndicator(),
+        ): !_loggedIn ?Center(
+          child: Text(
+            'You are not Logged-in',
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          ),
         )
             : anniversaries.isEmpty
             ? Container(

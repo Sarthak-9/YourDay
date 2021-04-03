@@ -1,334 +1,144 @@
-import 'package:f_datetimerangepicker/f_datetimerangepicker.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-
-class Task11 extends StatefulWidget {
-  @override
-  Task11State createState() => Task11State();
-}
-
-/// State for MyApp
-class Task11State extends State<Task11> {
-  String _selectedDate;
-  String _dateCount;
-  String _range;
-  String _rangeCount;
-
-  @override
-  void initState() {
-    _selectedDate = '';
-    _dateCount = '';
-    _range = '';
-    _rangeCount = '';
-    super.initState();
-  }
-
-  /// The method for [DateRangePickerSelectionChanged] callback, which will be
-  /// called whenever a selection changed on the date picker widget.
-  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    /// The argument value will return the changed date as [DateTime] when the
-    /// widget [SfDateRangeSelectionMode] set as single.
-    ///
-    /// The argument value will return the changed dates as [List<DateTime>]
-    /// when the widget [SfDateRangeSelectionMode] set as multiple.
-    ///
-    /// The argument value will return the changed range as [PickerDateRange]
-    /// when the widget [SfDateRangeSelectionMode] set as range.
-    ///
-    /// The argument value will return the changed ranges as
-    /// [List<PickerDateRange] when the widget [SfDateRangeSelectionMode] set as
-    /// multi range.
-    setState(() {
-      if (args.value is PickerDateRange) {
-        _range =
-            DateFormat('dd/MM/yyyy').format(args.value.startDate).toString() +
-                ' - ' +
-                DateFormat('dd/MM/yyyy')
-                    .format(args.value.endDate ?? args.value.startDate)
-                    .toString();
-      } else if (args.value is DateTime) {
-        _selectedDate = args.value;
-      } else if (args.value is List<DateTime>) {
-        _dateCount = args.value.length.toString();
-      } else {
-        _rangeCount = args.value.length.toString();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-              title: const Text('DatePicker demo'),
-            ),
-            body: Center(
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-    FlatButton(
-    child: Text("Open"),
-    onPressed: () {
-    DateTimeRangePicker(
-    startText: "From",
-    endText: "To",
-    doneText: "Yes",
-    cancelText: "Cancel",
-    interval: 5,
-    initialStartTime: DateTime.now(),
-    initialEndTime: DateTime.now().add(Duration(days: 20)),
-    mode: DateTimeRangePickerMode.dateAndTime,
-    minimumTime: DateTime.now().subtract(Duration(days: 5)),
-    maximumTime: DateTime.now().add(Duration(days: 25)),
-    use24hFormat: true,
-    onConfirm: (start, end) {
-    print(start);
-    print(end);
-    }).showPicker(context);
-    },
-    ),
-    //Text(resultString ?? "")
-    ]),
-    ),),);
-  }
-}
-
-//
 // import 'package:flutter/material.dart';
-// import 'package:multi_select_flutter/multi_select_flutter.dart';
+// import 'package:flutter/services.dart';
+// import 'package:yday/screens/auth/signup_page.dart';
+// import 'package:yday/screens/homepage.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 //
-//
-// class MyApp1 extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Multi Select',
-//       theme: ThemeData(
-//         primarySwatch: Colors.purple,
-//         visualDensity: VisualDensity.adaptivePlatformDensity,
-//       ),
-//       home: MyHomePage(title: 'Flutter Multi Select'),
-//     );
-//   }
-// }
-//
-// class Interest {
-//   final int id;
-//   final String name;
-//
-//   Interest({
-//     this.id,
-//     this.name,
-//   });
-// }
-//
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({Key key, this.title}) : super(key: key);
-//   final String title;
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-//
-// class _MyHomePageState extends State<MyHomePage> {
-//   static List<Interest> _interestss = [
-//     Interest(id: 1, name: "Lion"),
-//     Interest(id: 2, name: "Flamingo"),
-//     Interest(id: 3, name: "Hippo"),
-//     Interest(id: 4, name: "Horse"),
-//     Interest(id: 5, name: "Tiger"),
-//     Interest(id: 6, name: "Penguin"),
-//     Interest(id: 7, name: "Spider"),
-//     Interest(id: 8, name: "Snake"),
-//     Interest(id: 9, name: "Bear"),
-//     Interest(id: 10, name: "Beaver"),
-//     Interest(id: 11, name: "Cat"),
-//     Interest(id: 12, name: "Fish"),
-//     Interest(id: 13, name: "Rabbit"),
-//     Interest(id: 14, name: "Mouse"),
-//     Interest(id: 15, name: "Dog"),
-//     Interest(id: 16, name: "Zebra"),
-//     Interest(id: 17, name: "Cow"),
-//     Interest(id: 18, name: "Frog"),
-//     Interest(id: 19, name: "Blue Jay"),
-//     Interest(id: 20, name: "Moose"),
-//     Interest(id: 21, name: "Gecko"),
-//     Interest(id: 22, name: "Kangaroo"),
-//     Interest(id: 23, name: "Shark"),
-//     Interest(id: 24, name: "Crocodile"),
-//     Interest(id: 25, name: "Owl"),
-//     Interest(id: 26, name: "Dragonfly"),
-//     Interest(id: 27, name: "Dolphin"),
-//   ];
-//   final _items = _interestss
-//       .map((animal) => MultiSelectItem<Interest>(animal, animal.name))
-//       .toList();
-//   List<Interest> _selectedAnimals = [];
-//   List<Interest> _selectedAnimals2 = [];
-//   List<Interest> _selectedAnimals3 = [];
-//   List<Interest> _selectedAnimals4 = [];
-//   List<Interest> _selectedAnimals5 = [];
-//   final _multiSelectKey = GlobalKey<FormFieldState>();
+// class LoginPage extends StatefulWidget {
+//   static const routename = '/login';
 //
 //   @override
-//   void initState() {
-//     _selectedAnimals5 = _interestss;
-//     super.initState();
+//   _LoginPageState createState() => _LoginPageState();
+// }
+//
+// class _LoginPageState extends State<LoginPage> {
+//   final _loginkey = GlobalKey<FormState>();
+//   final _authLogin = FirebaseAuth.instance;
+//
+//   String _userEmail = '';
+//   String _userPassword = '';
+//
+//   void _trySubmit() {}
+//   void _submitAuthFormLogin(String email,
+//       String password,BuildContext ctx) async {
+//
+//     UserCredential authResult;
+//     try {
+//         authResult = await _authLogin.signInWithEmailAndPassword(
+//             email: _userEmail, password: _userPassword);
+//         // Navigator.of(context).pushNamed(HomePage.routeName);
+//     } on PlatformException catch (error) {
+//       var message = 'An error occured, please check your credentials';
+//       if (error.message != null) message = error.message;
+//       Scaffold.of(ctx).showSnackBar(SnackBar(
+//         content: Text(message),
+//         backgroundColor: Theme.of(ctx).errorColor,
+//       ));
+//     }on FirebaseAuthException catch (e) {
+//       var message;
+//       if (e.code == 'user-not-found') {
+//         message = 'No user found for that email.';
+//       } else if (e.code == 'wrong-password') {
+//         message = 'Wrong password provided for that user.';
+//       }
+//       Scaffold.of(ctx).showSnackBar(SnackBar(
+//         content: Text(message),
+//         backgroundColor: Theme.of(ctx).errorColor,
+//       ));
+//     }
+//     catch (err) {
+//       print(err);
+//     }
+//     // if(!isValid){
+//     //   Scaffold.of(ctx).showSnackBar(SnackBar(
+//     //     content: Text('message'),
+//     //     backgroundColor: Theme.of(ctx).errorColor,
+//     //   ));
+//     // }
 //   }
 //
 //   @override
 //   Widget build(BuildContext context) {
+//     final mdq = MediaQuery.of(context);
 //     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Container(
-//           alignment: Alignment.center,
-//           padding: EdgeInsets.all(20),
+//       resizeToAvoidBottomInset: false,
+//       body: Container(
+//         //alignment: Alignment.topCenter,
+//         width: mdq.size.width,
+//         height: mdq.size.height,
+//         color: Theme.of(context).primaryColor,
+//         child: SingleChildScrollView(
 //           child: Column(
-//             children: <Widget>[
-//               SizedBox(height: 40),
-//               //################################################################################################
-//               // Rounded blue MultiSelectDialogField
-//               //################################################################################################
-//               MultiSelectDialogField(
-//                 items: _items,
-//                 title: Text("Animals"),
-//                 selectedColor: Colors.blue,
-//                 decoration: BoxDecoration(
-//                   color: Colors.blue.withOpacity(0.1),
-//                   borderRadius: BorderRadius.all(Radius.circular(40)),
-//                   border: Border.all(
-//                     color: Colors.blue,
-//                     width: 2,
-//                   ),
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Padding(
+//                 padding: EdgeInsets.symmetric(vertical: 60.0),
+//               ),
+//               // CircleAvatar(
+//               //   backgroundImage: AssetImage("assets/images/YD.png"), //,
+//               //   backgroundColor: Colors.white,
+//               //   radius: 60.0,
+//               // ),
+//               Card(
+//                 child: Image(
+//                   image: AssetImage("assets/images/YD.png"),
+//                   width: 200,
+//                   height: 100,
 //                 ),
-//                 buttonIcon: Icon(
-//                   Icons.pets,
-//                   color: Colors.blue,
+//               ),
+//               Padding(padding: EdgeInsets.all(8.0)),
+//               Text(
+//                 'Your Day',
+//                 style: TextStyle(
+//                   color: Colors.white,
+//                   fontWeight: FontWeight.bold,
+//                   fontSize: 28.0,
 //                 ),
-//                 buttonText: Text(
-//                   "Favorite Animals",
+//               ),
+//               Padding(padding: EdgeInsets.all(4.0)),
+//               Text(
+//                 "Enter your details here",
+//                 style: TextStyle(fontSize: 15.0, color: Colors.white),
+//               ),
+//               Padding(padding: EdgeInsets.all(10.0)),
+//               AuthWidget(_submitAuthFormLogin),
+//               Padding(padding: EdgeInsets.all(4.0)),
+//               OutlineButton(
+//                 child: Text(
+//                   "  New here ? Sign Up  ",
 //                   style: TextStyle(
-//                     color: Colors.blue[800],
-//                     fontSize: 16,
+//                     color: Theme.of(context).accentColor,
+//                     fontWeight: FontWeight.bold,
 //                   ),
 //                 ),
-//                 onConfirm: (results) {
-//                   _selectedAnimals = results;
+//                 onPressed: () {
+//                   Navigator.of(context).pushNamed(SignUp.routename);
+//                   //Navigator.pushNamed(context, SignUp.routename);
 //                 },
+//                 textColor: Colors.amber,
 //               ),
-//               SizedBox(height: 50),
-//               //################################################################################################
-//               // This MultiSelectBottomSheetField has no decoration, but is instead wrapped in a Container that has
-//               // decoration applied. This allows the ChipDisplay to render inside the same Container.
-//               //################################################################################################
-//               Container(
-//                 decoration: BoxDecoration(
-//                   color: Theme.of(context).primaryColor.withOpacity(.4),
-//                   border: Border.all(
-//                     color: Theme.of(context).primaryColor,
-//                     width: 2,
-//                   ),
-//                 ),
-//                 child: Column(
-//                   children: <Widget>[
-//                     MultiSelectBottomSheetField(
-//                       initialChildSize: 0.4,
-//                       listType: MultiSelectListType.CHIP,
-//                       searchable: true,
-//                       buttonText: Text("Favorite Animals"),
-//                       title: Text("Animals"),
-//                       items: _items,
-//                       onConfirm: (values) {
-//                         _selectedAnimals2 = values;
-//                       },
-//                       chipDisplay: MultiSelectChipDisplay(
-//                         onTap: (value) {
-//                           setState(() {
-//                             _selectedAnimals2.remove(value);
-//                           });
-//                         },
-//                       ),
-//                     ),
-//                     _selectedAnimals2 == null || _selectedAnimals2.isEmpty
-//                         ? Container(
-//                         padding: EdgeInsets.all(10),
-//                         alignment: Alignment.centerLeft,
-//                         child: Text(
-//                           "None selected",
-//                           style: TextStyle(color: Colors.black54),
-//                         ))
-//                         : Container(),
-//                   ],
+//               Padding(padding: EdgeInsets.all(4.0)),
+//
+//               FlatButton(
+//                 onPressed: () {
+//                   Navigator.of(context).pushNamed(HomePage.routeName);
+//                   //Navigator.pushReplacementNamed(context, MainHomePage.id);
+//                 },
+//                 child: Text(
+//                   "Forgot Password ? Need help ",
+//                   style: TextStyle(color: Colors.white70, fontSize: 16),
 //                 ),
 //               ),
-//               SizedBox(height: 40),
-//               //################################################################################################
-//               // MultiSelectBottomSheetField with validators
-//               //################################################################################################
-//               MultiSelectBottomSheetField<Interest>(
-//                 key: _multiSelectKey,
-//                 initialChildSize: 0.7,
-//                 maxChildSize: 0.95,
-//                 title: Text("Animals"),
-//                 buttonText: Text("Favorite Animals"),
-//                 items: _items,
-//                 searchable: true,
-//                 validator: (values) {
-//                   if (values == null || values.isEmpty) {
-//                     return "Required";
-//                   }
-//                   List<String> names = values.map((e) => e.name).toList();
-//                   if (names.contains("Frog")) {
-//                     return "Frogs are weird!";
-//                   }
-//                   return null;
+//               // Padding(padding: EdgeInsets.all(2.0)),
+//               FlatButton(
+//                 onPressed: () {
+//                   Navigator.of(context).pushNamed(HomePage.routeName);
+//                   //Navigator.pushReplacementNamed(context, MainHomePage.id);
 //                 },
-//                 onConfirm: (values) {
-//                   setState(() {
-//                     _selectedAnimals3 = values;
-//                   });
-//                   _multiSelectKey.currentState.validate();
-//                 },
-//                 chipDisplay: MultiSelectChipDisplay(
-//                   onTap: (item) {
-//                     setState(() {
-//                       _selectedAnimals3.remove(item);
-//                     });
-//                     _multiSelectKey.currentState.validate();
-//                   },
+//                 child: Text(
+//                   "Skip this step",
+//                   style: TextStyle(color: Colors.white70),
 //                 ),
-//               ),
-//               SizedBox(height: 40),
-//               //################################################################################################
-//               // MultiSelectChipField
-//               //################################################################################################
-//               MultiSelectChipField(
-//                 items: _items,
-//                 //initialValue: [_animals[4], _animals[7], _animals[9]],
-//                 title: Text("Animals"),
-//                 headerColor: Colors.blue.withOpacity(0.5),
-//                 decoration: BoxDecoration(
-//                   border: Border.all(color: Colors.blue[700], width: 1.8),
-//                 ),
-//                 selectedChipColor: Colors.blue.withOpacity(0.5),
-//                 selectedTextStyle: TextStyle(color: Colors.blue[800]),
-//                 onTap: (values) {
-//                   _selectedAnimals4 = values;
-//                 },
-//               ),
-//               SizedBox(height: 40),
-//               //################################################################################################
-//               // MultiSelectDialogField with initial values
-//               //################################################################################################
-//               MultiSelectDialogField(
-//                 onConfirm: (val) {
-//                   _selectedAnimals5 = val;
-//                 },
-//                 items: _items,
-//                 initialValue:
-//                 _selectedAnimals5, // setting the value of this in initState() to pre-select values.
 //               ),
 //             ],
 //           ),
@@ -337,3 +147,145 @@ class Task11State extends State<Task11> {
 //     );
 //   }
 // }
+//
+// class AuthWidget extends StatefulWidget {
+//   final void Function(String email,
+//       String password,BuildContext ctx) submitFn;
+//
+//   AuthWidget(this.submitFn);
+//
+//   @override
+//   _AuthWidgetState createState() => _AuthWidgetState();
+// }
+//
+// class _AuthWidgetState extends State<AuthWidget> {
+//   final _loginkey = GlobalKey<FormState>();
+//   // final _authLogin = FirebaseAuth.instance;
+//
+//   String _userEmail = '';
+//   String _userPassword = '';
+//   void _trySubmit(){
+//     FocusScope.of(context).unfocus();
+//     var isValid = _loginkey.currentState.validate();
+//     if (isValid) {
+//       _loginkey.currentState.save();
+//     }
+//     widget.submitFn(_userEmail,_userPassword,context);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Form(
+//       key: _loginkey,
+//       child: Column(
+//         children: [
+//           Card(
+//             borderOnForeground: false,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10),
+//             ),
+//             margin: EdgeInsets.symmetric(horizontal: 8.0),
+//             child:
+//             Padding(
+//               padding: EdgeInsets.symmetric(horizontal: 4.0),
+//               child: Row(children: [
+//                 Padding(
+//                   padding: EdgeInsets.symmetric(
+//                     horizontal: 2.0,
+//                   ),
+//                 ),
+//                 Icon(
+//                   Icons.email_sharp,
+//                   color: Colors.green,
+//                 ),
+//                 Padding(
+//                   padding: EdgeInsets.symmetric(
+//                     horizontal: 2.0,
+//                   ),
+//                 ),
+//                 Flexible(
+//                   child: TextFormField(
+//                     validator: (value) {
+//                       if (value.isEmpty || !value.contains('@')) {
+//                         return 'Please enter a valid email address';
+//                       }
+//                       return null;
+//                     },
+//                     onSaved: (value) {
+//                       _userEmail = value;
+//                     },
+//                     decoration: InputDecoration(
+//                       border: InputBorder.none,
+//                       labelText: " Email / Phone ",
+//                       hintText: " Email or Phone",
+//                     ),
+//                     keyboardType: TextInputType.emailAddress,
+//                   ),
+//                 ),
+//               ]),
+//             ),
+//           ),
+//           Card(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10),
+//             ),
+//             margin: EdgeInsets.all(8.0),
+//             child: Padding(
+//               padding: EdgeInsets.symmetric(horizontal: 4.0),
+//               child: Row(
+//                 children: [
+//                   Padding(
+//                     padding: EdgeInsets.symmetric(
+//                       horizontal: 2.0,
+//                     ),
+//                   ),
+//                   Icon(
+//                     Icons.archive_outlined,
+//                     color: Colors.green,
+//                   ),
+//                   Padding(
+//                     padding: EdgeInsets.symmetric(
+//                       horizontal: 2.0,
+//                     ),
+//                   ),
+//                   Flexible(
+//                     child: TextFormField(
+//                       validator: (value) {
+//                         if (value.isEmpty || value.length < 7) {
+//                           return 'Password must be atleast 7 charachters';
+//                         }
+//                         return null;
+//                       },
+//                       onSaved: (value) {
+//                         _userPassword = value;
+//                       },
+//                       obscureText: true,
+//                       decoration: InputDecoration(
+//                         border: InputBorder.none,
+//                         labelText: " Password",
+//                         hintText: " Password",
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//           Padding(padding: EdgeInsets.all(4.0)),
+//           RaisedButton(
+//             child: Text(
+//               'Sign In',
+//               style: TextStyle(
+//                 color: Colors.white,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
+//             onPressed: _trySubmit,
+//             color: Colors.green,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+//

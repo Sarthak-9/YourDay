@@ -62,38 +62,6 @@ class Task {
         return Colors.lightBlue;
     }
   }
-
-  // String get priorityText{
-  //   switch(levelofpriority){
-  //     case PriorityLevel.Normal:
-  //       return 'Normal';
-  //       break;
-  //     case PriorityLevel.Necessary:
-  //       return 'Necessary';
-  //       break;
-  //     case PriorityLevel.Important:
-  //       return 'Important';
-  //       break;
-  //     default :
-  //       return 'Normal';
-  //   }
-  // }
-  //
-  // Color get priorityColor{
-  //   switch(levelofpriority){
-  //     case PriorityLevel.Normal:
-  //       return Colors.green;
-  //       break;
-  //     case PriorityLevel.Necessary:
-  //       return Colors.red;
-  //       break;
-  //     case PriorityLevel.Important:
-  //       return Colors.amber;
-  //       break;
-  //     default :
-  //       return Colors.green;
-  //   }
-  // }
 }
 PriorityLevel getPriorityLevel(String priorityLevel){
   switch(priorityLevel){

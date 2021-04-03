@@ -92,9 +92,9 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircleAvatar(
-                      backgroundImage: loadedBirthday.imageofPerson == null
+                      backgroundImage: loadedBirthday.imageUrl == null
                           ? AssetImage('assets/images/userimage.png')
-                          : FileImage(loadedBirthday.imageofPerson),
+                          : NetworkImage(loadedBirthday.imageUrl),
                       radius: MediaQuery.of(context).size.width * 0.18,
                     ),
                     Padding(padding: EdgeInsets.symmetric(horizontal: 24.0)),
@@ -118,367 +118,196 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                 ),
               ),
               Padding(padding: EdgeInsets.all(4.0)),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.person_outline_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedBirthday.nameofperson,
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.supervisor_account_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Relation',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedBirthday.relation,
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                padding: EdgeInsets.all(5.0),
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      color: _categoryColor,
-                      size: 28.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Birth Date',
-                            textAlign: TextAlign.left,
-                            textScaleFactor: 1.3,
-                            style: TextStyle(
-                              color: _categoryColor,
-                            ),
-                          ),
-                          Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: loadedBirthday.yearofBirthProvidedStatus
-                                ? Text(
-                                    DateFormat('dd / MM / yyyy')
-                                        .format(loadedBirthday.dateofbirth),
-                                    //textScaleFactor: 1.4,
-                                    textAlign: TextAlign.start,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 5,
-                                  )
-                                : Text(DateFormat('dd / MM ')
-                                    .format(loadedBirthday.dateofbirth)),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+              ListTile(
+                leading: Icon(
+                  Icons.person_outline_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Name',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: Text(
+                  loadedBirthday.nameofperson,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.watch_later_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Alarm Set',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: loadedBirthday.setAlarmforBirthday != null
-                                  ? Text(
-                                      loadedBirthday.setAlarmforBirthday
-                                          .format(context),
-                                      //textScaleFactor: 1.4,
-                                      textAlign: TextAlign.start,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 5,
-                                    )
-                                  : Text('No'),
-                            ),
-                            //),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.note_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Notes',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedBirthday.notes,
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.phone_android_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Phone',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedBirthday.phoneNumberofPerson!=null?loadedBirthday.phoneNumberofPerson:'None',
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.email_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Email',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedBirthday.emailofPerson!=null?loadedBirthday.emailofPerson:'None',
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  //height: 200,
-                  padding: EdgeInsets.all(5.0),
-                  //width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.favorite_border_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,vertical: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Interests',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            // Padding(
-                            //     padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            (loadedBirthday.interestsofPerson == null ||
-                                    loadedBirthday.interestsofPerson.isEmpty)
-                                ? Container(
-                                    child: Text('None'),
-                                  )
-                                : Container(
-                                    height: 60,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.70,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (ctx, i) {
-                                        return InterestOfPerson(loadedBirthday
-                                            .interestsofPerson[i].name
-                                            .toString());
-                                      },
-                                      itemCount:
-                                          loadedBirthday.interestListSize(),
-                                      shrinkWrap: true,
-                                      dragStartBehavior:
-                                          DragStartBehavior.start,
-                                      physics: ClampingScrollPhysics(),
-                                      //padding: const EdgeInsets.all(10),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
+              ListTile(
+                leading: Icon(
+                  Icons.supervisor_account_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Relation',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: Text(
+                  loadedBirthday.relation,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.calendar_today_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Birth Date',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: loadedBirthday.yearofBirthProvidedStatus
+                    ? Text(
+                    DateFormat('dd / MM / yyyy')
+                        .format(loadedBirthday.dateofbirth),
+                    //textScaleFactor: 1.4,
+                    textAlign: TextAlign.start,
+                    overflow: TextOverflow.ellipsis,
+                )
+                    : Text(DateFormat('dd / MM ')
+                    .format(loadedBirthday.dateofbirth)),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.watch_later_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Alarm Set',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: loadedBirthday.setAlarmforBirthday != null
+                    ? Text(
+                  loadedBirthday.setAlarmforBirthday
+                      .format(context),
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                )
+                    : Text('No'),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.note_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Notes',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedBirthday.notes,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.phone_android_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Phone',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedBirthday.phoneNumberofPerson,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.email_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Email',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedBirthday.emailofPerson,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.favorite_border_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Interests',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: (loadedBirthday.interestsofPerson == null ||
+                    loadedBirthday.interestsofPerson.isEmpty)
+                    ? Container(
+                  child: Text('None'),
+                )
+                    : Container(
+                  height: 60,
+                  width: MediaQuery.of(context).size.width *
+                      0.70,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (ctx, i) {
+                      return InterestOfPerson(loadedBirthday
+                          .interestsofPerson[i].name
+                          .toString());
+                    },
+                    itemCount:
+                    loadedBirthday.interestListSize(),
+                    shrinkWrap: true,
+                    dragStartBehavior:
+                    DragStartBehavior.start,
+                    physics: ClampingScrollPhysics(),
+                    //padding: const EdgeInsets.all(10),
+                  ),
+                ),
+              ),
+
             ],
           ),
         ),
@@ -509,29 +338,4 @@ class InterestOfPerson extends StatelessWidget {
     );
   }
 }
-// Chip(
-// label: Text(_interestOfPerson),
-// );
 
-// Expanded(
-// child: ListView.builder(
-// scrollDirection: Axis.horizontal,
-// itemBuilder: (ctx, i) {
-// return InterestOfPerson(loadedBirthday
-//     .interestsofPerson[i].name
-//     .toString());
-// },
-// itemCount:
-// loadedBirthday.interestListSize(),
-// shrinkWrap: true,
-// physics: ClampingScrollPhysics(),
-// padding: const EdgeInsets.all(10),
-// // gridDelegate: SliverGridRegularTileLayout(crossAxisStride: null
-// //
-// //  // crossAxisCount: 2,
-// //   //crossAxisSpacing: 10,
-// //   //childAspectRatio: 3 / 3,
-// //   //mainAxisSpacing: 10,
-// // ),
-// ),
-// ),

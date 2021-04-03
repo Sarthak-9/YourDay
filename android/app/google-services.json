@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "983166955295",
+    "firebase_url": "https://yourday-306218-default-rtdb.firebaseio.com",
+    "project_id": "yourday-306218",
+    "storage_bucket": "yourday-306218.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983166955295:android:f6dc195dee4385cc148a2a",
+        "android_client_info": {
+          "package_name": "com.example.yday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983166955295-3g98f2dgpslcvr2qo5u8vmvqi0bc1bsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIkFqInoVxWW3uI1dgI-hOuTOOWwNlEpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983166955295-3g98f2dgpslcvr2qo5u8vmvqi0bc1bsb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -18,8 +18,8 @@ class EventScreen extends StatefulWidget {
 class _EventScreenState extends State<EventScreen> {
   @override
   Widget build(BuildContext context) {
-    final birthdaylist = Provider.of<Birthdays>(context);
-    final birthdays = birthdaylist.birthdayList;
+    // final birthdaylist = Provider.of<Birthdays>(context);
+    // final birthdays = birthdaylist.birthdayList;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(8.0),

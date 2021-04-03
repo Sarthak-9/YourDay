@@ -37,7 +37,6 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
         else
           daysLeftforAnniversary = 366 - daysLeftforAnniversary;
       }
-
       return daysLeftforAnniversary;
     }
 
@@ -98,9 +97,9 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircleAvatar(
-                      backgroundImage: loadedAnniversary.imageofCouple == null
+                      backgroundImage: loadedAnniversary.imageUrl == null
                           ? AssetImage('assets/images/userimage.png')
-                          : FileImage(loadedAnniversary.imageofCouple),
+                          : NetworkImage(loadedAnniversary.imageUrl),
                       radius: MediaQuery.of(context).size.width * 0.18,
                     ),
                     Padding(padding: EdgeInsets.symmetric(horizontal: 24.0)),
@@ -122,433 +121,215 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                   ],
                 ),
               ),
-              // ListTile(
-              //   leading: Icon(
-              //     Icons.person_outline_rounded,
-              //     color: _categoryColor,
-              //     size: 28.0,
-              //   ),
-              //   title: Text(
-              //     'Husband\'s Name',
-              //     textAlign: TextAlign.left,
-              //     textScaleFactor: 1.3,
-              //     style: TextStyle(
-              //       color: _categoryColor,
-              //     ),
-              //   ),
-              //   subtitle: Text(
-              //     loadedAnniversary.husband_name,
-              //     style: TextStyle(
-              //       color: Colors.black
-              //     ),
-              //     //textScaleFactor: 1.4,
-              //     textAlign: TextAlign.start,
-              //     overflow: TextOverflow.ellipsis,
-              //   ),
-              // ),
+
               Padding(padding: EdgeInsets.all(4.0)),
-              Container(
-                padding: EdgeInsets.all(5.0),
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline_rounded,
-                      color: _categoryColor,
-                      size: 28.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Husband\'s Name',
-                            textAlign: TextAlign.left,
-                            textScaleFactor: 1.3,
-                            style: TextStyle(
-                              color: _categoryColor,
-                            ),
-                          ),
-                          Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: Text(
-                              loadedAnniversary.husband_name,
-                              //textScaleFactor: 1.4,
-                              textAlign: TextAlign.start,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+              ListTile(
+                leading: Icon(
+                  Icons.person_outline_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Husband\'s Name',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: Text(
+                  loadedAnniversary.husband_name,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Divider(),
-              Container(
-                padding: EdgeInsets.all(5.0),
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline_rounded,
-                      color: _categoryColor,
-                      size: 28.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Wife\'s Name',
-                            textAlign: TextAlign.left,
-                            textScaleFactor: 1.3,
-                            style: TextStyle(
-                              color: _categoryColor,
-                            ),
-                          ),
-                          Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: Text(
-                              loadedAnniversary.husband_name,
-                              //textScaleFactor: 1.4,
-                              textAlign: TextAlign.start,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+              ListTile(
+                leading: Icon(
+                  Icons.person_outline_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Wife\'s Name',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: Text(
+                  loadedAnniversary.wife_name,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.supervisor_account_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Relation',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedAnniversary.relation,
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                padding: EdgeInsets.all(5.0),
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      color: _categoryColor,
-                      size: 28.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Anniversary Date',
-                            textAlign: TextAlign.left,
-                            textScaleFactor: 1.3,
-                            style: TextStyle(
-                              color: _categoryColor,
-                            ),
-                          ),
-                          Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: loadedAnniversary.yearofmarriageProvided
-                                ? Text(
-                                    DateFormat('dd / MM / yyyy').format(
-                                        loadedAnniversary.dateofanniversary),
-                                    //textScaleFactor: 1.4,
-                                    textAlign: TextAlign.start,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 5,
-                                  )
-                                : Text(DateFormat('dd / MM ').format(
-                                    loadedAnniversary.dateofanniversary)),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+              ListTile(
+                leading: Icon(
+                  Icons.supervisor_account_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Relation',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: Text(
+                  loadedAnniversary.relation,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.watch_later_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Alarm Set',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: loadedAnniversary.setAlarmforAnniversary !=
-                                      null
-                                  ? Text(
-                                      loadedAnniversary.setAlarmforAnniversary
-                                          .format(context),
-                                      //textScaleFactor: 1.4,
-                                      textAlign: TextAlign.start,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 5,
-                                    )
-                                  : Text('No'),
-                            ),
-                            //),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.note_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Notes',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedAnniversary.notes,
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.phone_android_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Phone',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedAnniversary.phoneNumberofCouple==null?loadedAnniversary.phoneNumberofCouple:'None',
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  padding: EdgeInsets.all(5.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.email_outlined,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Email',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Text(
-                                loadedAnniversary.emailofCouple==null?loadedAnniversary.emailofCouple:'None',
-                                //textScaleFactor: 1.4,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
-              Container(
-                  //height: 200,
-                  padding: EdgeInsets.all(5.0),
-                  //width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.favorite_border_rounded,
-                        color: _categoryColor,
-                        size: 28.0,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 5.0,),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Interests',
-                              textAlign: TextAlign.left,
-                              textScaleFactor: 1.3,
-                              style: TextStyle(
-                                color: _categoryColor,
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.0)),
-                            (loadedAnniversary.interestsofCouple == null ||
-                                    loadedAnniversary.interestsofCouple.isEmpty)
-                                ? Container(
-                                    child: Text('None'),
-                                  )
-                                : Container(
-                                    height: 60,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.70,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (ctx, i) {
-                                        return InterestOfPerson(
-                                            loadedAnniversary
-                                                .interestsofCouple[i].name
-                                                .toString());
-                                      },
-                                      itemCount:
-                                          loadedAnniversary.interestListSize(),
-                                      shrinkWrap: true,
-                                      dragStartBehavior:
-                                          DragStartBehavior.start,
-                                      physics: ClampingScrollPhysics(),
-                                      //padding: const EdgeInsets.all(10),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-              Divider(),
+              ListTile(
+                leading: Icon(
+                  Icons.calendar_today_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text('Anniversary Date',textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),),
+                subtitle: loadedAnniversary.yearofmarriageProvided
+                    ? Text(
+                  DateFormat('dd / MM / yyyy')
+                      .format(loadedAnniversary.dateofanniversary),
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                )
+                    : Text(DateFormat('dd / MM ')
+                    .format(loadedAnniversary.dateofanniversary)),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.watch_later_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Alarm Set',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: loadedAnniversary.setAlarmforAnniversary != null
+                    ? Text(
+                  loadedAnniversary.setAlarmforAnniversary
+                      .format(context),
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                )
+                    : Text('No'),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.note_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Notes',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedAnniversary.notes,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.phone_android_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Phone',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedAnniversary.phoneNumberofCouple,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.email_outlined,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Email',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: Text(
+                  loadedAnniversary.emailofCouple,
+                  //textScaleFactor: 1.4,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.favorite_border_rounded,
+                  color: _categoryColor,
+                  size: 28.0,
+                ),
+                title: Text(
+                  'Interests',
+                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: _categoryColor,
+                  ),
+                ),
+                subtitle: (loadedAnniversary.interestsofCouple == null ||
+                    loadedAnniversary.interestsofCouple.isEmpty)
+                    ? Container(
+                  child: Text('None'),
+                )
+                    : Container(
+                  height: 60,
+                  width: MediaQuery.of(context).size.width *
+                      0.70,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (ctx, i) {
+                      return InterestOfPerson(loadedAnniversary.interestsofCouple[i].name
+                          .toString());
+                    },
+                    itemCount:
+                    loadedAnniversary.interestListSize(),
+                    shrinkWrap: true,
+                    dragStartBehavior:
+                    DragStartBehavior.start,
+                    physics: ClampingScrollPhysics(),
+                    //padding: const EdgeInsets.all(10),
+                  ),
+                ),
+              ),
+              //
             ],
           ),
         ),
