@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,9 @@ import 'package:image_share/image_share.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart' as URLLauncher;
 
 class FestivalImageWidget extends StatefulWidget {
   final String _festivalImageUrl;
@@ -20,6 +24,7 @@ class FestivalImageWidget extends StatefulWidget {
 }
 
 class _FestivalImageWidgetState extends State<FestivalImageWidget> {
+
   @override
   Widget build(BuildContext context) {
     final Color themeColor = Theme.of(context).primaryColor;
@@ -58,10 +63,13 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
                   icon: Icon(Icons.download_rounded,color: themeColor,),
                   onPressed: _onImageSaveButtonPressed,
                 ),
-                IconButton(icon: Icon(Icons.edit,color: themeColor,), onPressed: () async {}),
-                IconButton(icon: Icon(Icons.share_rounded,color: themeColor,), onPressed: ()async {
-                  await ImageShare.shareImage(filePath: "assets/images/userimage.png");
-                }),
+                IconButton(icon: Icon(Icons.edit,color: themeColor,), onPressed: _imageWhatsAppShare),
+                IconButton(icon: Icon(Icons.share_rounded,color: themeColor,), onPressed: saveAndShare,
+                //     ()async {
+                //   File _imageShare = await urlToFile();
+                //   await ImageShare.shareImage(filePath: _imageShare.path);
+                // }
+                ),
               ],
             ),
           ),
@@ -70,91 +78,82 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
     );
   }
   var _imageFile;
+  var path;
   void _onImageSaveButtonPressed() async {
     try {
-      // Saved with this method.
-      var imageId = await ImageDownloader.downloadImage("https://raw.githubusercontent.com/wiki/ko2ic/image_downloader/images/flutter.png");
+      var imageId = await ImageDownloader.downloadImage(widget._festivalImageUrl);
       if (imageId == null) {
         return;
       }
 
-      // Below is a method of obtaining saved image information.
       var fileName = await ImageDownloader.findName(imageId);
-      var path = await ImageDownloader.findPath(imageId);
+      path = await ImageDownloader.findPath(imageId);
       var size = await ImageDownloader.findByteSize(imageId);
       var mimeType = await ImageDownloader.findMimeType(imageId);
     } on PlatformException catch (error) {
       print(error);
     }
-    // var _imgUrl = Uri.parse(widget._festivalImageUrl);
-    // print("_onImageSaveButtonPressed");
-    // var response = await http
-    //     .get(_imgUrl);
-    //
-    // debugPrint(response.statusCode.toString());
-    //
-    // var filePath = await ImagePickerSaver.saveFile(
-    //     fileData: response.bodyBytes);
-    //
-    // var savedFile= File.fromUri(Uri.file(filePath));
+  }
+  void _imageWhatsAppShare()async{
+    List<dynamic> paths = [];
+    List<dynamic> urls = [
+      "https://blurha.sh/assets/images/img1.jpg",
+      "https://blurha.sh/assets/images/img1.jpg"
+    ];
+    paths.add(path);
+    // await Share().
+  }
+  Future<File> urlToFile() async {
+// generate random number.
+    var rng = new Random();
+    var imageUrl = Uri.parse(widget._festivalImageUrl);
+    Directory tempDir = await pathProvider.getTemporaryDirectory();
+    String tempPath = tempDir.path;
+// create a new file in temporary path with random file name.
+    File file = new File('$tempPath'+ (rng.nextInt(100)).toString() +'.png');
+// call http.get method and pass imageUrl into it to get response.
+    http.Response response = await http.get(imageUrl);
+// write bodyBytes received in response to file.
+    await file.writeAsBytes(response.bodyBytes);
+    await ImageShare.shareImage(filePath: file.path);
+
+    return file;
+
+  }
+  void shareWhatsApp()async{
+    const url = 'whatsapp://send';//?phone';//=$widget.';
+    if (await URLLauncher.canLaunch(url)) {
+      await URLLauncher.launch(url);
+    }
+    else {
+      throw 'Could not launch $url';
+    }
+  }
+  Future<Null> saveAndShare() async {
     // setState(() {
-    //   _imageFile = Future<File>.sync(() => savedFile);
+    //   isBtn2 = true;
     // });
-    // print("_onImageSaveButtonPressedCompletes");
+    final RenderBox box = context.findRenderObject();
+    if (Platform.isAndroid) {
+      var imageUrl = Uri.parse(widget._festivalImageUrl);
+
+      var response = await http.get(imageUrl);
+      final documentDirectory = (await pathProvider.getTemporaryDirectory()).path;
+      File imgFile = new File('$documentDirectory/flutter.png');
+      imgFile.writeAsBytesSync(response.bodyBytes);
+
+      Share.shareFiles([File('$documentDirectory/flutter.png').path],
+          // subject: 'URL conversion + Share',
+          text: 'Hey! This is sent by Sarthak Saxena',
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    } else {
+      Share.share('',
+          // subject: 'URL conversion + Share',
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    }
+    // setState(() {
+    //   isBtn2 = false;
+    // });
   }
-  String imageData;
-  bool dataLoaded = false;
-  Future<void> downloadImage()async{
-    var _imgUrl = Uri.parse(widget._festivalImageUrl);
-    // _asyncMethod() async {
-      //comment out the next two lines to prevent the device from getting
-      // the image from the web in order to prove that the picture is
-      // coming from the device instead of the web.
-      var url = "https://www.tottus.cl/static/img/productos/20104355_2.jpg"; // <-- 1
-      var response = await http.get(_imgUrl); // <--2
-      var documentDirectory = await pathProvider.getExternalStorageDirectory();
-      var firstPath = documentDirectory.path + "/images";
-      var filePathAndName = documentDirectory.path + '/images/706036.jpg';
-      //comment out the next three lines to prevent the image from being saved
-      //to the device to show that it's coming from the internet
-      await Directory(firstPath).create(recursive: true); // <-- 1
-      File file2 = new File(filePathAndName);             // <-- 2
-      file2.writeAsBytesSync(response.bodyBytes);         // <-- 3
-      setState(() {
-        imageData = filePathAndName;
-        dataLoaded = true;
-      });
-      print(imageData);
-    // }
-    // try {
-    //   final response = await http.get(_imgUrl);
-    //
-    //   // Get the image name
-    //   final imageName =path.basename('');
-    //   // Get the document directory path
-    //   final appDir = await pathProvider.getApplicationDocumentsDirectory();
-    //
-    //   // This is the saved image path
-    //   // You can use it to display the saved image later.
-    //   final localPath =path.join(appDir.path, imageName);
-    //
-    //   // Downloading
-    //   final imageFile =File(localPath);
-    //   await imageFile.writeAsBytes(response.bodyBytes);
-    //   print('Downloaded!');
-      // Saved with this method.
-      // Future.delayed(Duration(seconds: 3));
-      // var imageId = await ImageDownloader.downloadImage("https://raw.githubusercontent.com/wiki/ko2ic/image_downloader/images/flutter.png");
-      // if (imageId == null) {
-      //   return;
-      // }
-      // Below is a method of obtaining saved image information.
-      // var fileName = await ImageDownloader.findName(imageId);
-      // var path = await ImageDownloader.findPath(imageId);
-      // var size = await ImageDownloader.findByteSize(imageId);
-      // var mimeType = await ImageDownloader.findMimeType(imageId);
-    /*} on PlatformException catch (error) {
-      print(error);
-    }*/
-  }
+
 }
