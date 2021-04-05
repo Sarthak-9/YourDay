@@ -9,6 +9,7 @@ import 'package:yday/widgets/add_popover_widget.dart';
 import 'package:yday/widgets/task_widget.dart';
 
 import 'add_task.dart';
+import 'frames/festival_list.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -74,9 +75,7 @@ Widget tabsWidget() {
       );
 
     case 1:
-      return Center(
-        child: Text('Frames'),
-      );
+      return FestivalList();
 
     case 2:
       return AllEventPopUp();

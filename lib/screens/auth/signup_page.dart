@@ -65,7 +65,10 @@ class _SignUpState extends State<SignUp> {
                 color: Colors.white70,
                 // color: Theme.of(context).primaryColor,
                 icon: Icon(Icons.cancel_outlined),
-                onPressed: () {}),
+                onPressed: () {
+                  Constants.prefs.setBool("loggedIn", true);
+                  Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+                }),
           ],
         ),
         backgroundColor: primaryColor,
@@ -267,7 +270,7 @@ class _SignUpState extends State<SignUp> {
                     child: TextButton(
                       child: Text(
                         _dateSelected
-                            ? DateFormat('dd / MM ').format(dateTime)
+                            ? DateFormat('dd / MM / yyyy').format(dateTime)
                             : 'Select your Date of Birth',
                         style: TextStyle(
                           color: Colors.white,

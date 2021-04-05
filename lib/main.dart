@@ -16,12 +16,14 @@ import 'package:yday/screens/auth/signup_page.dart';
 import 'package:yday/screens/birthday_detail_screen.dart';
 import 'package:yday/screens/calender.dart';
 import 'package:yday/screens/eventscreen.dart';
+import 'package:yday/screens/frames/festival_images_screen.dart';
 import 'package:yday/screens/task_detail_screen.dart';
 import 'package:yday/screens/todays_events.dart';
 import 'package:yday/testfile.dart';
 import './screens/homepage.dart';
 import './providers/tasks.dart';
 import 'models/calenderId.dart';
+import 'providers/frames/festivals.dart';
 import 'widgets/add_popover_widget.dart';
 
 Future<void> main() async {
@@ -43,6 +45,7 @@ class MyApp extends StatelessWidget {
           ),
           ChangeNotifierProvider(create: (ctx)=> Anniversaries(),),
           ChangeNotifierProvider(create: (ctx)=> UserData(),),
+          ChangeNotifierProvider(create: (ctx)=> Festivals(),),
         ] ,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -60,6 +63,7 @@ class MyApp extends StatelessWidget {
               TaskDetailScreen.routeName: (ctx)=> TaskDetailScreen(),
               TodaysEventScreen.routeName: (ctx)=> TodaysEventScreen(),
               AllEvents.routeName: (ctx) => AllEvents(),
+              FestivalImageScreen.routeName: (ctx) => FestivalImageScreen(),
             },
             theme: ThemeData(
               primaryColor: const Color(0xFF305496),

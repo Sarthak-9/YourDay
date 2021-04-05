@@ -38,6 +38,9 @@ class _UserAccountState extends State<UserAccount> {
       });
     }
     if(_loggedIn){
+      setState(() {
+        _isLoading = true;
+      });
       var _userID = _auth.currentUser.uid;
       var _user =_auth.currentUser;
       if(_user.displayName == null){
@@ -58,6 +61,9 @@ class _UserAccountState extends State<UserAccount> {
         _userEmailId = _user.email;
         _userPhone = _user.phoneNumber;
       }
+      setState(() {
+        _isLoading=false;
+      });
     }
     // _userDob = _userProfile['userDOB'];
     setState(() {
@@ -69,6 +75,11 @@ class _UserAccountState extends State<UserAccount> {
     // TODO: implement initState
     _fetchProfile();
     super.initState();
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
