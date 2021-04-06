@@ -4,16 +4,18 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_downloader/image_downloader.dart';
 import 'package:image_picker_saver/image_picker_saver.dart';
-import 'package:image_share/image_share.dart';
+// import 'package:image_share/image_share.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart' as URLLauncher;
-
+import 'package:flutter_vesti_share/flutter_vesti_share.dart' as vesti;
 class FestivalImageWidget extends StatefulWidget {
   final String _festivalImageUrl;
 
@@ -63,7 +65,7 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
                   icon: Icon(Icons.download_rounded,color: themeColor,),
                   onPressed: _onImageSaveButtonPressed,
                 ),
-                IconButton(icon: Icon(Icons.edit,color: themeColor,), onPressed: _imageWhatsAppShare),
+                IconButton(icon: FaIcon(FontAwesomeIcons.whatsapp,color: themeColor,), onPressed: shareWhatsApp),
                 IconButton(icon: Icon(Icons.share_rounded,color: themeColor,), onPressed: saveAndShare,
                 //     ()async {
                 //   File _imageShare = await urlToFile();
@@ -94,40 +96,57 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
       print(error);
     }
   }
-  void _imageWhatsAppShare()async{
+  // void _imageWhatsAppShare()async{
+  //   List<dynamic> paths = [];
+  //   List<dynamic> urls = [
+  //     "https://blurha.sh/assets/images/img1.jpg",
+  //     "https://blurha.sh/assets/images/img1.jpg"
+  //   ];
+  //   paths.add(path);
+  //   // await Share().
+  // }
+//   Future<File> urlToFile() async {
+// // generate random number.
+//     var rng = new Random();
+//     var imageUrl = Uri.parse(widget._festivalImageUrl);
+//     Directory tempDir = await pathProvider.getTemporaryDirectory();
+//     String tempPath = tempDir.path;
+// // create a new file in temporary path with random file name.
+//     File file = new File('$tempPath'+ (rng.nextInt(100)).toString() +'.png');
+// // call http.get method and pass imageUrl into it to get response.
+//     http.Response response = await http.get(imageUrl);
+// // write bodyBytes received in response to file.
+//     await file.writeAsBytes(response.bodyBytes);
+//     await Share.shareFiles([file.path]);
+//     // await ImageShare.shareImage(filePath: file.path);
+//
+//     return file;
+//
+//   }
+  void shareWhatsApp()async{
+    var _imgUrl = widget._festivalImageUrl;
     List<dynamic> paths = [];
     List<dynamic> urls = [
-      "https://blurha.sh/assets/images/img1.jpg",
-      "https://blurha.sh/assets/images/img1.jpg"
+      _imgUrl
+      // "https://blurha.sh/assets/images/img1.jpg",
+      // "https://blurha.sh/assets/images/img1.jpg"
     ];
-    paths.add(path);
-    // await Share().
-  }
-  Future<File> urlToFile() async {
-// generate random number.
-    var rng = new Random();
-    var imageUrl = Uri.parse(widget._festivalImageUrl);
-    Directory tempDir = await pathProvider.getTemporaryDirectory();
-    String tempPath = tempDir.path;
-// create a new file in temporary path with random file name.
-    File file = new File('$tempPath'+ (rng.nextInt(100)).toString() +'.png');
-// call http.get method and pass imageUrl into it to get response.
-    http.Response response = await http.get(imageUrl);
-// write bodyBytes received in response to file.
-    await file.writeAsBytes(response.bodyBytes);
-    await ImageShare.shareImage(filePath: file.path);
+    // for(final url in urls){
+      File file = await DefaultCacheManager().getSingleFile(urls[0]);
+      paths.add(file.path);
+    // }
+    await vesti.Share().whatsAppImageList(
+        paths: paths,
+        business: false
+    );
 
-    return file;
-
-  }
-  void shareWhatsApp()async{
-    const url = 'whatsapp://send';//?phone';//=$widget.';
-    if (await URLLauncher.canLaunch(url)) {
-      await URLLauncher.launch(url);
-    }
-    else {
-      throw 'Could not launch $url';
-    }
+    // const url = 'whatsapp://send';//?phone';//=$widget.';
+    // if (await URLLauncher.canLaunch(url)) {
+    //   await URLLauncher.launch(url);
+    // }
+    // else {
+    //   throw 'Could not launch $url';
+    // }
   }
   Future<Null> saveAndShare() async {
     // setState(() {
@@ -155,5 +174,6 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
     //   isBtn2 = false;
     // });
   }
+
 
 }

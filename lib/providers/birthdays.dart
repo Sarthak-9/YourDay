@@ -17,18 +17,18 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
 
 
-class CloudStorageService {
-  Future<CloudStorageResult> uploadImage({
-    @required File imageToUpload,
-    @required String title,
-  }) async {}
-}
-
-class CloudStorageResult {
-  final String imageUrl;
-  final String imageFileName;
-  CloudStorageResult({this.imageUrl, this.imageFileName});
-}
+// class CloudStorageService {
+//   Future<CloudStorageResult> uploadImage({
+//     @required File imageToUpload,
+//     @required String title,
+//   }) async {}
+// }
+//
+// class CloudStorageResult {
+//   final String imageUrl;
+//   final String imageFileName;
+//   CloudStorageResult({this.imageUrl, this.imageFileName});
+// }
 
 class Birthdays with ChangeNotifier {
   List<BirthDay> _birthdayList = [];
