@@ -10,6 +10,7 @@ import 'package:yday/widgets/task_widget.dart';
 
 import 'add_task.dart';
 import 'frames/festival_list.dart';
+import 'photos/photo_screen.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -70,9 +71,7 @@ class _HomePageState extends State<HomePage> {
 Widget tabsWidget() {
   switch (selectedTab) {
     case 0:
-      return Center(
-        child: Text('My Drive'),
-      );
+      return PhotoScreen();
 
     case 1:
       return FestivalList();

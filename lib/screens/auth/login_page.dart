@@ -205,8 +205,8 @@ class _LoginPageState extends State<LoginPage> {
         ));
   }
 
-  _signInWithGoogle()async{
-    final GoogleSignInAccount googleUser = await googleSignIn.signIn();
+  _signInWithGoogle()async {
+    try{final GoogleSignInAccount googleUser = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
     final AuthCredential loginCredential = GoogleAuthProvider.credential(idToken: googleAuth.idToken,accessToken: googleAuth.accessToken);
     final User user = (await _firebaseAuthLogin.signInWithCredential(loginCredential)).user;
@@ -214,6 +214,9 @@ class _LoginPageState extends State<LoginPage> {
     if(user!=null){
       Constants.prefs.setBool("loggedIn", true);
       Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+    }}catch(error){
+      print('112');
+      print(error);
     }
   }
 

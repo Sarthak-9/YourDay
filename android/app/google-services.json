@@ -15,8 +15,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "983166955295-3g98f2dgpslcvr2qo5u8vmvqi0bc1bsb.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "983166955295-rlfjn94kkpofbpfjaotrcu5tgsdqpivn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.yday",
+            "certificate_hash": "c95a45876455405140fd4dc932bab1e7ab0ef487"
+          }
         }
       ],
       "api_key": [
@@ -26,12 +30,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "983166955295-3g98f2dgpslcvr2qo5u8vmvqi0bc1bsb.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

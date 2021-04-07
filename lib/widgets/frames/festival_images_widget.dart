@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_downloader/image_downloader.dart';
-import 'package:image_picker_saver/image_picker_saver.dart';
 // import 'package:image_share/image_share.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
