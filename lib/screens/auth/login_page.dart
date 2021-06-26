@@ -1,16 +1,19 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yday/models/constants.dart';
-
+import 'package:provider/provider.dart';
+import 'package:scaled_list/scaled_list.dart';
+import 'package:yday/models/userdata.dart';
+import 'package:yday/providers/frames/festivals.dart';
 import '../homepage.dart';
 import 'signup_page.dart';
+import 'package:yday/services/google_signin_repository.dart';
 
 class LoginPage extends StatefulWidget {
-    static const routename = '/login';
+  static const routename = '/login';
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -27,195 +30,149 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
   final _loginkey = GlobalKey<FormState>();
+  final storage = new FlutterSecureStorage();
 
   String _userEmail = '';
   String _userPassword = '';
-  var _isLoading = false;
+  bool _isLoading = false;
   final FirebaseAuth _firebaseAuthLogin = FirebaseAuth.instance;
-
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   @override
   Widget build(BuildContext context) {
+    double deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: [
-            IconButton(
-              color: Colors.white70,
-              // color: Theme.of(context).primaryColor,
-                icon: Icon(Icons.cancel_outlined), onPressed: (){
-              Constants.prefs.setBool("loggedIn", true);
-              Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-            }),
-          ],
-        ),
-        backgroundColor: primaryColor,
+        // backgroundColor: primaryColor,
         body: Container(
-          alignment: Alignment.center,
-          margin: EdgeInsets.symmetric(horizontal: 30),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _loginkey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child:Image.asset(
-                      'assets/images/YD.png',
-                      height: 100,
+          height: deviceHeight,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: ExactAssetImage('assets/images/bg4.jpg'),
+              fit: BoxFit.fill,
+              // alignment:Alignment.topCenter,
+            ),
+          ),
+          // margin: EdgeInsets.symmetric(horizontal: 30),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _loginkey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: 70),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Image.asset(
+                        'assets/images/YD.png',
+                        height: 100,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                  Text(
-                    'Sign in to YourDay and continue',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
+                    SizedBox(height: 30),
+                    Text(
+                      'Explore Features',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                      ),
                     ),
-                    // style:
-                    // GoogleFonts.openSans(color: Colors.white, fontSize: 28),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                      color: secondaryColor, border: Border.all(color: Colors.blue)),
-                  child: TextFormField(
-                    controller: _emailController,
-                    validator: (value) {
-                      if (value.isEmpty || !value.contains('@')) {
-                        return 'Please enter a valid email address';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _userEmail = value;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Username',
-                        labelStyle: TextStyle(color: Colors.white),
-                        icon: Icon(
-                          Icons.account_circle,
-                          color: Colors.white,
-                        ),
-                        // prefix: Icon(icon),
-                        border: InputBorder.none),
-                  ),
-                ),
-                  // _buildTextField(
-                  //     nameController, Icons.account_circle, 'Username'),
-                  SizedBox(height: 20),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                      color: secondaryColor, border: Border.all(color: Colors.blue)),
-                  child: TextFormField(
-                    controller: _passwordController,
-                    validator: (value) {
-                        if (value.isEmpty || value.length < 7) {
-                          return 'Password must be atleast 7 charachters';
-                        }
-                        return null;
+                    SizedBox(
+                      height: 30,
+                    ),
+                    ScaledList(
+                      cardWidthRatio: 0.8,
+                      selectedCardHeightRatio: 0.8,
+                      unSelectedCardHeightRatio: 0.75,
+                      itemCount: categories.length,
+                      itemColor: (index) {
+                        return kMixedColors[index % kMixedColors.length];
                       },
-                      onSaved: (value) {
-                        _userPassword = value;
+                      itemBuilder: (index, selectedIndex) {
+                        final category = categories[index];
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: selectedIndex == index ? deviceHeight*0.35 : deviceHeight*0.35,
+                              child: Image.asset(category.image),
+                            ),
+                            SizedBox(height: 15),
+                            Text(
+                              category.name,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: selectedIndex == index ? 25 : 25),
+                            )
+                          ],
+                        );
                       },
-                      obscureText: true,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.white),
-                        icon: Icon(
-                          Icons.lock,
-                          color: Colors.white,
-                        ),
-                        // prefix: Icon(icon),
-                        border: InputBorder.none),
-                  ),
-                ),
-                  // _buildTextField(passwordController, Icons.lock, 'Password'),
-                  SizedBox(height: 30),
-                  MaterialButton(
-                    elevation: 0,
-                    minWidth: double.maxFinite,
-                    height: 50,
-                    onPressed: _submitAuthFormLogin,
-                    color: Colors.green,
-                    child: _isLoading ? CircularProgressIndicator(): Text('Login',
-                        style: TextStyle(color: Colors.white, fontSize: 16)),
-                    textColor: Colors.white,
-                  ),
-                  SizedBox(height: 20),
-                  MaterialButton(
-                    elevation: 0,
-                    minWidth: double.maxFinite,
-                    height: 50,
-                    onPressed: _signInWithGoogle,
-                    color: Theme.of(context).primaryColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(Icons.assignment_ind),
-                        SizedBox(width: 10),
-                        Text('Sign-in using Google',
-                            style: TextStyle(color: Colors.white, fontSize: 16)),
-                      ],
                     ),
-                    textColor: Colors.white,
-                  ),
-                  // OutlinedButton(onPressed: (){}),
-                  SizedBox(height: 10),
-                  OutlinedButton(
-                    child: Text(
-                    "  New here ? Sign Up  ",
-                    style: TextStyle(
-                      color: Theme.of(context).accentColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16
+                    SizedBox(height: 20),
+                    MaterialButton(
+                      elevation: 0,
+                      minWidth: double.maxFinite,
+                      height: 50,
+                      onPressed: _signInWithGoogle,
+                      color: Theme.of(context).primaryColor,
+                      child: _isLoading
+                          ? CircularProgressIndicator()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.assignment_ind),
+                                SizedBox(width: 10),
+                                Text('Sign-in using Google',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16)),
+                              ],
+                            ),
+                      textColor: Colors.white,
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(SignUp.routename);
-                    //Navigator.pushNamed(context, SignUp.routename);
-                  },
+                    // OutlinedButton(onPressed: (){}),
+                    SizedBox(height: 10),
+                  ],
                 ),
-                  SizedBox(height: 10),
-                TextButton(
-                  onPressed:_resetPassword,
-                  child: Text(
-                    "Forgot Password ? Need help ",
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ),
-                ],
               ),
             ),
           ),
         ));
   }
 
-  _signInWithGoogle()async {
-    try{final GoogleSignInAccount googleUser = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential loginCredential = GoogleAuthProvider.credential(idToken: googleAuth.idToken,accessToken: googleAuth.accessToken);
-    final User user = (await _firebaseAuthLogin.signInWithCredential(loginCredential)).user;
-
-    if(user!=null){
-      Constants.prefs.setBool("loggedIn", true);
-      Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-    }}catch(error){
-      print('112');
+  _signInWithGoogle() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<GoogleAccountRepository>(context, listen: false)
+          .loginWithGoogle();
+      final GoogleSignInAccount googleUser =
+          Provider.of<GoogleAccountRepository>(context, listen: false)
+              .googleSignInAccount;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential loginCredential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+      final authResult =
+          await _firebaseAuthLogin.signInWithCredential(loginCredential);
+      // final User user = authResult.user;
+      bool userStatus = await Provider.of<UserData>(context,listen: false).fetchUser();
+      if(userStatus){
+        await storage.write(key: "signedIn", value: "true");
+        Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+        // await Provider.of<Festivals>(context, listen: false).fetchFestival();
+      }
+      else{
+      Navigator.of(context).pushReplacementNamed(SignUp.routename);
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      // FirebaseAuth.instance.app.options.
+    } catch (error) {
       print(error);
     }
   }
@@ -232,10 +189,13 @@ class _LoginPageState extends State<LoginPage> {
     var message = 'An error occured, please check your credentials';
     UserCredential authResult;
     try {
-      if (isValid){
+      if (isValid) {
         authResult = await _firebaseAuthLogin.signInWithEmailAndPassword(
             email: _userEmail, password: _userPassword);
-        Constants.prefs.setBool("loggedIn", true);
+        await storage.write(key: "signedIn", value: "true");
+        // await storage.write(key: "emailsignin",value: "true");
+
+        // storage.write(key: "driveStarted", value: "false");
         // final prefs = await SharedPreferences.getInstance();
         // if(!prefs.containsKey('userData')){
         //   prefs.setString('userData', _emailController.text);
@@ -248,8 +208,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text('Failed to Sign-in'),
-          content: Text(
-              message),
+          content: Text(message),
           actions: <Widget>[
             TextButton(
               child: Text('Okay'),
@@ -263,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       );
-    }on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
@@ -273,8 +232,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text('Failed to Sign-in'),
-          content: Text(
-              message),
+          content: Text(message),
           actions: <Widget>[
             TextButton(
               child: Text('Okay'),
@@ -288,23 +246,18 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       );
-    }
-    catch (err) {
+    } catch (err) {
       message = 'An error occured. Please try again';
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text('Failed to Sign-in'),
-          content: Text(
-              message),
+          content: Text(message),
           actions: <Widget>[
             TextButton(
               child: Text('Okay'),
               onPressed: () {
                 Navigator.of(ctx).pop();
-                // if (Navigator.canPop(context)) {
-                //   Navigator.of(ctx).pop();
-                // }
               },
             )
           ],
@@ -314,51 +267,30 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = false;
     });
-    // if(!isValid){
-    //   print('11');
-    //   // Scaffold.of(context).showSnackBar(SnackBar(
-    //   //   content: Text('message'),
-    //   //   backgroundColor: Theme.of(context).errorColor,
-    //   // ));
-    // }
-  }
-  void _resetPassword()async{
-    if(_emailController.text.isEmpty||!_emailController.text.contains('@')){
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Enter a valid email'),
-          content: Text(
-              'Unable to reset password to as email address is not valid.'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            )
-          ],
-        ),
-      );
-      return;
-    }
-    await _firebaseAuthLogin.sendPasswordResetEmail(email: _emailController.text);
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Password reset link sent'),
-        content: Text(
-            'A password reset link has been sent to your email. Please follow the steps to reset your password.'),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          )
-        ],
-      ),
-    );
   }
 
+  final List<Color> kMixedColors = [
+    Color(0xff71A5D7),
+    Color(0xff72CCD4),
+    Color(0xffFBAB57),
+    Color(0xffF8B993),
+    Color(0xff962D17),
+    Color(0xffc657fb),
+    Color(0xfffb8457),
+  ];
+
+  final List<Category> categories = [
+    Category(image: "assets/images/bday.jpg", name: "Feature"),
+    Category(image: "assets/images/bday.jpg", name: "Feature"),
+    Category(image: "assets/images/bday.jpg", name: "Feature"),
+    Category(image: "assets/images/bday.jpg", name: "Feature"),
+    Category(image: "assets/images/bday.jpg", name: "Feature"),
+  ];
+}
+
+class Category {
+  final String image;
+  final String name;
+
+  Category({@required this.image, @required this.name});
 }

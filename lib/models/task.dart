@@ -8,19 +8,23 @@ enum PriorityLevel {
 
 class Task {
   final String taskId;
+  final String calenderId;
   final String title;
   final String description;
   final DateTime startdate;
-  final DateTime enddate;
-  final TimeOfDay setalarmfortask;
+  // final DateTime enddate;
+  // final TimeOfDay setalarmfortask;
   final PriorityLevel levelofpriority;
 
-  Task({this.taskId,this.title, this.description,this.startdate, this.enddate,this.setalarmfortask, this.levelofpriority});
+  Task({this.taskId,this.calenderId,this.title, this.description,this.startdate,
+    // this.enddate,
+    // this.setalarmfortask,
+    this.levelofpriority});
 
   String get priorityLevelText {
     switch(levelofpriority){
       case PriorityLevel.Urgent :
-        return 'Necessary';
+        return 'Urgent';
         break;
       case PriorityLevel.Important :
         return 'Important';
@@ -29,7 +33,7 @@ class Task {
         return 'Normal';
         break;
       default:
-        return 'Unknown';
+        return 'Normal';
     }
   }
   String get priorityLevelRank {
@@ -63,6 +67,7 @@ class Task {
     }
   }
 }
+
 PriorityLevel getPriorityLevel(String priorityLevel){
   switch(priorityLevel){
     case 'Normal' :
@@ -70,7 +75,8 @@ PriorityLevel getPriorityLevel(String priorityLevel){
       break;
     case 'Important' :
       return PriorityLevel.Important;
-      break;case 'Necessary' :
+      break;
+      case 'Urgent' :
     return PriorityLevel.Urgent;
     break;
     default:

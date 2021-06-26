@@ -2,50 +2,220 @@ import 'dart:convert';
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yday/models/anniversary.dart';
+import 'package:yday/models/anniversaries/anniversary.dart';
 import 'package:http/http.dart' as http;
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/models/interests.dart';
+import 'package:yday/services/message_handler.dart';
 
-import '../models/anniversary.dart';
+import '../models/anniversaries/anniversary.dart';
 
 class Anniversaries with ChangeNotifier {
   List<Anniversary> _anniversaryList = [];
 
   List<Anniversary> get anniversaryList => _anniversaryList;
 
+  Future<bool> addAnniversary(Anniversary anniv) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    if (_auth == null || _auth.currentUser == null) {
+      return false;
+    }
+    var _userID = _auth.currentUser.uid;
+    FirebaseStorage storage = FirebaseStorage.instance;
+    var photoUrl;
+    if (anniv.imageofCouple != null) {
+      Reference ref = storage
+          .ref()
+          .child('anniversaries')
+          .child(_userID + DateTime.now().toString());
+      UploadTask uploadTask = ref.putFile(anniv.imageofCouple);
+      await uploadTask.whenComplete(() async {
+        photoUrl = await ref.getDownloadURL();
+      }).catchError((onError) {
+        throw onError;
+      });
+    }
+
+    try {
+      String str = DateFormat('ddyyhhmm')
+          .format(anniv.dateofanniversary);
+      int dtInt= int.parse(str);
+      String annivWish = 'Happy Anniversary '+anniv.husband_name+' & '+anniv.wife_name;
+      await NotificationsHelper.setNotification(anniv.dateofanniversary ,dtInt,annivWish,'Wish Happy Anniversary').then((value) => print(anniv.dateofanniversary));
+      final alarmstamp = anniv.setAlarmforAnniversary==null? null:DateTimeField.combine(anniv.dateofanniversary, anniv.setAlarmforAnniversary);
+
+      // final alarmstamp = anniv.setAlarmforAnniversary == null
+      //     ? null
+      //     : DateTimeField.combine(
+      //         anniv.dateofanniversary, anniv.setAlarmforAnniversary);
+      final anninvdatabaseRef = FirebaseDatabase.instance
+          .reference()
+          .child('anniversaries')
+          .child(_userID); //database reference object
+      final annivdatabasePush = anninvdatabaseRef.push();
+      await annivdatabasePush.set({
+        'calenderId': anniv.calenderId,
+        'husband_name': anniv.husband_name,
+        'wife_name': anniv.wife_name,
+        // 'relation': anniv.relation,
+        'notes': anniv.notes,
+        'dateofanniversary': anniv.dateofanniversary.toIso8601String(),
+        'yearofmarriageProvided': anniv.yearofmarriageProvided,
+        'setAlarmforAnniversary':
+            alarmstamp == null ? null : alarmstamp.toIso8601String(),
+        'categoryofCouple': categoryText(anniv.categoryofCouple),
+        'phoneNumberofCouple': anniv.phoneNumberofCouple,
+        'emailofCouple': anniv.emailofCouple,
+        'interestsofCouple': anniv.interestsofCouple
+            .map((intr) => {
+                  'id': intr.id,
+                  'name': intr.name,
+                })
+            .toList(),
+        'imageUrl': photoUrl,
+      });
+
+      final newAnniv = Anniversary(
+        anniversaryId: annivdatabasePush.key,
+        calenderId: anniv.calenderId,
+        husband_name: anniv.husband_name,
+        wife_name: anniv.wife_name,
+        // relation: anniv.relation,
+        notes: anniv.notes,
+        dateofanniversary: anniv.dateofanniversary,
+        yearofmarriageProvided: anniv.yearofmarriageProvided,
+        setAlarmforAnniversary: anniv.setAlarmforAnniversary,
+        interestsofCouple: anniv.interestsofCouple,
+        categoryofCouple: anniv.categoryofCouple,
+        phoneNumberofCouple: anniv.phoneNumberofCouple,
+        emailofCouple: anniv.emailofCouple,
+        imageofCouple: anniv.imageofCouple,
+        imageUrl: photoUrl,
+      );
+      _anniversaryList.add(newAnniv);
+      notifyListeners();
+      return true;
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
+  Future<bool> editAnniversary(Anniversary anniv) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    if (_auth == null || _auth.currentUser == null) {
+      return false;
+    }
+
+    String _userID = _auth.currentUser.uid;
+    FirebaseStorage storage = FirebaseStorage.instance;
+    String photoUrl = anniv.imageUrl;
+    if (anniv.imageofCouple != null) {
+      Reference ref = storage
+          .ref()
+          .child('anniversaries')
+          .child(_userID + DateTime.now().toString());
+      UploadTask uploadTask = ref.putFile(anniv.imageofCouple);
+      await uploadTask.whenComplete(() async {
+        photoUrl = await ref.getDownloadURL();
+      }).catchError((onError) {
+        throw onError;
+      });
+    }
+
+    // Anniversary editAnniv = findById(anniv.anniversaryId);
+    // editAnniv.notes = anniv.notes;
+    // editAnniv.phoneNumberofCouple = anniv.phoneNumberofCouple;
+    // editAnniv.emailofCouple = anniv.emailofCouple;
+
+    try {
+      final alarmstamp = anniv.setAlarmforAnniversary == null
+          ? null
+          : DateTimeField.combine(
+              anniv.dateofanniversary, anniv.setAlarmforAnniversary);
+      final anninvdatabaseRef = FirebaseDatabase.instance
+          .reference()
+          .child('anniversaries')
+          .child(_userID).child(anniv.anniversaryId); //database reference object
+      if(anniv.interestsofCouple==null||anniv.interestsofCouple.isEmpty){
+        await anninvdatabaseRef.update({
+          // 'calenderId': anniv.calenderId,
+          'notes': anniv.notes,
+          'setAlarmforAnniversary':
+          alarmstamp == null ? null : alarmstamp.toIso8601String(),
+          'phoneNumberofCouple': anniv.phoneNumberofCouple,
+          'emailofCouple': anniv.emailofCouple,
+          'imageUrl': photoUrl,
+        });
+      }else{
+        await anninvdatabaseRef.update({
+          // 'calenderId': anniv.calenderId,
+          'notes': anniv.notes,
+          'setAlarmforAnniversary':
+          alarmstamp == null ? null : alarmstamp.toIso8601String(),
+          'phoneNumberofCouple': anniv.phoneNumberofCouple,
+          'emailofCouple': anniv.emailofCouple,
+          'interestsofCouple': anniv.interestsofCouple
+              .map((intr) => {
+            'id': intr.id,
+            'name': intr.name,
+          })
+              .toList(),
+          'imageUrl': photoUrl,
+        });
+      }
+
+      notifyListeners();
+      return true;
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
   Future<bool> fetchAnniversary() async {
     FirebaseAuth _auth = FirebaseAuth.instance;
-    if(_auth ==null||_auth.currentUser==null){
+    if (_auth == null || _auth.currentUser == null) {
       return false;
     }
     var _userID = _auth.currentUser.uid;
 
-    final url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID.json');
-    try {
-      final response = await http.get(url);
+    // final url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID.json');
+    // try {
+      // final response = await http.get(url);
       final List<Anniversary> _loadedAnniversaries = [];
-      final extractedAnniversaries =
-          json.decode(response.body) as Map<String, dynamic>;
-      if (extractedAnniversaries == null) {
+      final databaseRef = FirebaseDatabase.instance
+          .reference()
+          .child('anniversaries')
+          .child(_userID);
+      final extractedAnniversaries = await databaseRef.once();
+      // json.decode(response.body) as Map<String, dynamic>;
+      if (extractedAnniversaries == null ||
+          extractedAnniversaries.value == null) {
         _anniversaryList = _loadedAnniversaries;
         return true;
       }
-      extractedAnniversaries.forEach((annivId, anniv) {
-        var dt = anniv['setAlarmforBirthday'] == null? null :DateTime.parse(anniv['setAlarmforBirthday']);
+      extractedAnniversaries.value.forEach((annivId, anniv) {
+        var dt = anniv['setAlarmforAnniversary'] == null
+            ? null
+            : DateTime.parse(anniv['setAlarmforAnniversary']);
         _loadedAnniversaries.add(Anniversary(
           anniversaryId: annivId,
+          calenderId: anniv['calenderId'],
           husband_name: anniv['husband_name'],
           wife_name: anniv['wife_name'],
-          relation: anniv['relation'],
+          // relation: anniv['relation'],
           notes: anniv['notes'],
           yearofmarriageProvided: anniv['yearofmarriageProvided'],
           dateofanniversary: DateTime.parse(anniv['dateofanniversary']),
-          setAlarmforAnniversary: dt==null?null:TimeOfDay(hour:dt.hour,minute :dt.minute),
+          setAlarmforAnniversary:
+              dt == null ? null : TimeOfDay(hour: dt.hour, minute: dt.minute),
           categoryofCouple: getCategory(anniv['categoryofCouple']),
           interestsofCouple: anniv['interestsofCouple'] == null
               ? null
@@ -59,77 +229,14 @@ class Anniversaries with ChangeNotifier {
         ));
       });
       _anniversaryList = _loadedAnniversaries;
-      _anniversaryList.sort((a,b)=>a.dateofanniversary.compareTo(b.dateofanniversary));
+      _anniversaryList
+          .sort((a, b) => a.dateofanniversary.compareTo(b.dateofanniversary));
       notifyListeners();
       return true;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  Future<bool> addAnniversary(Anniversary anniv) async {
-    FirebaseAuth _auth = FirebaseAuth.instance;
-    if(_auth == null||_auth.currentUser==null){
-      return false;
-    }
-    var _userID = _auth.currentUser.uid;
-    FirebaseStorage storage = FirebaseStorage.instance;
-    var photoUrl;
-    Reference ref = storage.ref().child('anniversaries').child(DateTime.now().toString());
-    UploadTask uploadTask = ref.putFile(anniv.imageofCouple);
-    await uploadTask.whenComplete(() async {
-      photoUrl = await ref.getDownloadURL();
-    }).catchError((onError) {
-      throw onError;
-    });
-    final url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID.json');
-    final alarmstamp = anniv.setAlarmforAnniversary==null? null:DateTimeField.combine(anniv.dateofanniversary, anniv.setAlarmforAnniversary);
-    try {
-      final response = await http.post(
-        url,
-        body: json.encode({
-          'husband_name': anniv.husband_name,
-          'wife_name': anniv.wife_name,
-          'relation': anniv.relation,
-          'notes': anniv.notes,
-          'dateofanniversary': anniv.dateofanniversary.toIso8601String(),
-          'yearofmarriageProvided': anniv.yearofmarriageProvided,
-          'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
-          // 'setAlarmforAnniversary': anniv.setAlarmforAnniversary,
-          'categoryofCouple': categoryText(anniv.categoryofCouple),
-          'phoneNumberofCouple': anniv.phoneNumberofCouple,
-          'emailofCouple': anniv.emailofCouple,
-          'interestsofCouple': anniv.interestsofCouple.map((intr) =>
-          {
-            'id': intr.id,
-            'name': intr.name,
-          }).toList(),
-          'imageUrl' : photoUrl,
-          // imageofCouple: anniv.imageofCouple,
-        }),
-      );
-      final newAnniv = Anniversary(
-              anniversaryId: json.decode(response.body)['name'],
-              husband_name: anniv.husband_name,
-              wife_name: anniv.wife_name,
-              relation: anniv.relation,
-              notes: anniv.notes,
-              dateofanniversary: anniv.dateofanniversary,
-              yearofmarriageProvided: anniv.yearofmarriageProvided,
-              setAlarmforAnniversary: anniv.setAlarmforAnniversary,
-              interestsofCouple: anniv.interestsofCouple,
-              categoryofCouple: anniv.categoryofCouple,
-              phoneNumberofCouple: anniv.phoneNumberofCouple,
-              emailofCouple: anniv.emailofCouple,
-              imageofCouple: anniv.imageofCouple,
-              imageUrl: photoUrl,
-            );
-            _anniversaryList.add(newAnniv);
-            notifyListeners();
-            return true;
-    } catch (error) {
-      throw error;
-    }
+    // } catch (error) {
+    //   print(error);
+    //   throw error;
+    // }
   }
 
   Anniversary findById(String annivId) {
@@ -148,33 +255,24 @@ class Anniversaries with ChangeNotifier {
 
   void completeEvent(String anniversaryid) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
-    if(_auth ==null||_auth.currentUser==null){
-      return ;
+    if (_auth == null || _auth.currentUser == null) {
+      return;
     }
-    try{
+    try {
       var _userID = _auth.currentUser.uid;
-      final url = Uri.parse(
-          'https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID/$anniversaryid.json');
+
+      // final url = Uri.parse(
+      //     'https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID/$anniversaryid.json');
       final existingBdayIndex = _anniversaryList
           .indexWhere((element) => element.anniversaryId == anniversaryid);
-      var existingBday = _anniversaryList[existingBdayIndex];
-      // print(_anniversaryList[existingBdayIndex].imageUrl);
-      // if (_anniversaryList[existingBdayIndex].imageUrl != null) {
-      //   Reference storageReference = FirebaseStorage.instance
-      //       .refFromURL(_anniversaryList[existingBdayIndex].imageUrl);
-      //
-      //   await storageReference.delete();
-      // }
       _anniversaryList.removeAt(existingBdayIndex);
+      final anninvdatabaseRef = FirebaseDatabase.instance
+          .reference()
+          .child('anniversaries')
+          .child(_userID); //database reference object
+      await anninvdatabaseRef.child(anniversaryid).remove();
       notifyListeners();
-      http
-          .delete(url)
-          .then((value) => {existingBday = null})
-          .catchError((error) {
-        _anniversaryList.insert(existingBdayIndex, existingBday);
-        notifyListeners();
-      });
-    }catch(error){
+    } catch (error) {
       throw error;
     }
   }

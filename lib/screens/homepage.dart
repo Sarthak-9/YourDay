@@ -1,96 +1,188 @@
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:popover/popover.dart';
-import 'package:yday/screens/add_birthday_screen.dart';
-import 'package:yday/screens/auth/user_account.dart';
+import 'package:intl/intl.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+
+import 'package:provider/provider.dart';
+import 'package:titled_navigation_bar/titled_navigation_bar.dart';
+import 'package:yday/models/userdata.dart';
 import 'package:yday/screens/calender.dart';
 import 'package:yday/screens/eventscreen.dart';
-import 'package:yday/widgets/add_popover_widget.dart';
-import 'package:yday/widgets/task_widget.dart';
+import 'package:yday/services/google_signin_repository.dart';
+import 'package:yday/widgets/maindrawer.dart';
+import 'package:yday/screens/all_event_popup.dart';
 
-import 'add_task.dart';
+import 'auth/user_edit_profile_screen.dart';
 import 'frames/festival_list.dart';
 import 'photos/photo_screen.dart';
+import 'userevents/add_user_event_screen.dart';
+import 'userevents/user_all_events_screen.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
+  static const routeName1 = '/home1';
+  static const routeName2 = '/home2';
+
+  int tabNumber;
+  HomePage({this.tabNumber});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int selectedTab = 2;
+  int selectedTab = 0;
+  var _pageController;
+  bool isLoading = true;
+  bool driveStarted = false;
+  PersistentTabController _controller =
+      PersistentTabController(initialIndex: 0);
+  @override
+  void initState() {
+    var currentUser = Provider.of<UserData>(context, listen: false).userData;
+    if (currentUser == null) {
+      initsignin();
+    }
+
+    // fetchUser();
+    _controller.index = selectedTab;
+    driveStarted = currentUser.userRootDriveId != null;
+    // var str = FirebaseMessaging.instance.getToken();
+    // print(str);
+    selectedTab = widget.tabNumber;
+    _pageController = PageController(initialPage: selectedTab);
+    super.initState();
+  }
+
+  // @override
+  // void didChangeDependencies() {
+  //   // TODO: implement didChangeDependencies
+  //   // initsignin();
+  //   // fetchUser();
+  //
+  //   super.didChangeDependencies();
+  // }
+  void fetchUser() async {
+    // await Provider.of<Festivals>(context, listen: false).fetchFestival();
+
+    // await Provider.of<UserData>(context, listen: false).fetchUser();
+    // await Provider.of<GoogleAccountRepository>(context, listen: false)
+    //     .loginWithGoogle();
+    // setState(() {
+    //   isLoading = false;
+    // });
+    // await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
+    // await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
+    // await Provider.of<Tasks>(context, listen: false).fetchTask();
+  }
+
+  void initsignin() async {
+    // var str =await FirebaseMessaging.instance.getToken();
+    // print(str);
+    // final storage = new FlutterSecureStorage();
+    // bool signin = await storage.read(key: "signedIn") == "true" ? true : false;
+    // if(signin){
+    // await Provider.of<UserData>(context,listen: false).fetchUser();
+    await Provider.of<GoogleAccountRepository>(context, listen: false)
+        .loginWithGoogle();
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Your Day'),
-          automaticallyImplyLeading: false,centerTitle: true,
-      ),
-      body: tabsWidget(),
-
-      bottomNavigationBar: ConvexAppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        activeColor: Colors.green,
-        // height:50,
-        // top: -30,
-        curveSize: 75,
-        style: TabStyle.reactCircle,
-        items: [
-          TabItem(icon: Icons.insert_drive_file_outlined, title: 'Drive'),
-          TabItem(icon: Icons.photo_album_rounded, title: 'Frames'),
-          TabItem(icon: Icons.calendar_today_rounded, title: 'Calender'),
-          TabItem(icon: Icons.event_available_rounded, title: 'Events'),
-          TabItem(icon: Icons.people, title: 'Profile'),
+        backgroundColor: primaryColor,
+        title: Text(
+          'YourDay',
+          style: TextStyle(
+            // fontFamily: "Kaushan Script",
+            fontSize: 28,
+          ),
+        ),
+        // centerTitle: true,
+        // automaticallyImplyLeading: false,
+        actions: [
+          if (selectedTab == 2)
+            IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () async {
+                  Navigator.of(context).pushNamed(AddUserEventScreen.routeName);
+                }),
+          if (selectedTab == 4)
+            IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed(UserAccountEditScreen.routename);
+                }),
         ],
-        initialActiveIndex: selectedTab,
-        //optional, default as 0
-        onTap: (tab)  {
-        setState(() {
-          selectedTab = tab;
-        });
-        //if(selectedTab==2){
-      //     showPopover(
-      //     context: context,
-      //     bodyBuilder: (context) => const ListItems(),
-      //     onPop: () => print('Popover was popped!'),
-      //     direction: PopoverDirection.top,
-      //     width: 200,
-      //     height: 400,
-      //     arrowHeight: 15,
-      //     arrowWidth: 30,
-      // );
-          //}
-      },
+      ),
+      drawer: MainDrawer(),
+      body: PageView(
+          controller: _pageController,
+          onPageChanged: (tab) {
+            setState(() {
+              // print(tab);
+              selectedTab = tab;
+            });
+          },
+          children: [
+            AllEventPopUp(),
+            FestivalList(),
+            UserAllEventsScreen(),
+          ]),
+      bottomNavigationBar: CustomNavigationBar(
+        iconSize: 30.0,
+        selectedColor: primaryColor,
+        strokeColor: Color(0x30040307),
+        unSelectedColor: Color(0xffacacac),
+        backgroundColor: Colors.white,
+        items: [
+          CustomNavigationBarItem(
+            icon: Image.asset('assets/images/calender_icon.png'),//Icon(Icons.insert_drive_file_rounded),
+            title: Text("Calendar"),
+          ),
+          CustomNavigationBarItem(
+            icon: Image.asset('assets/images/greeting_icon.png'),//Icon(Icons.insert_drive_file_rounded),
+            title: Text("Greetings"),
+          ),
+          CustomNavigationBarItem(
+            icon: Image.asset('assets/images/drive_icon.png'),//Icon(Icons.insert_drive_file_rounded),
+            title: Text("Photo Sharing"),
+          ),
+        ],
+        currentIndex: selectedTab,
+        onTap: (index) {
+          setState(() => selectedTab = index);
+          _pageController.jumpToPage(index);
+          // setState(() {
+          //   selectedTab = index;
+          // });
+        },
       ),
     );
   }
 
-Widget tabsWidget() {
-  switch (selectedTab) {
-    case 0:
-      return PhotoScreen();
+  Widget tabsWidget() {
+    switch (selectedTab) {
+      case 0:
+        return AllEventPopUp(); //UserAllEventsScreen();
 
-    case 1:
-      return FestivalList();
+      case 1:
+        return UserAllEventsScreen();
 
-    case 2:
-      return AllEventPopUp();
+      case 2:
+        return FestivalList();
 
-    case 3:
-      return EventScreen();
-    //
-    case 4:
-      return UserAccount();
-  // case 4:
-  //   return UserProfile();
-
-    default:
-      return Calendar();
+      default:
+        return AllEventPopUp();
+    }
   }
 }
-}
-//
-//
+

@@ -8,9 +8,11 @@ import 'constants.dart';
 
 class BirthDay {
   final String birthdayId;
+  final String calenderId;
   final String nameofperson;
-  final String relation;
+  final String gender;
   final String notes;
+  final String zodiacSign;
   final DateTime dateofbirth;
   bool yearofbirthProvided = true;
   TimeOfDay setAlarmforBirthday;
@@ -23,9 +25,11 @@ class BirthDay {
 
   BirthDay(
   {   this.birthdayId,
+      this.calenderId,
     @required this.nameofperson,
-    @required this.relation,
+    @required this.gender,
       this.notes,
+    this.zodiacSign,
     @required this.dateofbirth,
       this.yearofbirthProvided,
       this.setAlarmforBirthday,

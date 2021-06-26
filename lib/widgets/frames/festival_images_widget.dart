@@ -1,6 +1,5 @@
-import 'dart:io';
-import 'dart:math';
-
+import 'dart:io'as io;
+import 'package:enhanced_drop_down/enhanced_drop_down.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +30,7 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
     final Color themeColor = Theme.of(context).primaryColor;
     return Container(
       // width: MediaQuery.of(context).size.width*0.9,
-      height: MediaQuery.of(context).size.width*0.8,
+      // height: MediaQuery.of(context).size.width*0.8,
       padding: EdgeInsets.all(8.0),
       child: Card(
         elevation: 3.0,
@@ -39,41 +38,32 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
-          // padding: EdgeInsets.all(8.0),      // padding: EdgeInsets.symmetric(horizontal: 12.0,vertical: 12.0),
-        child: ClipRRect(
-          child: GridTile(
-            child: Container(
+        child: Column(
+          children: [
+            Container(
               padding: EdgeInsets.all(7.0),
-              // decoration: BoxDecoration(
-              //   border: Border.all(
-              //     width: 2.0,
-              //     color: Colors.black45,
-              //   ),
-              // ),
-              child: Image(
-                width: MediaQuery.of(context).size.width*0.6,
-                height: MediaQuery.of(context).size.width*0.6,
-
-                image: NetworkImage(widget._festivalImageUrl),
+              child:FadeInImage.assetNetwork(
+                placeholder: 'assets/images/1498.gif',
+                placeholderScale: 3,
+                imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                  return Icon(Icons.do_not_disturb);
+                },
+                image: widget._festivalImageUrl, // After image load
               ),
             ),
-            footer: Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
                   icon: Icon(Icons.download_rounded,color: themeColor,),
                   onPressed: _onImageSaveButtonPressed,
                 ),
-                IconButton(icon: FaIcon(FontAwesomeIcons.whatsapp,color: themeColor,), onPressed: shareWhatsApp),
+                IconButton(icon: FaIcon(FontAwesomeIcons.whatsapp,color: Colors.green,), onPressed: shareWhatsApp),
                 IconButton(icon: Icon(Icons.share_rounded,color: themeColor,), onPressed: saveAndShare,
-                //     ()async {
-                //   File _imageShare = await urlToFile();
-                //   await ImageShare.shareImage(filePath: _imageShare.path);
-                // }
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -86,42 +76,19 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
       if (imageId == null) {
         return;
       }
+      final snackBar = SnackBar(content: Text('Image Downloaded Successfully'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      var fileName = await ImageDownloader.findName(imageId);
-      path = await ImageDownloader.findPath(imageId);
-      var size = await ImageDownloader.findByteSize(imageId);
-      var mimeType = await ImageDownloader.findMimeType(imageId);
+      //
+      // var fileName = await ImageDownloader.findName(imageId);
+      // path = await ImageDownloader.findPath(imageId);
+      // var size = await ImageDownloader.findByteSize(imageId);
+      // var mimeType = await ImageDownloader.findMimeType(imageId);
     } on PlatformException catch (error) {
       print(error);
     }
   }
-  // void _imageWhatsAppShare()async{
-  //   List<dynamic> paths = [];
-  //   List<dynamic> urls = [
-  //     "https://blurha.sh/assets/images/img1.jpg",
-  //     "https://blurha.sh/assets/images/img1.jpg"
-  //   ];
-  //   paths.add(path);
-  //   // await Share().
-  // }
-//   Future<File> urlToFile() async {
-// // generate random number.
-//     var rng = new Random();
-//     var imageUrl = Uri.parse(widget._festivalImageUrl);
-//     Directory tempDir = await pathProvider.getTemporaryDirectory();
-//     String tempPath = tempDir.path;
-// // create a new file in temporary path with random file name.
-//     File file = new File('$tempPath'+ (rng.nextInt(100)).toString() +'.png');
-// // call http.get method and pass imageUrl into it to get response.
-//     http.Response response = await http.get(imageUrl);
-// // write bodyBytes received in response to file.
-//     await file.writeAsBytes(response.bodyBytes);
-//     await Share.shareFiles([file.path]);
-//     // await ImageShare.shareImage(filePath: file.path);
-//
-//     return file;
-//
-//   }
+
   void shareWhatsApp()async{
     var _imgUrl = widget._festivalImageUrl;
     List<dynamic> paths = [];
@@ -131,7 +98,7 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
       // "https://blurha.sh/assets/images/img1.jpg"
     ];
     // for(final url in urls){
-      File file = await DefaultCacheManager().getSingleFile(urls[0]);
+      io.File file = await DefaultCacheManager().getSingleFile(urls[0]);
       paths.add(file.path);
     // }
     await vesti.Share().whatsAppImageList(
@@ -152,17 +119,17 @@ class _FestivalImageWidgetState extends State<FestivalImageWidget> {
     //   isBtn2 = true;
     // });
     final RenderBox box = context.findRenderObject();
-    if (Platform.isAndroid) {
+    if (io.Platform.isAndroid) {
       var imageUrl = Uri.parse(widget._festivalImageUrl);
 
       var response = await http.get(imageUrl);
       final documentDirectory = (await pathProvider.getTemporaryDirectory()).path;
-      File imgFile = new File('$documentDirectory/flutter.png');
+      io.File imgFile = io.File('$documentDirectory/flutter.png') ;// = new File('$documentDirectory/flutter.png');
       imgFile.writeAsBytesSync(response.bodyBytes);
-
-      Share.shareFiles([File('$documentDirectory/flutter.png').path],
+      // imgFile.create().
+      Share.shareFiles(['$documentDirectory/flutter.png'],
           // subject: 'URL conversion + Share',
-          text: 'Hey! This is sent by Sarthak Saxena',
+          // text: 'Hey! This is sent by Sarthak Saxena',
           sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
     } else {
       Share.share('',

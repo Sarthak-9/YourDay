@@ -1,65 +1,160 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:google_sign_in/google_sign_in.dart' as signIn;
-import 'package:flutter/material.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:googleapis/drive/v3.dart' as ga;
-import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:path/path.dart' as path;
-import 'package:http/io_client.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:googleapis/drive/v3.dart' as ga;
+import 'package:yday/models/userevents/google_auth_client.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
+class ADD extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Google Drive',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
-      home: PhotoScreen(title: 'Google Drive'),
-    );
-  }
+  _ADDState createState() => _ADDState();
 }
 
-class GoogleHttpClient extends IOClient {
-  Map<String, String> _headers;
-
-  GoogleHttpClient(this._headers) : super();
-
-  @override
-  Future<http.StreamedResponse> send1(http.BaseRequest request) =>
-      super.send(request..headers.addAll(_headers));
-
-  @override
-  Future<http.Response> head(Object url, {Map<String, String> headers}) =>
-      super.head(url, headers: headers..addAll(_headers));
-}
-
-class PhotoScreen extends StatefulWidget {
-  PhotoScreen({Key key, this.title}) : super(key: key);
-  final String title;
-  @override
-  _PhotoScreenState createState() => _PhotoScreenState();
-}
-
-class _PhotoScreenState extends State<PhotoScreen> {
+class _ADDState extends State<ADD> {
   final storage = new FlutterSecureStorage();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final GoogleSignIn googleSignIn =
   GoogleSignIn(scopes: ['https://www.googleapis.com/auth/drive.appdata']);
+
   GoogleSignInAccount googleSignInAccount;
+
   ga.FileList list;
+
   var signedIn = false;
 
-  Future<void> _loginWithGoogle() async {
+  var _yourDayFolder;
+
+  DateTime dateTime;
+
+  var _dateSelected = false;
+  var _eventName = '';
+  var _eventNotes = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      child: Column(
+        children: [
+          Text('Add photos of your event'),
+          TextFormField(
+            decoration: InputDecoration(labelText: 'Name of Event'),
+          ),
+
+          TextFormField(
+            decoration:
+            InputDecoration(labelText: 'Notes'),
+            textInputAction: TextInputAction.next,
+            // focusNode: _husbandnameFocusNode,
+            onFieldSubmitted: (_) {
+              // FocusScope.of(context)
+              //     .requestFocus(_wifenameFocusNode);
+            },
+            keyboardType: TextInputType.multiline,
+            textCapitalization: TextCapitalization.sentences,
+            maxLines: 2,
+
+            onSaved: (value) {
+            },
+          ),
+          OutlineButton(
+            child: Text(
+              _dateSelected
+                  ? DateFormat('dd / MM / yyyy').format(dateTime)
+                  : 'Select Date',
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+              ),
+            ),
+            color: Colors.red.shade50,
+            splashColor: Colors.red.shade50,
+            focusColor: Colors.red,
+            onPressed: () async {
+              dateTime = await PlatformDatePicker.showDate(
+                context: context,
+                firstDate: DateTime(DateTime.now().year - 50),
+                initialDate: DateTime.now(),
+                lastDate: DateTime(DateTime.now().year + 2),
+                builder: (context, child) => Theme(
+                  data: ThemeData.light().copyWith(
+                    primaryColor: const Color(0xFF8CE7F1),
+                    accentColor: const Color(0xFF8CE7F1),
+                    colorScheme: ColorScheme.light(
+                        primary: const Color(0xFF8CE7F1)),
+                    buttonTheme: ButtonThemeData(
+                        textTheme: ButtonTextTheme.primary),
+                  ),
+                  child: child,
+                ),
+              );
+              if (dateTime != null) {
+
+              }
+            },
+          ),
+          OutlinedButton(onPressed: _uploadFileToGoogleDrive, child: Text('Pick Photos')),
+        ],
+      ),
+    );
+  }
+
+  _uploadFileToGoogleDrive() async {
+    var login = false;
+    var auth = await googleSignInAccount.authHeaders;
+    if(auth==null){
+      login = await _loginWithGoogle();
+    }
+    if(login){
+    var client = GoogleHttpClient(await googleSignInAccount.authHeaders);
+    var drive = ga.DriveApi(client);
+    ga.File fileToUpload = ga.File();
+    // fileToUpload.parents = ['New1'];
+    var _createFolder = await drive.files.create(
+      ga.File()
+        ..name = 'YourDay'
+      // ..parents = ['1f4tjhpBJwF5t6FpYvufTljk8Gapbwajc'] // Optional if you want to create subfolder
+        ..mimeType = 'application/vnd.google-apps.folder',  // this defines its folder
+    );
+    // drive.files.
+    var pickedFile = await ImagePicker().getImage(
+      source: ImageSource
+          .gallery,
+      imageQuality: 60,
+    );
+    var file = File(pickedFile.path);
+    fileToUpload.parents = [_createFolder.id];
+    // fileToUpload.
+    fileToUpload.name = path.basename(file.absolute.path);
+    var response = await drive.files.create(
+      fileToUpload,
+      uploadMedia: ga.Media(file.openRead(), file.lengthSync()),
+    );
+    // ga.User newUser = ga.User();
+    // newUser.emailAddress = 'sarthaksaxena9@gmail.com';
+    // newUser.displayName = 'Sarthak Saxena';
+    // // newUser.emailAddress.
+    // await response.owners.add(newUser);
+    // // response.owners.add();
+    // print(response.owners[0]);
+    // print(response.owners[1]);
+    // googleSignInAccount.email.
+    // final FirebaseAuth _firebaseAuthLogin = FirebaseAuth.instance;
+    // _firebaseAuthLogin.app.options/.
+    // _listGoogleDriveFiles();
+  }}
+
+  Future<bool> _loginWithGoogle() async {
     signedIn = await storage.read(key: "signedIn") == "true" ? true : false;
+    setState(() {
+
+    });
     googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount googleSignInAccount) async {
       if (googleSignInAccount != null) {
@@ -93,13 +188,26 @@ class _PhotoScreenState extends State<PhotoScreen> {
       idToken: googleSignInAuthentication.idToken,
     );
 
-    final authResult = await _auth.signInWithCredential(credential);
-    final user = authResult.user;
-
+    final UserCredential authResult = await _auth.signInWithCredential(credential);
+    final User user = authResult.user;
+    if (authResult.additionalUserInfo.isNewUser) {
+      var client = GoogleHttpClient(await googleSignInAccount.authHeaders);
+      var drive = ga.DriveApi(client);
+      // ga.File fileToUpload = ga.File();
+      // fileToUpload.parents = ['New1'];
+      _yourDayFolder = await drive.files.create(
+        ga.File()
+          ..name = 'YourDay'
+        // ..parents = ['1f4tjhpBJwF5t6FpYvufTljk8Gapbwajc'] // Optional if you want to create subfolder
+          ..mimeType = 'application/vnd.google-apps.folder',  // this defines its folder
+      );
+    }
+    // print(user.emailVerified);
+    // user.providerData.add(User)
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
-    final currentUser = await _auth.currentUser;
+    final User currentUser = await _auth.currentUser;
     assert(user.uid == currentUser.uid);
 
     print('signInWithGoogle succeeded: $user');
@@ -109,206 +217,5 @@ class _PhotoScreenState extends State<PhotoScreen> {
         signedIn = true;
       });
     });
-  }
-
-  void _logoutFromGoogle() async {
-    googleSignIn.signOut().then((value) {
-      print("User Sign Out");
-      storage.write(key: "signedIn", value: "false").then((value) {
-        setState(() {
-          signedIn = false;
-        });
-      });
-    });
-  }
-  Future<void> _listGoogleDriveFiles() async {
-    var client = GoogleHttpClient(await googleSignInAccount.authHeaders);
-    var drive = ga.DriveApi(client);
-    drive.files.list(spaces: 'appDataFolder').then((value) {
-      setState(() {
-        list = value;
-      });
-      for (var i = 0; i < list.files.length; i++) {
-        print("Id: ${list.files[i].id} File Name:${list.files[i].name}");
-      }
-    });
-  }
-  _uploadFileToGoogleDrive() async {
-    var client = GoogleHttpClient(await googleSignInAccount.authHeaders);
-    var drive = ga.DriveApi(client);
-    ga.File fileToUpload = ga.File();
-    // var file = await FilePicker.getFile();
-    var pickedFile = await ImagePicker().getImage(
-      source: ImageSource
-          .gallery,
-      imageQuality: 60,
-    ); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
-    if (pickedFile != null) {
-      var file = File(pickedFile.path);
-    fileToUpload.parents = ["appDataFolder"];
-    fileToUpload.name = path.basename(file.absolute.path);
-    var response = await drive.files.create(
-      fileToUpload,
-      uploadMedia: ga.Media(file.openRead(), file.lengthSync()),
-    );
-    print(response);
-    var resp = await _listGoogleDriveFiles();
-  }}
-
-
-
-  Future<void> _downloadGoogleDriveFile(String fName, String gdID) async {
-    var client = GoogleHttpClient(await googleSignInAccount.authHeaders);
-    var drive = ga.DriveApi(client);
-    ga.Media file = await drive.files
-        .get(gdID, downloadOptions: ga.DownloadOptions.fullMedia);
-    print(file.stream);
-
-    final directory = await getExternalStorageDirectory();
-    print(directory.path);
-    final saveFile = File('${directory.path}/${new DateTime.now().millisecondsSinceEpoch}$fName');
-    List<int> dataStore = [];
-    file.stream.listen((data) {
-      print("DataReceived: ${data.length}");
-      dataStore.insertAll(dataStore.length, data);
-    }, onDone: () {
-      print("Task Done");
-      saveFile.writeAsBytes(dataStore);
-      print("File saved at ${saveFile.path}");
-    }, onError: (error) {
-      print("Some Error");
-    });
-  }
-
-  List<Widget> generateFilesWidget() {
-    List<Widget> listItem = List<Widget>();
-    if (list != null) {
-      for (var i = 0; i < list.files.length; i++) {
-        listItem.add(Row(
-          children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width * 0.05,
-              child: Text('${i + 1}'),
-            ),
-            Expanded(
-              child: Text(list.files[i].name),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.3,
-              child: FlatButton(
-                child: Text(
-                  'Download',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                color: Colors.indigo,
-                onPressed: () {
-                  _downloadGoogleDriveFile(list.files[i].name, list.files[i].id);
-                },
-              ),
-            ),
-          ],
-        ));
-      }
-    }
-    return listItem;
-  }
-  int _counter = 0;
-
-  Future<void> _incrementCounter() async {
-    setState(() {
-      _counter++;
-    });
-
-    final googleSignIn =
-    signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-    print("User account $account");
-
-    final authHeaders = await account.authHeaders;
-    final authenticateClient = GoogleAuthClient(authHeaders);
-    final driveApi = drive.DriveApi(authenticateClient);
-
-    final Stream<List<int>> mediaStream = Future.value([104, 105]).asStream();
-    var media = new drive.Media(mediaStream, 2);
-    var pickedFile = await ImagePicker().getImage(
-      source: ImageSource
-          .gallery,
-      imageQuality: 60,
-    ); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
-    // if (pickedFile != null)
-      var filep = File(pickedFile.path);
-    var driveFile = new drive.File();
-    driveFile.name = "hello_world.txt";
-    // driveFile.imageMediaMetadata = filep;
-    final result = await driveApi.files.create(driveFile, uploadMedia: media);
-    print("Upload result: $result");
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('YourDay'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            (signedIn
-                ? FlatButton(
-              child: Text('Upload File to Google Drive'),
-              onPressed: _uploadFileToGoogleDrive,
-              color: Colors.green,
-            )
-                : Container()),
-            (signedIn
-                ? FlatButton(
-              child: Text('List Google Drive Files'),
-              onPressed: _listGoogleDriveFiles,
-              color: Colors.green,
-            )
-                : Container()),
-            (signedIn
-                ? Expanded(
-              flex: 10,
-              child: Column(
-                children: generateFilesWidget(),
-              ),
-            )
-                : Container()),
-            // (signedIn
-            //     ? FlatButton(
-            //   child: Text('Google Logout'),
-            //   onPressed: _logoutFromGoogle,
-            //   color: Colors.green,
-            // )
-            //    :
-            FlatButton(
-              child: Text('Google Login'),
-              onPressed: _incrementCounter,
-              color: Colors.red,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   // TODO: implement build
-  //   throw UnimplementedError();
-  // };
-class GoogleAuthClient extends http.BaseClient {
-  final Map<String, String> _headers;
-
-  final http.Client _client = new http.Client();
-
-  GoogleAuthClient(this._headers);
-
-  Future<http.StreamedResponse> send(http.BaseRequest request) {
-    return _client.send(request..headers.addAll(_headers));
   }
 }
