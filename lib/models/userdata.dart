@@ -63,8 +63,9 @@ class UserData with ChangeNotifier {
           .format(newUser.dateofBirth);
       int dtInt= int.parse(str);
       String bdayWish = 'Happy Birthday '+newUser.userName;
-      await NotificationsHelper.setNotification(newUser.dateofBirth ,dtInt,bdayWish,'Wish Happy Birthday').then((value) => print(newUser.dateofBirth));
-
+      // await NotificationsHelper.setNotification(newUser.dateofBirth ,dtInt,bdayWish,'Wish Happy Birthday').then((value) => print(newUser.dateofBirth));
+      String payLoad = 'selfbirthday'+_userID;
+      await NotificationsHelper.setNotification(currentTime:newUser.dateofBirth ,id:dtInt,title:bdayWish,body:bdayWish,payLoad: payLoad);
       String userEmail = _auth.currentUser.email;
       String splitEmail = userEmail.replaceAll( RegExp('@gmail.com'),'' );
       // print(userEmail);

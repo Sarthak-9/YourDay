@@ -87,16 +87,21 @@ class _TodaysBirthdayWidgetState extends State<TodaysBirthdayWidget> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Column(
                   children: [
-                    SizedBox(height:15),
+                    // SizedBox(height:15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(' Birthdays',style: TextStyle(
-                          fontSize: 20,
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            SizedBox(height: 30,width: 30,child: Image.asset('assets/images/cake.png'),),
+                            Text('    Birthdays',style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                              textAlign: TextAlign.left,),
+                          ],
                         ),
-                          textAlign: TextAlign.left,),
                         TextButton(onPressed: (){
                           Navigator.of(context)
                               .pushNamed(AllBirthdayScreen.routeName);
@@ -115,8 +120,9 @@ class _TodaysBirthdayWidgetState extends State<TodaysBirthdayWidget> {
                           todaysBirthdayList[i].nameofperson,
                           todaysBirthdayList[i].dateofbirth,
                           todaysBirthdayList[i].categoryofPerson,
+                          todaysBirthdayList[i].imageUrl,
                           todaysBirthdayList[i].gender,
-                          categoryColor(todaysBirthdayList[i].categoryofPerson)),
+                          ),
                       itemCount: todaysBirthdayList.length,
                     ),
                   ],

@@ -1,30 +1,16 @@
 import 'dart:io' as io;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:googleapis/drive/v3.dart' as ga;
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
 import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:yday/models/constants.dart';
-import 'package:file/file.dart' as fl;
 import 'package:yday/models/frames/festival.dart';
-import 'package:yday/models/userevents/auth_manager.dart';
-import 'package:yday/models/userevents/google_auth_client.dart';
-import 'package:yday/models/userevents/user_event.dart';
-import 'package:yday/services/google_drive_repository.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:yday/providers/userevents/user_events.dart';
 import 'package:yday/providers/frames/festivals.dart';
 import 'package:yday/screens/homepage.dart';
-import 'package:yday/services/google_signin_repository.dart';
 
 class AddFramesCategoryScreen extends StatefulWidget {
   static const routeName = '/add-frames-category-screen';
@@ -64,13 +50,15 @@ class _AddFramesCategoryScreenState extends State<AddFramesCategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         // centerTitle: true,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: 'Kaushan Script',
-            fontSize: 28,
-          ),
-        ),
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Container(

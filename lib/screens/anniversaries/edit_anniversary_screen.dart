@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +13,7 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:time_picker_widget/time_picker_widget.dart';
+import 'package:time_picker_widget/time_picker_widget.dart'as tpw;
 import 'package:yday/models/anniversaries/anniversary.dart';
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
@@ -20,6 +21,7 @@ import 'package:yday/models/interests.dart';
 import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/screens/anniversaries/anniversary_detail.dart';
 import 'package:yday/services/google_signin_repository.dart';
+import 'package:yday/services/message_handler.dart';
 import '../all_event_screen.dart';
 import '../auth/login_page.dart';
 import 'package:yday/services/google_calender_repository.dart';
@@ -60,16 +62,16 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
   String anniversaryNotes = '';
   String anniversaryPhone = '';
   String anniversaryEmail = '';
-  TimeOfDay anniversaryTime;
+  // TimeOfDay anniversaryTime;
   Anniversary _editedAnniv;
 
   @override
   void initState() {
     // TODO: implement initState
     _editedAnniv = widget.fetchedAnniversary;
-    _alarmTime = _editedAnniv.setAlarmforAnniversary;
+    _alarmTime = TimeOfDay.fromDateTime(_editedAnniv.dateofanniversary);
     anniversaryId = _editedAnniv.anniversaryId;
-    anniversaryTime = _editedAnniv.setAlarmforAnniversary;
+    // anniversaryTime = _editedAnniv.setAlarmforAnniversary;
     anniversaryEmail = _editedAnniv.emailofCouple;
     anniversaryPhone = _editedAnniv.phoneNumberofCouple;
     _selectedInterests = _editedAnniv.interestsofCouple;
@@ -102,14 +104,22 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
       // if (_addToGoogleCalender) {
       //   calenderId = await addCalender();
       // }
+      DateTime eventDate = _editedAnniv.dateofanniversary;
+      if(_alarmTime!=null&&(_editedAnniv.dateofanniversary.hour!=_alarmTime.hour||_editedAnniv.dateofanniversary.minute!=_alarmTime.minute)){
+         eventDate = DateTimeField.combine(_editedAnniv.dateofanniversary, _alarmTime);
+        await NotificationsHelper.cancelNotification(_editedAnniv.notifId);
+        String annivWish = 'Happy Anniversary '+_editedAnniv.husband_name+' & '+_editedAnniv.wife_name;
+        String payLoad = 'anniversary'+_editedAnniv.anniversaryId;
+        await NotificationsHelper.setNotification(currentTime:eventDate ,id:_editedAnniv.notifId,title:annivWish,body:'Wish Happy Anniversary',payLoad: payLoad);
+      }
       Anniversary updatedAnniversary = Anniversary(
         anniversaryId: anniversaryId,
         notes: anniversaryNotes,
         phoneNumberofCouple: anniversaryPhone,
         emailofCouple: anniversaryEmail,
         imageUrl: _editedAnniv.imageUrl,
-        setAlarmforAnniversary: anniversaryTime,
-        dateofanniversary: _editedAnniv.dateofanniversary,
+        // setAlarmforAnniversary: anniversaryTime,
+        dateofanniversary: eventDate,
         interestsofCouple: _selectedInterests,
         imageofCouple: pickedFile!=null?_imageofCoupleToAdd:null,
       );
@@ -163,14 +173,15 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
-        // centerTitle: true,
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
       ),
       body: isLoading
           ? Center(
@@ -249,13 +260,13 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
                                 (states) => Theme.of(context).accentColor),
                           ),
                           onPressed: () async {
-                            _alarmTime = await showCustomTimePicker(
+                            _alarmTime = await tpw.showCustomTimePicker(
                                 context: context,
-                                // It is a must if you provide selectableTimePredicate
+                                initialEntryMode: tpw.TimePickerEntryMode.input,
                                 onFailValidation: (context) =>
                                     print('Unavailable selection'),
                                 initialTime: TimeOfDay(hour: 0, minute: 0));
-                            anniversaryTime = _alarmTime;
+                            // anniversaryTime = _alarmTime;
                             setState(() {});
                           }),
                       ListTile(
@@ -413,49 +424,49 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
             ),
     );
   }
-
-  Future<String> addCalender() async {
-    GoogleSignInAccount account =
-        Provider.of<GoogleAccountRepository>(context, listen: false)
-            .googleSignInAccount;
-    String title = _editedAnniv.husband_name +
-        '&' +
-        _editedAnniv.wife_name +
-        '\'s Anniversary';
-    var currentTime = _editedAnniv.dateofanniversary;
-    DateTime startTime, endTime, dt = currentTime;
-    DateTime dtnow = DateTime.now();
-    if (currentTime.year == dtnow.year &&
-        currentTime.month == dtnow.month &&
-        currentTime.day == dtnow.day) {
-      dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
-    } else {
-      if (currentTime.isBefore(dtnow)) {
-        dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
-        // if(currentTime.month<dtnow.month||currentTime.day<dtnow.day){
-        //   calyear++;
-        // }
-      }
-      if (dt.isBefore(dtnow)) {
-        dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
-      }
-    }
-    if (_editedAnniv.setAlarmforAnniversary != null) {
-      var alarmTime = _editedAnniv.setAlarmforAnniversary;
-      startTime =
-          DateTime(dt.year, dt.month, dt.day, alarmTime.hour, alarmTime.minute);
-    } else {
-      startTime = DateTime(dt.year, dt.month, dt.day, 10, 00);
-    }
-    endTime = DateTime(startTime.year, startTime.month, startTime.day,
-        (startTime.hour + 1), startTime.minute, 00);
-    GoogleCalenderModel calenderModel = GoogleCalenderModel(
-        title: title,
-        description: _editedAnniv.notes,
-        startTime: startTime,
-        endTime: endTime);
-    CalendarClient cal = CalendarClient();
-    String calId = await cal.insertCalender(account, calenderModel);
-    return calId;
-  }
+  //
+  // Future<String> addCalender() async {
+  //   GoogleSignInAccount account =
+  //       Provider.of<GoogleAccountRepository>(context, listen: false)
+  //           .googleSignInAccount;
+  //   String title = _editedAnniv.husband_name +
+  //       '&' +
+  //       _editedAnniv.wife_name +
+  //       '\'s Anniversary';
+  //   var currentTime = _editedAnniv.dateofanniversary;
+  //   DateTime startTime, endTime, dt = currentTime;
+  //   DateTime dtnow = DateTime.now();
+  //   if (currentTime.year == dtnow.year &&
+  //       currentTime.month == dtnow.month &&
+  //       currentTime.day == dtnow.day) {
+  //     dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
+  //   } else {
+  //     if (currentTime.isBefore(dtnow)) {
+  //       dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
+  //       // if(currentTime.month<dtnow.month||currentTime.day<dtnow.day){
+  //       //   calyear++;
+  //       // }
+  //     }
+  //     if (dt.isBefore(dtnow)) {
+  //       dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
+  //     }
+  //   }
+  //   if (_editedAnniv.setAlarmforAnniversary != null) {
+  //     var alarmTime = _editedAnniv.setAlarmforAnniversary;
+  //     startTime =
+  //         DateTime(dt.year, dt.month, dt.day, alarmTime.hour, alarmTime.minute);
+  //   } else {
+  //     startTime = DateTime(dt.year, dt.month, dt.day, 10, 00);
+  //   }
+  //   endTime = DateTime(startTime.year, startTime.month, startTime.day,
+  //       (startTime.hour + 1), startTime.minute, 00);
+  //   GoogleCalenderModel calenderModel = GoogleCalenderModel(
+  //       title: title,
+  //       description: _editedAnniv.notes,
+  //       startTime: startTime,
+  //       endTime: endTime);
+  //   CalendarClient cal = CalendarClient();
+  //   String calId = await cal.insertCalender(account, calenderModel);
+  //   return calId;
+  // }
 }

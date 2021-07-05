@@ -172,9 +172,9 @@ class BirthDaySearch extends SearchDelegate<String> {
             suggestionList[i].nameofperson,
             suggestionList[i].dateofbirth,
             suggestionList[i].categoryofPerson,
-            suggestionList[i].gender,
-            categoryColor(
-                suggestionList[i].categoryofPerson)) // child: FestivalWidget(),
+    suggestionList[i].imageUrl,
+    suggestionList[i].gender,
+            ) // child: FestivalWidget(),
         // child: ListView.builder(itemBuilder: (){}),
         );
     // TODO: implement buildResults
@@ -202,9 +202,9 @@ class BirthDaySearch extends SearchDelegate<String> {
             suggestionList[i].nameofperson,
             suggestionList[i].dateofbirth,
             suggestionList[i].categoryofPerson,
-            suggestionList[i].gender,
-            categoryColor(
-                suggestionList[i].categoryofPerson)) // child: FestivalWidget(),
+    suggestionList[i].imageUrl,
+    suggestionList[i].gender,
+            ) // child: FestivalWidget(),
         // child: ListView.builder(itemBuilder: (){}),
         );
     // TODO: implement buildSuggestions

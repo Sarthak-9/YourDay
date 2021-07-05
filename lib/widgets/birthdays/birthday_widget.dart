@@ -85,8 +85,9 @@ class _BirthdayWidgetState extends State<BirthdayWidget> {
                                 birthdays[i].nameofperson,
                                 birthdays[i].dateofbirth,
                                 birthdays[i].categoryofPerson,
-                                birthdays[i].gender,
-                                categoryColor(birthdays[i].categoryofPerson)),
+                                birthdays[i].imageUrl,
+                                birthdays[i].gender
+                                ),
                             itemCount: birthdays.length,
                           ),
       ),
@@ -98,35 +99,40 @@ class _BirthdayWidgetState extends State<BirthdayWidget> {
 class BirthdayItem extends StatelessWidget {
   String birthdayId;
   final String title;
+  final String imageUrl;
+  final String gender;
   final DateTime startdate;
   final CategoryofPerson category;
-  final String relation;
-  final Color categoryColor;
 
   BirthdayItem(this.birthdayId, this.title, this.startdate, this.category,
-      this.relation, this.categoryColor);
+       this.imageUrl,this.gender);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context)
-              .pushNamed(BirthdayDetailScreen.routeName, arguments: birthdayId),
-          child: ListTile(
+    return Card(
+      color: Colors.blue.shade50,
+      // elevation: 5.0,
+      // shadowColor: Theme.of(context).primaryColor,
+      child: GestureDetector(
 
-            title: Text(title),
-            trailing: Chip(
-              label: Text(categoryText(category)),
-              backgroundColor: Colors.amber,
-            ),
-            subtitle: Text(
-              DateFormat('EEEE, MMM dd').format(startdate),
-            ),
+        onTap: () =>Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>BirthdayDetailScreen(birthdayId))),
+        child: ListTile(
+          minVerticalPadding: 0.0,
+          leading: CircleAvatar(
+            backgroundImage: imageUrl != null?NetworkImage(imageUrl)
+                :gender==null? AssetImage('assets/images/userimage.png')
+                :gender == 'Male'? AssetImage('assets/images/bday_male_placeholder.jpeg'):gender == 'Female'? AssetImage('assets/images/bday_female_placeholder.jpeg'):AssetImage('assets/images/userimage.png'),
+            radius: 25,
+            // radius: MediaQuery.of(context).size.width * 0.18,
+          ),
+          title: Text(title),
+          trailing: TextButton(child: Text('View'),onPressed: () =>Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>BirthdayDetailScreen(birthdayId))) ),
+
+          subtitle: Text(
+            DateFormat('EEEE, MMM dd').format(startdate),
           ),
         ),
-        Divider(),
-      ],
+      ),
     );
   }
 }

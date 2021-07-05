@@ -114,6 +114,7 @@ class _AllEventPopUpState extends State<AllEventPopUp> {
               });
             },
             child: Container(
+
               padding: EdgeInsets.symmetric(horizontal: 8.0),
               decoration: BoxDecoration(
                 image: DecorationImage(

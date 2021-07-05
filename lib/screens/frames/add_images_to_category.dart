@@ -53,13 +53,15 @@ class _AddImagesToCategoryScreenState extends State<AddImagesToCategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         // centerTitle: true,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: 'Kaushan Script',
-            fontSize: 28,
-          ),
-        ),
+        title: GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Container(

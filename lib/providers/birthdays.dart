@@ -15,6 +15,9 @@ import 'package:yday/services/message_handler.dart';
 
 class Birthdays with ChangeNotifier {
   List<BirthDay> _birthdayList = [];
+  List<BirthDay> _upcomingBirthdayList = [];
+
+  List<BirthDay> get upcomingBirthdayList => _upcomingBirthdayList;
 
   List<BirthDay> get birthdayList => [..._birthdayList];
 
@@ -25,10 +28,12 @@ class Birthdays with ChangeNotifier {
     }
     _auth.currentUser.refreshToken;
     var _userID = _auth.currentUser.uid;
+    DateTime dtnow = DateTime.now();
     // var url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$_userID.json');
     try {
       // final response = await http.get(url);
       final List<BirthDay> _loadedBirthday = [];
+      final List<BirthDay> _loadedUpcomingBirthday = [];
       final databaseRef = FirebaseDatabase.instance
           .reference()
           .child('birthdays')
@@ -40,33 +45,42 @@ class Birthdays with ChangeNotifier {
         return true;
       }
       extractedBirthdays.value.forEach((bdayId, bday) {
-       var dt = bday['setAlarmforBirthday'] == null? null :DateTime.parse(bday['setAlarmforBirthday']);
-        _loadedBirthday.add(
-            BirthDay(
-          birthdayId: bdayId,
-          calenderId: bday['calenderId'],
-          nameofperson: bday['nameofperson'],
-          gender: bday['gender']??'',
-          notes: bday['notes'],
-          zodiacSign: bday['zodiacSign']??'',
-          dateofbirth: DateTime.parse(bday['birthdaystamp']),
-          yearofbirthProvided: bday['yearofbirthProvided'],
-          setAlarmforBirthday: dt==null?null:TimeOfDay(hour:dt.hour,minute :dt.minute),
-          categoryofPerson: getCategory(
-              bday['categoryofPerson']), //CategoryofPerson.family,//,
-          phoneNumberofPerson: bday['phoneNumberofPerson'],
-          emailofPerson: bday['emailofPerson'],
-          interestsofPerson: bday['interestsofperson'] == null
-              ? null
-              : (bday['interestsofperson'] as List<dynamic>)
-                  .map((interest) =>
-                      Interest(id: interest['id'], name: interest['name']))
-                  .toList(),
-              imageUrl: bday['imageUrl']  ,
-            ));
+       // var dt = bday['setAlarmforBirthday'] == null? null :DateTime.parse(bday['setAlarmforBirthday']);
+       BirthDay fetchedBirthday = BirthDay(
+         birthdayId: bdayId,
+         calenderId: bday['calenderId'],
+         nameofperson: bday['nameofperson'],
+         gender: bday['gender']??'',
+         notes: bday['notes'],
+         zodiacSign: bday['zodiacSign']??'',
+         dateofbirth: DateTime.parse(bday['birthdaystamp']),
+         yearofbirthProvided: bday['yearofbirthProvided'],
+         // setAlarmforBirthday: dt==null?null:TimeOfDay(hour:dt.hour,minute :dt.minute),
+         categoryofPerson: getCategory(
+             bday['categoryofPerson']), //CategoryofPerson.family,//,
+         phoneNumberofPerson: bday['phoneNumberofPerson'],
+         emailofPerson: bday['emailofPerson'],
+         notifId: bday['notifId']!=null?bday['notifId']:null,
+         interestsofPerson: bday['interestsofperson'] == null
+             ? null
+             : (bday['interestsofperson'] as List<dynamic>)
+             .map((interest) =>
+             Interest(id: interest['id'], name: interest['name']))
+             .toList(),
+         imageUrl: bday['imageUrl']  ,
+       ) ;
+       _loadedBirthday.add(fetchedBirthday);
+       Duration diff = fetchedBirthday.dateofbirth
+           .difference(dtnow);
+       if(diff.inDays>0&&diff.inDays<=30){
+         _loadedUpcomingBirthday.add(fetchedBirthday);
+       }
       });
       _birthdayList = _loadedBirthday;
       _birthdayList.sort((a,b)=>a.dateofbirth.compareTo(b.dateofbirth));
+      _loadedUpcomingBirthday.sort((a,b)=>a.dateofbirth.compareTo(b.dateofbirth));
+      _upcomingBirthdayList = _loadedUpcomingBirthday;
+      // print(_upcomingBirthdayList);
       notifyListeners();
       return true;
     } catch (error) {
@@ -99,8 +113,14 @@ class Birthdays with ChangeNotifier {
     // }
     // var url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/birthdays/$_userID.json');
 
-    final alarmstamp = bday.setAlarmforBirthday==null? null:DateTimeField.combine(bday.dateofbirth, bday.setAlarmforBirthday);
+    // final alarmstamp = bday.setAlarmforBirthday==null? null:DateTimeField.combine(bday.dateofbirth, bday.setAlarmforBirthday);
     try {
+      int dtSecond = DateTime.now().second;
+      String str = DateFormat('ddyyhhmm')
+          .format(bday.dateofbirth);
+      int dtInt= int.parse(str)+dtSecond;
+      // print(dtInt);
+      String bdayWish = 'Happy Birthday '+bday.nameofperson;
       final bdaydatabaseRef = FirebaseDatabase.instance.reference().child('birthdays').child(_userID); //database reference object
       final bdaydatabasePush = bdaydatabaseRef.push();
       await bdaydatabasePush.set({
@@ -110,7 +130,7 @@ class Birthdays with ChangeNotifier {
         'notes': bday.notes,
         'zodiacSign': zodiacSign(bday.dateofbirth),
         'yearofbirthProvided': bday.yearofbirthProvided,
-        'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
+        // 'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
         'categoryofPerson': categoryText(bday.categoryofPerson),
         'phoneNumberofPerson': bday.phoneNumberofPerson,
         'emailofPerson': bday.emailofPerson,
@@ -122,14 +142,8 @@ class Birthdays with ChangeNotifier {
         })
             .toList(),
         'imageUrl' : photoUrl,
+        'notifId': dtInt
       });
-      int dtSecond = DateTime.now().second;
-      String str = DateFormat('ddyyhhmm')
-          .format(bday.dateofbirth);
-      int dtInt= int.parse(str)+dtSecond;
-      // print(dtInt);
-      String bdayWish = 'Happy Birthday '+bday.nameofperson;
-      await NotificationsHelper.setNotification(bday.dateofbirth ,dtInt,bdayWish,'Wish Happy Birthday').then((value) => print(bday.dateofbirth));
       // DateTime dt = DateTime(dtnow.year,dtnow.month,dtnow.day,dtnow.hour,dtnow.minute+1,dtnow.second);
       // await NotificationsHelper.setNotification(dt ,dt.minute).then((value) => print(dt));
       final newBday = BirthDay(
@@ -141,16 +155,20 @@ class Birthdays with ChangeNotifier {
         dateofbirth: bday.dateofbirth,
         yearofbirthProvided: bday.yearofbirthProvided,
         //interests: ['Music','Reading'],
-        setAlarmforBirthday: bday.setAlarmforBirthday,
+        // setAlarmforBirthday: bday.setAlarmforBirthday,
         categoryofPerson: bday.categoryofPerson,
         interestsofPerson: bday.interestsofPerson,
         phoneNumberofPerson: bday.phoneNumberofPerson,
         emailofPerson: bday.emailofPerson,
         imageofPerson: bday.imageofPerson,
        imageUrl: photoUrl,
+        notifId: dtInt,
         //catergory: CategoryofPerson.work,
       );
       _birthdayList.add(newBday);
+
+      String payLoad = 'birthday'+bdaydatabasePush.key;
+      await NotificationsHelper.setNotification(currentTime:bday.dateofbirth ,id:dtInt,title:bdayWish,body:'Wish Happy Birthday',payLoad: payLoad);
       // _birthdayList.sort((a,b)=>a.dateofbirth.compareTo(b.dateofbirth));
       notifyListeners();
       // return url;
@@ -179,7 +197,7 @@ class Birthdays with ChangeNotifier {
       });
     }
 
-    final alarmstamp = bday.setAlarmforBirthday==null? null:DateTimeField.combine(bday.dateofbirth, bday.setAlarmforBirthday);
+    // final alarmstamp = bday.setAlarmforBirthday==null? null:DateTimeField.combine(bday.dateofbirth, bday.setAlarmforBirthday);
     try {
       final bdaydatabaseRef = FirebaseDatabase.instance.reference().child('birthdays').child(_userID).child(bday.birthdayId); //database reference object
       if(bday.interestsofPerson==null||bday.interestsofPerson.isEmpty){
@@ -188,8 +206,9 @@ class Birthdays with ChangeNotifier {
         // 'nameofperson': bday.nameofperson,
         // 'relation': bday.relation,
         'notes': bday.notes,
+        'birthdaystamp': bday.dateofbirth.toIso8601String(),
         // 'yearofbirthProvided': bday.yearofbirthProvided,
-        'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
+        // 'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
         // 'categoryofPerson': categoryText(bday.categoryofPerson),
         'phoneNumberofPerson': bday.phoneNumberofPerson,
         'emailofPerson': bday.emailofPerson,
@@ -203,7 +222,7 @@ class Birthdays with ChangeNotifier {
           // 'relation': bday.relation,
           'notes': bday.notes,
           // 'yearofbirthProvided': bday.yearofbirthProvided,
-          'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
+          // 'setAlarmforBirthday': alarmstamp == null? null:alarmstamp.toIso8601String(),
           // 'categoryofPerson': categoryText(bday.categoryofPerson),
           'phoneNumberofPerson': bday.phoneNumberofPerson,
           'emailofPerson': bday.emailofPerson,

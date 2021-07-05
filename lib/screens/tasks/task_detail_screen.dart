@@ -6,28 +6,36 @@ import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/util/horizontal_scrollbar.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/birthday.dart';
+import 'package:yday/models/task.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/providers/tasks.dart';
 import 'package:yday/screens/tasks/all_task_screen.dart';
-import 'package:yday/services/google_calender_repository.dart';
 import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/services/message_handler.dart';
 
 import '../all_event_screen.dart';
+import '../homepage.dart';
 
 class TaskDetailScreen extends StatefulWidget {
-  static const routeName = '/task-detail-screen';
+  // static const routeName = '/task-detail-screen';
+  String taskId;
+  TaskDetailScreen(this.taskId);
 
   @override
   _TaskDetailScreenState createState() => _TaskDetailScreenState();
 }
 
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
+  Task loadedTask ;
+  @override
+  void didChangeDependencies() {
+  loadedTask =  Provider.of<Tasks>(context, listen: false).findById(widget.taskId);
+
+  // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
-    final taskId = ModalRoute.of(context).settings.arguments as String;
-    final loadedTask =
-        Provider.of<Tasks>(context, listen: false).findById(taskId);
     Color _categoryColor = loadedTask.priorityLevelColor;
     final format = DateFormat("dd / MM / yyyy -- HH:mm");
     bool isToday = false;
@@ -54,14 +62,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-            'YourDay',
-            style: TextStyle(
-              // fontFamily: "Kaushan Script",
-              fontSize: 28,
-            ),
-          ),
-          // centerTitle: true,
+          title:  GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+              child: Image.asset(
+                "assets/images/Main_logo.png",
+                height: 60,
+                width: 100,
+              )),
+          titleSpacing: 0.1,
+          centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(Icons.delete),
@@ -83,17 +92,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         child: Text('Yes'),
                         onPressed: () async{
                           Navigator.of(ctx).pop();
-                          if(loadedTask.calenderId!=null){
-                            GoogleSignInAccount account =
-                                Provider.of<GoogleAccountRepository>(context,
-                                        listen: false)
-                                    .googleSignInAccount;
-                            CalendarClient cal = CalendarClient();
-                            await cal.deleteEvent(
-                                account, loadedTask.calenderId);
-                          }
                           Provider.of<Tasks>(context, listen: false)
-                              .completeEvent(taskId);
+                              .completeEvent(widget.taskId);
                           Navigator.of(context)
                               .pushReplacementNamed(AllTaskScreen.routeName);                        },
                       )
@@ -111,13 +111,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
-                Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                Text(
-                  'Task Details',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                  ),
-                ),
+                // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                // Text(
+                //   'Task Details',
+                //   style: TextStyle(
+                //     fontSize: 24.0,
+                //   ),
+                // ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 8.0)),
                 Chip(
                   label: Text(
@@ -247,7 +247,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               int dtInt= int.parse(str);
                               await NotificationsHelper.cancelTaskNotification(dtInt);
                               Provider.of<Tasks>(context, listen: false)
-                                  .completeEvent(taskId);
+                                  .completeEvent(widget.taskId);
                               Navigator.of(context)
                                   .pushReplacementNamed(AllTaskScreen.routeName);                             },
                           )

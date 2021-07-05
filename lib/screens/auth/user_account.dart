@@ -15,6 +15,7 @@ import 'package:yday/widgets/auth/user_not_loggedin.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/widgets/maindrawer.dart';
 
+import '../homepage.dart';
 import 'user_edit_profile_screen.dart';
 
 class UserAccountScreen extends StatefulWidget {
@@ -101,14 +102,15 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: themeColor,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
-        // centerTitle: true,
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
         // automaticallyImplyLeading: false,
         actions: [
             IconButton(
@@ -194,7 +196,7 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                           color: themeColor,
                         ),),
                       subtitle: Text(
-                        _userGender,
+                        _userGender!=null?_userGender:'Not Provided',
                         //textScaleFactor: 1.4,
                         textAlign: TextAlign.start,
                         overflow: TextOverflow.ellipsis,

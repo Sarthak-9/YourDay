@@ -1,16 +1,15 @@
-import 'dart:convert';
-
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:yday/services/message_handler.dart';
 import '../models/task.dart';
 
 class Tasks with ChangeNotifier {
   List<Task> _taskList = [];
+  List<Task> _upcomingTaskList = [];
+
+  List<Task> get upcomingTaskList => _upcomingTaskList;
 
   List<Task> get taskList => [..._taskList];
 
@@ -47,36 +46,40 @@ class Tasks with ChangeNotifier {
       return false ;
     }
     var _userID = _auth.currentUser.uid;
-    // final url = Uri.parse(
-    //     'https://yourday-306218-default-rtdb.firebaseio.com/tasks/$_userID.json');
+    DateTime dtnow = DateTime.now();
     try{
-      // final response = await http.get(url);
       final List<Task> _loadedTask = [];
+      final List<Task> _loadedUpcomingTask = [];
       final databaseRef = FirebaseDatabase.instance
           .reference()
           .child('tasks')
           .child(_userID);
       final extractedTasks = await databaseRef.once();
-      // json.decode(response.body) as Map<String, dynamic>;
       if (extractedTasks == null||extractedTasks.value==null) {
         _taskList = _loadedTask;
         return true;
       }
       extractedTasks.value.forEach((taskId, task) {
-        var dt = task['setAlarmforTask'] == null? null :DateTime.parse(task['setAlarmforTask']);
-        _loadedTask.add(Task(
+        // var dt = task['setAlarmforTask'] == null? null :DateTime.parse(task['setAlarmforTask']);
+        Task fetchedTask = Task(
           taskId: taskId,
           calenderId: task['calenderId'],
           title: task['title'],
           description: task['description'],
           startdate: DateTime.parse(task['startdate']),
-          // enddate: DateTime.parse(task['enddate']),
-          // setalarmfortask: dt==null?null:TimeOfDay(hour:dt.hour,minute :dt.minute),
+          notifId: task['notifId']!=null?task['notifId']:null,
           levelofpriority: getPriorityLevel(task['levelofpriority']),
-        ));
+        );
+        _loadedTask.add(fetchedTask);
+        Duration diff = fetchedTask.startdate.difference(dtnow);
+        if(diff.inDays>=0&&diff.inDays<=30){
+          _loadedUpcomingTask.add(fetchedTask);
+        }
       });
       _taskList = _loadedTask;
       _taskList.sort((a,b)=>a.startdate.compareTo(b.startdate));
+      _loadedUpcomingTask.sort((a,b)=>a.startdate.compareTo(b.startdate));
+      _upcomingTaskList = _loadedUpcomingTask;
       notifyListeners();
       return true;
     }catch (error) {
@@ -95,7 +98,6 @@ class Tasks with ChangeNotifier {
       String str = DateFormat('ddyyhhmm')
           .format(task.startdate);
       int dtInt= int.parse(str);
-      await NotificationsHelper.setNotificationForTask(task.startdate ,dtInt,task.title,task.description).then((value) => print(task.startdate));
 
       final taskdatabaseRef = FirebaseDatabase.instance.reference().child('tasks').child(_userID); //database reference object
       var res = taskdatabaseRef.push();
@@ -104,6 +106,7 @@ class Tasks with ChangeNotifier {
         'title': task.title,
         'description': task.description,
         'startdate': task.startdate.toIso8601String(),
+        'notifId': dtInt,
         // 'enddate': task.enddate.toIso8601String(),
         'levelofpriority': task.priorityLevelText,
         // 'setAlarmforTask': alarmstamp == null? null:alarmstamp.toIso8601String(),
@@ -114,12 +117,15 @@ class Tasks with ChangeNotifier {
       title: task.title,
       description: task.description,
       startdate: task.startdate,
+      notifId: dtInt,
       // enddate: task.enddate,
       levelofpriority: task.levelofpriority,
       // setalarmfortask: task.setalarmfortask,
     );
     _taskList.add(newTask);
-    notifyListeners();
+      String payLoad = 'task'+res.key;
+      await NotificationsHelper.setNotificationForTask(currentTime:task.startdate ,id:dtInt,title:task.title,body:task.description,payLoad: payLoad);
+      notifyListeners();
     return true;
     } catch (error) {
       print(error);

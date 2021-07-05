@@ -9,11 +9,11 @@ class Anniversary {
   final String calenderId;
   final String husband_name;
   final String wife_name;
-  // final String relation;
+  final int notifId;
    String notes;
   final DateTime dateofanniversary;
   bool yearofmarriageProvided = true;
-  TimeOfDay setAlarmforAnniversary;
+  // TimeOfDay setAlarmforAnniversary;
    List<Interest> interestsofCouple;
   final CategoryofPerson categoryofCouple;
    String phoneNumberofCouple;
@@ -30,13 +30,14 @@ class Anniversary {
     this.notes,
     @required this.dateofanniversary,
     this.yearofmarriageProvided,
-    this.setAlarmforAnniversary,
+    // this.setAlarmforAnniversary,
     this.interestsofCouple,
     @required this.categoryofCouple,
     this.phoneNumberofCouple,
     this.emailofCouple,
     this.imageofCouple,
     this.imageUrl,
+    this.notifId,
   });
 
   int interestListSize() {

@@ -1,6 +1,5 @@
 import 'dart:io';
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -118,7 +117,8 @@ class _CalendarState extends State<Calendar> {
             outsideWeekendStyle: TextStyle(color: Colors.white60),
             outsideStyle: TextStyle(color: Colors.white60),
             weekendStyle: TextStyle(color: Colors.white),
-            renderDaysOfWeek: false,
+            renderDaysOfWeek: true,
+
           ),
           onDaySelected: _onDaySelected,
           calendarController: _calendarController,
@@ -135,6 +135,7 @@ class _CalendarState extends State<Calendar> {
             // color: Colors.white,
             // fontSize: 16)
             //     ,
+
             formatButtonDecoration: BoxDecoration(
               color: Colors.white60,
               borderRadius: BorderRadius.circular(20),
@@ -150,70 +151,61 @@ class _CalendarState extends State<Calendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/images/Untitled design.jpg')
-          ),
-          // backgroundBlendMode: BlendMode.difference
-        ),
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-            // height: MediaQuery.of(context).size.height*1.2,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // SizedBox(
-                //   height: 20,
-                // ),
-                // Container(
-                //   alignment: Alignment.center,
-                //   //padding: EdgeInsets.all(5),
-                //   child: Text(
-                //     "Calendar",
-                //     style:
-                //         TextStyle(fontSize: 30.0, fontFamily: 'Libre Baskerville'
-                //             //color: Colors.white
-                //             ),
-                //   ),
-                // ),
-                SizedBox(
-                  height: 20,
-                ),
-                calendar(),
-                //eventTitle(),
-                //Column(children:_eventWidgets),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                Text(
-                  'Events of the Day',
-                  style: TextStyle(
-                    fontSize: 25,
-                  ),
-                ),
-                SizedBox(height: 10,),
-                // Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 10.0),
-                // ),
-                // loggedIn ?
-                _isLoading
-                    ? Container(
-                        height: 200,
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator(),
-                      )
-                    : todaysevents(),
-                // : Center(
-                // child: Text('No events',style: TextStyle(
-                //   fontSize: 16,
-                // ),),
-                // ),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
+          // height: MediaQuery.of(context).size.height*1.2,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // SizedBox(
+              //   height: 20,
+              // ),
+              // Container(
+              //   alignment: Alignment.center,
+              //   //padding: EdgeInsets.all(5),
+              //   child: Text(
+              //     "Calendar",
+              //     style:
+              //         TextStyle(fontSize: 30.0, fontFamily: 'Libre Baskerville'
+              //             //color: Colors.white
+              //             ),
+              //   ),
+              // ),
+              SizedBox(
+                height: 20,
+              ),
+              calendar(),
+              //eventTitle(),
+              //Column(children:_eventWidgets),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 10.0),
+              // ),
+              // Text(
+              //   'Events of the Day',
+              //   style: TextStyle(
+              //     fontSize: 25,
+              //   ),
+              // ),
+              // SizedBox(height: 20,),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 10.0),
+              // ),
+              // loggedIn ?
+              _isLoading
+                  ? Container(
+                      height: 200,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(),
+                    )
+                  : todaysevents(),
+              // : Center(
+              // child: Text('No events',style: TextStyle(
+              //   fontSize: 16,
+              // ),),
+              // ),
+            ],
           ),
         ),
       ),
@@ -270,7 +262,7 @@ class _CalendarState extends State<Calendar> {
 
           UpcomingEventWidget(),
           Padding(
-            padding: EdgeInsets.all(5),
+            padding: EdgeInsets.all(25),
           ),
         ],
       ),

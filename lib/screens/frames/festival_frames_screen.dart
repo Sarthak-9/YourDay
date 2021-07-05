@@ -68,14 +68,15 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          title:  GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+              child: Image.asset(
+                "assets/images/Main_logo.png",
+                height: 60,
+                width: 100,
+              )),
+          titleSpacing: 0.1,
           centerTitle: true,
-          title: Text(
-            'YourDay',
-            style: TextStyle(
-              // fontFamily: 'Kaushan Script',
-              fontSize: 28,
-            ),
-          ),
         ),
         body:isLoading?Center(child: CircularProgressIndicator(),): SingleChildScrollView(
           child: Column(
@@ -101,7 +102,7 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
                           color: Theme.of(context).primaryColor
                         ),
                       ),
-                      if(currentFestival.festivalDate!=null)
+                      if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
@@ -124,7 +125,7 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
                             ),
                           ),
                         ),
-
+                      if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
                       ElevatedButton(
                           onPressed: () async {
                             await showDialog(

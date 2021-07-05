@@ -28,7 +28,7 @@ class TodaysAnniversaryWidget extends StatefulWidget {
 class _TodaysAnniversaryWidgetState extends State<TodaysAnniversaryWidget> {
   var _isLoading = false;
   // var _loggedIn = false;
-  Future<void> _fetch() async{
+  Future<void> _fetch() async {
     // Future.delayed(Duration.zero).then((_) async {
     //   setState(() {
     //     _isLoading = true;
@@ -39,7 +39,7 @@ class _TodaysAnniversaryWidgetState extends State<TodaysAnniversaryWidget> {
     //   });
     // });
   }
-  void didUpdate()async{
+  void didUpdate() async {
     await _fetch();
   }
 
@@ -63,64 +63,76 @@ class _TodaysAnniversaryWidgetState extends State<TodaysAnniversaryWidget> {
   Widget build(BuildContext context) {
     final anniversaryList = Provider.of<Anniversaries>(context);
     final todaysanniversaries = anniversaryList.findByDate(widget.selectedDate);
-    return  LimitedBox(
+    return LimitedBox(
       child: _isLoading
           ? Center(
               // child: CircularProgressIndicator(),
-      )
-          : todaysanniversaries.isEmpty?SizedBox()
-          // ? Padding(
-          //     padding: const EdgeInsets.all(4.0),
-          //     child: Container(
-          //       alignment: Alignment.center,
-          //       child: Text(
-          //         'No Anniversaries',
-          //         style: TextStyle(
-          //           // alignment: Alignment.center,
-          //           fontSize: 16, // child: Text('',style: TextStyle(
-          //         ), //   fontSize: 20,
-          //       ), // ),),
-          //     ),
-          //   )
-          : Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(' Anniversaries',style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                      textAlign: TextAlign.left,),
-                    TextButton(onPressed: (){
-                      Navigator.of(context)
-                          .pushNamed(AllAnniversaryScreen.routeName);
-
-                    }, child: Text('Show All',style: TextStyle(
-                        fontWeight: FontWeight.bold
-                    ),))
-                  ],
+              )
+          : todaysanniversaries.isEmpty
+              ? SizedBox()
+              // ? Padding(
+              //     padding: const EdgeInsets.all(4.0),
+              //     child: Container(
+              //       alignment: Alignment.center,
+              //       child: Text(
+              //         'No Anniversaries',
+              //         style: TextStyle(
+              //           // alignment: Alignment.center,
+              //           fontSize: 16, // child: Text('',style: TextStyle(
+              //         ), //   fontSize: 20,
+              //       ), // ),),
+              //     ),
+              //   )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(height: 30,width: 30,child: Image.asset('assets/images/anniversary.png'),),
+                              Text(
+                                '    Anniversaries',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ],
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed(AllAnniversaryScreen.routeName);
+                              },
+                              child: Text(
+                                'Show All',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ))
+                        ],
+                      ),
+                      Divider(),
+                      ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (ctx, i) => AnniversaryItem(
+                            todaysanniversaries[i].anniversaryId,
+                            todaysanniversaries[i].husband_name,
+                            todaysanniversaries[i].wife_name,
+                            todaysanniversaries[i].dateofanniversary,
+                            todaysanniversaries[i].categoryofCouple,
+                            // todaysanniversaries[i].relation,
+                            categoryColor(
+                                todaysanniversaries[i].categoryofCouple)),
+                        itemCount: todaysanniversaries.length,
+                      ),
+                    ],
+                  ),
                 ),
-                Divider(),
-                ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (ctx, i) => AnniversaryItem(
-                      todaysanniversaries[i].anniversaryId,
-                      todaysanniversaries[i].husband_name,
-                      todaysanniversaries[i].wife_name,
-                      todaysanniversaries[i].dateofanniversary,
-                      todaysanniversaries[i].categoryofCouple,
-                      // todaysanniversaries[i].relation,
-                      categoryColor(todaysanniversaries[i].categoryofCouple)),
-                  itemCount: todaysanniversaries.length,
-                ),
-              ],
-            ),
-          ),
     );
   }
 }

@@ -124,93 +124,84 @@ class _UserAllEventsScreenState extends State<UserAllEventsScreen> {
         //   ],
         // ),
         // drawer: MainDrawer(),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/images/Untitled design.jpg')
-          ),
-          // backgroundBlendMode: BlendMode.difference
-        ),
-        child: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : !_driveStarted
-                ? Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(minimumSize: Size(120, 50)),
-                      child: Text('Proceed to Google Drive'),
-                      onPressed: createDrive,
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () async {
-                      await fetchAllEvents();
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            'Your Events',
-                            style: TextStyle(
-                                fontSize: 30.0, fontFamily: 'Libre Baskerville'
-                                //color: Colors.white
-                                ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Divider(),
-                          TextButton(
-                              onPressed: () {
-                                showSearch(
-                                    context: context,
-                                    delegate: UserEventSearch(allEvents));
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.search),
-                                  Text(
-                                    '  Search Event',
-                                    style: TextStyle(
-                                      fontSize: 22.0,
-                                    ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : !_driveStarted
+              ? Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(minimumSize: Size(120, 50)),
+                    child: Text('Proceed to Google Drive'),
+                    onPressed: createDrive,
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    await fetchAllEvents();
+                  },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'Your Events',
+                          style: TextStyle(
+                              fontSize: 30.0, fontFamily: 'Libre Baskerville'
+                              //color: Colors.white
+                              ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(),
+                        TextButton(
+                            onPressed: () {
+                              showSearch(
+                                  context: context,
+                                  delegate: UserEventSearch(allEvents));
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.search),
+                                Text(
+                                  '  Search Event',
+                                  style: TextStyle(
+                                    fontSize: 22.0,
                                   ),
-                                ],
-                              )),
-                          Divider(),
-                          (allEvents == null || allEvents.isEmpty)
-                              ? Center(
-                                  child: Text(
-                                    'You have no events,\n add some.',
-                                    style: TextStyle(
-                                      fontSize: 24.0,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                )
-                              : GridView.builder(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2),
-                                  physics: ScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: allEvents.length,
-                                  itemBuilder: (ctx, i) => UserEventWidget(
-                                      allEvents[i].folderId,
-                                      allEvents[i].userEventName),
                                 ),
-                        ],
-                      ),
+                              ],
+                            )),
+                        Divider(),
+                        (allEvents == null || allEvents.isEmpty)
+                            ? Center(
+                                child: Text(
+                                  'You have no events,\n add some.',
+                                  style: TextStyle(
+                                    fontSize: 24.0,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            : GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2),
+                                physics: ScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: allEvents.length,
+                                itemBuilder: (ctx, i) => UserEventWidget(
+                                    allEvents[i].folderId,
+                                    allEvents[i].userEventName),
+                              ),
+                      ],
                     ),
                   ),
-      ),
+                ),
     );
   }
 

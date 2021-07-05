@@ -26,6 +26,7 @@ class NotificationsHelper {
     'channel description',
     importance: Importance.max,
     priority: Priority.high,
+    enableVibration: true,
     color: const Color(0xFF305496)
   );
 
@@ -33,10 +34,11 @@ class NotificationsHelper {
   NotificationDetails(android: _androidNotificationDetails);
 
 // set Notification methoud
-  static Future<void> setNotification(DateTime currentTime, int id,String title, String body) async {
+  static Future<void> setNotification(
+      {DateTime currentTime, int id, String title, String body,String payLoad}) async {
     // final scheduledDate = tz.TZDateTime.from(dateTime, location);
     // await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, RepeatInterval., notificationDetails)
-    int dtYear = DateTime.now().year;
+    // int dtYear = DateTime.now().year;
     // DateTime currentTime = dateTime;
     DateTime dt=currentTime;
     DateTime dtnow = DateTime.now();
@@ -70,13 +72,15 @@ class NotificationsHelper {
         tz.TZDateTime.from(notifTime, tz.local),
         _notificationDetails,
         androidAllowWhileIdle: true,
+        payload: payLoad,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
   }
 
-  static Future<void> setNotificationForTask(DateTime currentTime, int id,String title, String body) async {
+  static Future<void> setNotificationForTask(
+      {DateTime currentTime, int id, String title, String body, String payLoad}) async {
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
@@ -86,6 +90,7 @@ class NotificationsHelper {
         tz.TZDateTime.from(currentTime, tz.local),
         _notificationDetails,
         androidAllowWhileIdle: true,
+        payload: payLoad,
         uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
       );

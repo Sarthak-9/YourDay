@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/util/horizontal_scrollbar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yday/models/anniversaries/anniversary.dart';
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/providers/anniversaries.dart';
@@ -19,10 +24,14 @@ import 'package:yday/services/message_handler.dart';
 import 'package:yday/testfile.dart';
 
 import '../all_event_screen.dart';
+import '../homepage.dart';
 import 'edit_anniversary_screen.dart';
 
 class AnniversaryDetailScreen extends StatefulWidget {
-  static const routeName = '/anniversary-detail-screen';
+  // static const routeName = '/anniversary-detail-screen';
+  String anniversaryId;
+
+  AnniversaryDetailScreen(this.anniversaryId);
 
   @override
   _AnniversaryDetailScreenState createState() =>
@@ -30,14 +39,57 @@ class AnniversaryDetailScreen extends StatefulWidget {
 }
 
 class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
+  ConfettiController _controllerCenter;
+  StreamController<Duration> durationStreamController =
+      StreamController<Duration>.broadcast();
+  Stream<Duration> durationStream;
+  StreamSink<Duration> durationStreamSink;
+  Anniversary loadedAnniversary;
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    loadedAnniversary = Provider.of<Anniversaries>(context, listen: false)
+        .findById(widget.anniversaryId);
+    durationStream = durationStreamController.stream;
+    durationStreamSink = durationStreamController.sink;
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      DateTime dt = loadedAnniversary.dateofanniversary;
+      DateTime dtnow = DateTime.now();
+      if (dt.isAfter(dtnow)) {
+        dt = loadedAnniversary.dateofanniversary;
+      } else {
+        if (loadedAnniversary.dateofanniversary.isBefore(dtnow)) {
+          dt = DateTime(dtnow.year, loadedAnniversary.dateofanniversary.month,
+              loadedAnniversary.dateofanniversary.day);
+        }
+        if (dt.isBefore(dtnow)) {
+          dt = DateTime(
+              dtnow.year + 1,
+              loadedAnniversary.dateofanniversary.month,
+              loadedAnniversary.dateofanniversary.day);
+        }
+      }
+      Duration timeLeft;
+      DateTime diff;
+      timeLeft = dt.difference(dtnow);
+      durationStreamSink.add(timeLeft);
+    });
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final anniversaryId = ModalRoute.of(context).settings.arguments as String;
-    final loadedAnniversary = Provider.of<Anniversaries>(context, listen: false)
-        .findById(anniversaryId);
+    // final anniversaryId = ModalRoute.of(context).settings.arguments as String;
     Color _categoryColor = categoryColor(loadedAnniversary.categoryofCouple);
     int daysLeftforAnniversary;
-    bool isToday = false;
+    DateTime dtnow = DateTime.now();
+    bool isToday = loadedAnniversary.dateofanniversary.month == dtnow.month &&
+        loadedAnniversary.dateofanniversary.day == dtnow.day;
+    if (isToday) {
+      _controllerCenter =
+          ConfettiController(duration: const Duration(seconds: 10));
+      _controllerCenter.play();
+    }
     bool phoneNumber = loadedAnniversary.phoneNumberofCouple.isNotEmpty;
     int getAge() {
       DateTime b;
@@ -63,21 +115,23 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
+        title: GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
         // centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () =>Navigator.push(
+              onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => EditAnniversaryScreen(
-                          loadedAnniversary))),
+                      builder: (context) =>
+                          EditAnniversaryScreen(loadedAnniversary))),
               icon: Icon(Icons.edit)),
           IconButton(
             icon: Icon(Icons.delete),
@@ -99,12 +153,10 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                       child: Text('Yes'),
                       onPressed: () async {
                         Navigator.of(ctx).pop();
-                        String str = DateFormat('ddyyhhmm')
-                            .format(loadedAnniversary.dateofanniversary);
-                        int dtInt= int.parse(str);
-                        await NotificationsHelper.cancelNotification(dtInt);
+                        await NotificationsHelper.cancelNotification(
+                            loadedAnniversary.notifId);
                         Provider.of<Anniversaries>(context, listen: false)
-                            .completeEvent(anniversaryId);
+                            .completeEvent(widget.anniversaryId);
                         Navigator.of(context).pushReplacementNamed(
                             AllAnniversaryScreen.routeName);
                       },
@@ -118,406 +170,366 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-              Text(
-                'Anniversary Details',
-                style: TextStyle(
-                  fontSize: 24.0,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).primaryColor,width: 2.0),
+                    borderRadius: BorderRadius.circular(5.0)
                 ),
-              ),
-              Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      backgroundImage: loadedAnniversary.imageUrl == null
-                          ? AssetImage('assets/images/anniversary_placeholder.jpeg')
-                          : NetworkImage(loadedAnniversary.imageUrl),
-                      radius: MediaQuery.of(context).size.width * 0.18,
-                    ),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 24.0)),
-                    Column(
+                    // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                    // Text(
+                    //   'Anniversary Details',
+                    //   style: TextStyle(
+                    //     fontSize: 24.0,
+                    //   ),
+                    // ),
+                    Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                    Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Chip(
-                          label: Text(
-                            categoryText(loadedAnniversary.categoryofCouple),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                            ),
+                        Image.asset('assets/images/anniversary_background.jpeg'),
+                        Positioned(
+                          top: 30,
+                          // bottom: ,
+                          child: CircleAvatar(
+                            backgroundImage: loadedAnniversary.imageUrl == null
+                                ? AssetImage('assets/images/anniversary_logo.png')
+                                : NetworkImage(loadedAnniversary.imageUrl),
+                            radius: MediaQuery.of(context).size.width * 0.14,
                           ),
-                          backgroundColor: _categoryColor,
                         ),
-                        Text(getAge() != 0 && isToday
-                            ? 'Today'
-                            : '${getAge().toString()} days left'),
                       ],
                     ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 10,),
-              ElevatedButton(onPressed: (){//jSmV4mdruiu9rH5YhEHF
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>FestivalImageScreen(festivalId: 'jSmV4mdruiu9rH5YhEHF',year: DateTime.now().year.toString(),)));
-
-              }, child: Text('Send Wishes',style: TextStyle(
-                  fontSize: 18
-              ),),style: ElevatedButton.styleFrom(primary: Theme.of(context).primaryColor,
-                  minimumSize: Size(MediaQuery.of(context).size.width*0.8,45)
-              ),
-              ),
-              SizedBox(height: 10,),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if(phoneNumber)
-                    IconButton(
-                      icon: Icon(
-                        Icons.call,
-                        color: Theme.of(context).primaryColor,
-                        // size: 10,
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        //jSmV4mdruiu9rH5YhEHF
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (ctx) => FestivalImageScreen(
+                                  festivalId: 'jSmV4mdruiu9rH5YhEHF',
+                                  year: DateTime.now().year.toString(),
+                                )));
+                      },
+                      child: Text(
+                        'Send Wishes',
+                        style: TextStyle(fontSize: 18),
                       ),
-                      onPressed: () async {
-                        String phoneNumber =
-                            loadedAnniversary.phoneNumberofCouple;
-                        String url = 'tel:$phoneNumber';
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
+                      style: ElevatedButton.styleFrom(
+                          primary: Theme.of(context).primaryColor,
+                          minimumSize:
+                              Size(MediaQuery.of(context).size.width * 0.8, 45)),
                     ),
-                  if(phoneNumber)
-                    IconButton(
-                      icon:
-                      FaIcon(FontAwesomeIcons.whatsapp,color: Colors.green,),
-                      color: Theme.of(context).primaryColor,
-                      // size: 10,
-                      onPressed: () async {
-                        String phoneNumber =
-                            loadedAnniversary.phoneNumberofCouple;
-                        if(!phoneNumber.contains('+91')) {
-                          phoneNumber = '+91' + phoneNumber;
-                        }
-                        var whatsappUrl ="whatsapp://send?phone=$phoneNumber";
-                        if (await canLaunch(whatsappUrl)) {
-                          await launch(whatsappUrl);
-                        } else {
-                          throw 'Could not launch $whatsappUrl';
-                        }
-                      },
+                    SizedBox(
+                      height: 10,
                     ),
-                  if(phoneNumber)
-                    IconButton(
-                      icon: Icon(
-                        Icons.message,
-                        color: Theme.of(context).primaryColor,
-                        // size: 10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (phoneNumber)
+                          IconButton(
+                            icon: Icon(
+                              Icons.call,
+                              color: Theme.of(context).primaryColor,
+                              // size: 10,
+                            ),
+                            onPressed: () async {
+                              String phoneNumber =
+                                  loadedAnniversary.phoneNumberofCouple;
+                              String url = 'tel:$phoneNumber';
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                          ),
+                        if (phoneNumber)
+                          IconButton(
+                            icon: FaIcon(
+                              FontAwesomeIcons.whatsapp,
+                              color: Colors.green,
+                            ),
+                            color: Theme.of(context).primaryColor,
+                            // size: 10,
+                            onPressed: () async {
+                              String phoneNumber =
+                                  loadedAnniversary.phoneNumberofCouple;
+                              if (!phoneNumber.contains('+91')) {
+                                phoneNumber = '+91' + phoneNumber;
+                              }
+                              var whatsappUrl =
+                                  "whatsapp://send?phone=$phoneNumber";
+                              if (await canLaunch(whatsappUrl)) {
+                                await launch(whatsappUrl);
+                              } else {
+                                throw 'Could not launch $whatsappUrl';
+                              }
+                            },
+                          ),
+                        if (phoneNumber)
+                          IconButton(
+                            icon: Icon(
+                              Icons.message,
+                              color: Theme.of(context).primaryColor,
+                              // size: 10,
+                            ),
+                            onPressed: () async {
+                              String phoneNumber =
+                                  loadedAnniversary.phoneNumberofCouple;
+                              String url = 'sms:$phoneNumber';
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                          ),
+                        if (loadedAnniversary.emailofCouple.isNotEmpty)
+                          IconButton(
+                            icon: Icon(
+                              Icons.email_rounded,
+                              color: Theme.of(context).primaryColor,
+                              // size: 10,
+                            ),
+                            onPressed: () async {
+                              String email = loadedAnniversary.emailofCouple;
+                              String url = 'mailto:$email';
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: Theme.of(context).primaryColor, width: 2.0),
+                          borderRadius: BorderRadius.circular(5.0)),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            loadedAnniversary.husband_name +
+                                ' - ' +
+                                loadedAnniversary.wife_name,
+                            //textScaleFactor: 1.4,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          loadedAnniversary.yearofmarriageProvided
+                              ? Text(
+                                  DateFormat('EEEE, MMM dd, yyyy').format(
+                                      loadedAnniversary.dateofanniversary),
+                                  //textScaleFactor: 1.4,
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(fontSize: 20),
+                                )
+                              : Text(DateFormat('EEEE, MMM dd')
+                                  .format(loadedAnniversary.dateofanniversary)),
+                          SizedBox(
+                            height: 10,
+                          ),
+                        ],
                       ),
-                      onPressed: () async {
-                        String phoneNumber =
-                            loadedAnniversary.phoneNumberofCouple;
-                        String url = 'sms:$phoneNumber';
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
                     ),
-                  if(loadedAnniversary.emailofCouple.isNotEmpty)
-                    IconButton(
-                      icon: Icon(
-                        Icons.email_rounded,
-                        color: Theme.of(context).primaryColor,
-                        // size: 10,
-                      ),
-                      onPressed: () async {
-                        String email =
-                            loadedAnniversary.emailofCouple;
-                        String url = 'mailto:$email';
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
+                    SizedBox(
+                      height: 20,
                     ),
-                ],
-              ),              ListTile(
-                leading: Icon(
-                  Icons.person_outline_rounded,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Husband\'s Name',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: Text(
-                  loadedAnniversary.husband_name,
-                  //textScaleFactor: 1.4,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.person_outline_rounded,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Wife\'s Name',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: Text(
-                  loadedAnniversary.wife_name,
-                  //textScaleFactor: 1.4,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              // ListTile(
-              //   leading: Icon(
-              //     Icons.supervisor_account_rounded,
-              //     color: _categoryColor,
-              //     size: 28.0,
-              //   ),
-              //   title: Text(
-              //     'Relation',
-              //     textAlign: TextAlign.left,
-              //     textScaleFactor: 1.3,
-              //     style: TextStyle(
-              //       color: _categoryColor,
-              //     ),
-              //   ),
-              //   subtitle: Text(
-              //     loadedAnniversary.relation,
-              //     //textScaleFactor: 1.4,
-              //     textAlign: TextAlign.start,
-              //     overflow: TextOverflow.ellipsis,
-              //   ),
-              // ),
-              ListTile(
-                leading: Icon(
-                  Icons.calendar_today_rounded,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Anniversary Date',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: loadedAnniversary.yearofmarriageProvided
-                    ? Text(
-                        DateFormat('EEEE, MMM dd, yyyy')
-                            .format(loadedAnniversary.dateofanniversary),
-                        //textScaleFactor: 1.4,
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    : Text(DateFormat('MMM dd')
-                        .format(loadedAnniversary.dateofanniversary)),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.watch_later_outlined,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Event Time',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: loadedAnniversary.setAlarmforAnniversary != null
-                    ? Text(
-                        loadedAnniversary.setAlarmforAnniversary
-                            .format(context),
-                        //textScaleFactor: 1.4,
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    : Text('None'),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.note_outlined,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Notes',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: Text(
-                  loadedAnniversary.notes.isNotEmpty
-                      ? loadedAnniversary.notes
-                      : 'None',
-                  //textScaleFactor: 1.4,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 5,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.phone_android_rounded,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Phone',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                // trailing: loadedAnniversary.phoneNumberofCouple.isNotEmpty
-                //     ? SizedBox(
-                //         width: 100,
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.start,
-                //           children: [
-                //             IconButton(
-                //               icon: Icon(
-                //                 Icons.call,
-                //                 color: Theme.of(context).primaryColor,
-                //               ),
-                //               onPressed: () async {
-                //                 String phoneNumber =
-                //                     loadedAnniversary.phoneNumberofCouple;
-                //                 String url = 'tel:$phoneNumber';
-                //                 if (await canLaunch(url)) {
-                //                   await launch(url);
-                //                 } else {
-                //                   throw 'Could not launch $url';
-                //                 }
-                //               },
-                //             ),
-                //             IconButton(
-                //               icon: Icon(
-                //                 Icons.message,
-                //                 color: Theme.of(context).primaryColor,
-                //               ),
-                //               onPressed: () async {
-                //                 String phoneNumber =
-                //                     loadedAnniversary.phoneNumberofCouple;
-                //                 String url = 'sms:$phoneNumber';
-                //                 if (await canLaunch(url)) {
-                //                   await launch(url);
-                //                 } else {
-                //                   throw 'Could not launch $url';
-                //                 }
-                //               },
-                //             ),
-                //           ],
-                //         ),
-                //       )
-                //     : SizedBox(),
-                subtitle: Text(
-                  loadedAnniversary.phoneNumberofCouple.isNotEmpty
-                      ? loadedAnniversary.phoneNumberofCouple
-                      : 'None',
-                  //textScaleFactor: 1.4,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 5,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.email_outlined,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Email',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                // trailing: loadedAnniversary.emailofCouple.isNotEmpty
-                //     ? IconButton(
-                //         icon: Icon(
-                //           Icons.email_rounded,
-                //           color: Theme.of(context).primaryColor,
-                //           // size: 10,
-                //         ),
-                //         onPressed: () async {
-                //           String email = loadedAnniversary.emailofCouple;
-                //           String url = 'mailto:$email';
-                //           if (await canLaunch(url)) {
-                //             await launch(url);
-                //           } else {
-                //             throw 'Could not launch $url';
-                //           }
-                //         },
-                //       )
-                //     : SizedBox(),
-                subtitle: Text(
-                  loadedAnniversary.emailofCouple.isNotEmpty
-                      ? loadedAnniversary.emailofCouple
-                      : 'None',
-                  //textScaleFactor: 1.4,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 5,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.favorite_border_rounded,
-                  color: _categoryColor,
-                  size: 28.0,
-                ),
-                title: Text(
-                  'Interests',
-                  textAlign: TextAlign.left,
-                  textScaleFactor: 1.3,
-                  style: TextStyle(
-                    color: _categoryColor,
-                  ),
-                ),
-                subtitle: (loadedAnniversary.interestsofCouple == null ||
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: Theme.of(context).primaryColor, width: 2.0),
+                          borderRadius: BorderRadius.circular(5.0)),
+                      child: StreamBuilder<Duration>(
+                          stream: durationStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      // Column(
+                                      //   children: [
+                                      //     Text(
+                                      //       'Months',
+                                      //       style: TextStyle(
+                                      //           fontWeight: FontWeight.bold,
+                                      //           fontSize: 16),
+                                      //     ),
+                                      //     SizedBox(
+                                      //       height: 10,
+                                      //     ),
+                                      //     Text(snapshot.data.month.toString())
+                                      //   ],
+                                      // ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            'Days',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(snapshot.data.inDays.toString())
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            'Hours',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(snapshot.data.inHours
+                                              .remainder(24)
+                                              .toString())
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            'Minutes',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(snapshot.data.inMinutes
+                                              .remainder(60)
+                                              .toString())
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            'Seconds',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(snapshot.data.inSeconds
+                                              .remainder(60)
+                                              .toString())
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else
+                              return Container();
+                          }),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Category :',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'Notification Time :',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              categoryText(loadedAnniversary.categoryofCouple),
+                              textAlign: TextAlign.start,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            loadedAnniversary.dateofanniversary != null
+                                ? Text(
+                                    DateFormat('HH : mm').format(
+                                        loadedAnniversary.dateofanniversary),
+                                    //textScaleFactor: 1.4,
+
+                                    style: TextStyle(fontSize: 20),
+                                    //textScaleFactor: 1.4,
+                                    textAlign: TextAlign.start,
+                                    // overflow: TextOverflow.ellipsis,
+                                    // maxLines: 5,
+                                  )
+                                : Text(
+                                    'None',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    if (loadedAnniversary.interestsofCouple != null &&
                         loadedAnniversary.interestsofCouple.isEmpty)
-                    ? Container(
-                        child: Text('None'),
-                      )
-                    : Container(
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 35.0),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Interest :',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+
+                    if (loadedAnniversary.interestsofCouple != null &&
+                        loadedAnniversary.interestsofCouple.isEmpty)
+                      Container(
                         height: 60,
                         width: MediaQuery.of(context).size.width * 0.70,
                         child: ListView.builder(
@@ -534,13 +546,67 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                           //padding: const EdgeInsets.all(10),
                         ),
                       ),
+                    if (loadedAnniversary.notes != null &&
+                        loadedAnniversary.notes.isEmpty)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 35.0),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          loadedAnniversary.notes,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    //
+                  ],
+                ),
               ),
-              //
-            ],
+            ),
           ),
-        ),
+          if (isToday)
+            ConfettiWidget(
+              confettiController: _controllerCenter,
+              blastDirectionality: BlastDirectionality
+                  .explosive, // don't specify a direction, blast randomly
+              shouldLoop:
+                  true, // start again as soon as the animation is finished
+              colors: const [
+                Color(0xFF305496),
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
+              ], // manually specify the colors to be used
+              createParticlePath: drawStar,
+            ),
+        ],
       ),
     );
+  }
+
+  Path drawStar(Size size) {
+    // Method to convert degree to radians
+    double degToRad(double deg) => deg * (pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
   }
 }
 

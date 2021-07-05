@@ -80,12 +80,17 @@ class _TodaysTaskWidgetState extends State<TodaysTaskWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(' Tasks',style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        SizedBox(height: 30,width: 30,child: Image.asset('assets/images/completed-task.png'),),
+                        Text('    Tasks',style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                          textAlign: TextAlign.left,),
+                      ],
                     ),
-                      textAlign: TextAlign.left,),
                     TextButton(onPressed: (){
                       Navigator.of(context)
                           .pushNamed(AllTaskScreen.routeName);

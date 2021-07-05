@@ -13,9 +13,10 @@ class BirthDay {
   final String gender;
   final String notes;
   final String zodiacSign;
+  final int notifId;
   final DateTime dateofbirth;
   bool yearofbirthProvided = true;
-  TimeOfDay setAlarmforBirthday;
+  // TimeOfDay setAlarmforBirthday;
   final List<Interest> interestsofPerson;
   final CategoryofPerson categoryofPerson;
   final String phoneNumberofPerson;
@@ -32,13 +33,14 @@ class BirthDay {
     this.zodiacSign,
     @required this.dateofbirth,
       this.yearofbirthProvided,
-      this.setAlarmforBirthday,
+      // this.setAlarmforBirthday,
       this.interestsofPerson,
     @required this.categoryofPerson,
       this.phoneNumberofPerson,
       this.emailofPerson,
       this.imageofPerson,
     this.imageUrl,
+    this.notifId,
   });
 
 

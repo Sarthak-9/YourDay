@@ -61,7 +61,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
       .toList();
   bool _categorySelected = false;
   bool _yearofAnnivProvidedStat = false;
-  CategoryofPerson _categoryofCouple;
   final NativeContactPicker _contactPicker = new NativeContactPicker();
   Contact _contact;
   String _selectedCategory = 'Others';
@@ -73,7 +72,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
     dateofanniversary: null,
     notes: '',
     yearofmarriageProvided: true,
-    setAlarmforAnniversary: null,
+    // setAlarmforAnniversary: null,
     interestsofCouple: [],
     categoryofCouple: null,
     phoneNumberofCouple: '',
@@ -160,7 +159,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
         // relation: _editedAnniv.relation,
         notes: _editedAnniv.notes,
         yearofmarriageProvided: _editedAnniv.yearofmarriageProvided,
-        setAlarmforAnniversary: _alarmTime,
+        // setAlarmforAnniversary: _alarmTime,
         interestsofCouple: _editedAnniv.interestsofCouple,
         categoryofCouple: getCategory(_selectedCategory),
         phoneNumberofCouple: _editedAnniv.phoneNumberofCouple,
@@ -219,7 +218,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
       // relation: _editedAnniv.relation,
       notes: _editedAnniv.notes,
       yearofmarriageProvided: _editedAnniv.yearofmarriageProvided,
-      setAlarmforAnniversary: _editedAnniv.setAlarmforAnniversary,
+      // setAlarmforAnniversary: _editedAnniv.setAlarmforAnniversary,
       interestsofCouple: _editedAnniv.interestsofCouple,
       categoryofCouple:_editedAnniv.categoryofCouple,
       phoneNumberofCouple: _editedAnniv.phoneNumberofCouple,
@@ -231,683 +230,635 @@ class _AddAnniversaryState extends State<AddAnniversary> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget CategoryButton = Container(
-      decoration: _categoryBorder
-          ? BoxDecoration(
-              color: _categoryColor, //Colors.red.shade50,
-              //borderRadius: BorderRadius.all(Radius.circular(40)),
-              border: Border.all(
-                color: Colors.red,
-                width: 2,
-              ),
-            )
-          : BoxDecoration(),
-      //color: Colors.red.shade50,
-      width: 150,
-      height: 40,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 11),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Flexible(
-              child: Text(
-                //'Select Category',
-                !_categorySelected ? 'Select Category' : _selectedCategory,
-                //style: TextStyle(color: Colors.yellow),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(
-              width: 17,
-              height: 17,
-              child: FittedBox(
-                fit: BoxFit.fill,
-                child: Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.grey,
-                  size: 15.0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
         // centerTitle: true,
       ),
       body:isLoading
           ? Center(
         child: CircularProgressIndicator(),
       )
-          :  Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/images/Untitled design.jpg')
-          ),
-          // backgroundBlendMode: BlendMode.difference
-        ),
-            child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Form(
-                    key: _form,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                        // Text(
-                        //   'Add Anniversary',
-                        //   style: TextStyle(
-                        //     fontSize: 24.0,
-                        //   ),
-                        // ),
-                        // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
+          :  SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Form(
+                  key: _form,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                      // Text(
+                      //   'Add Anniversary',
+                      //   style: TextStyle(
+                      //     fontSize: 24.0,
+                      //   ),
+                      // ),
+                      // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: _takePictureofCouple,
+                                child: CircleAvatar(
                                   backgroundImage: pickedFile == null
-                                      ? AssetImage('assets/images/anniversary_placeholder.jpeg')
+                                      ? AssetImage('assets/images/anniversary_logo.png')
                                       : FileImage(_imageofCoupleToAdd),
                                   radius:
                                       MediaQuery.of(context).size.width * 0.18,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4.0,
-                                  ),
-                                ),
-                                CircleAvatar(
-                                  backgroundColor: Colors.grey.withOpacity(0.25),
-                                  radius:
-                                      MediaQuery.of(context).size.width * 0.075,
-                                  child: IconButton(
-                                    icon: Icon(Icons.camera_alt_outlined),
-                                    onPressed: _takePictureofCouple,
-                                    iconSize:
-                                        MediaQuery.of(context).size.width * 0.10,
-                                    color: Colors.grey.withOpacity(0.3),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                              // Padding(
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 4.0,
+                              //   ),
+                              // ),
+                              // CircleAvatar(
+                              //   backgroundColor: Colors.grey.withOpacity(0.25),
+                              //   radius:
+                              //       MediaQuery.of(context).size.width * 0.075,
+                              //   child: IconButton(
+                              //     icon: Icon(Icons.camera_alt_outlined),
+                              //     onPressed: _takePictureofCouple,
+                              //     iconSize:
+                              //         MediaQuery.of(context).size.width * 0.10,
+                              //     color: Colors.grey.withOpacity(0.3),
+                              //   ),
+                              // ),
+                            ],
                           ),
                         ),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 4.0)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              child:  dateTime!=null?Text(
-                                DateFormat('MMM dd').format(dateTime),style: TextStyle(
-                  color: Colors.black,
-                ),
+                      ),
+                      Padding(padding: const EdgeInsets.symmetric(vertical: 4.0)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            child:  dateTime!=null?Text(
+                              DateFormat('MMM dd').format(dateTime),style: TextStyle(
+                color: Colors.black,
+              ),
+                            ): Row(
+                              children: [
+                                Icon(Icons.calendar_today_rounded,color: Colors.black,size: 15,),
+                                SizedBox(width: 4,),
+                                Text('Select Date',style: TextStyle(
+                                  color: Colors.black,
+                                ),),
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(140,40),
+                              primary:  MaterialStateColor.resolveWith((states) => Theme.of(context).accentColor),
+                            ),
+                            onPressed: () async {
+                              FocusScope.of(context).unfocus();
+                              dateTime = await PlatformDatePicker.showDate(
+                                context: context,
+                                // initialEntryMode: DatePickerEntryMode.input,
+                                firstDate: DateTime(DateTime.now().year - 100),
+                                initialDate: DateTime.now(),
+                                lastDate: DateTime(DateTime.now().year + 2),
+                                builder: (context, child) => Theme(
+                                  data: ThemeData(
+                                    colorScheme: ColorScheme.light(
+                                      primary: Theme.of(context).primaryColor,
+                                    ),
+                                    buttonTheme: ButtonThemeData(
+                                        textTheme: ButtonTextTheme.primary),
+                                  ),
+                                  child: child,
+                                ),
+                              );
+                              if (dateTime != null) {
+                                _editedAnniv = Anniversary(
+                                  anniversaryId: Id,
+                                  husband_name: _editedAnniv.husband_name,
+                                  wife_name: _editedAnniv.wife_name,
+                                  dateofanniversary: dateTime,
+                                  // relation: _editedAnniv.relation,
+                                  notes: _editedAnniv.notes,
+                                  yearofmarriageProvided:
+                                      _editedAnniv.yearofmarriageProvided,
+                                  // setAlarmforAnniversary:
+                                  //     _editedAnniv.setAlarmforAnniversary,
+                                  interestsofCouple: _editedAnniv.interestsofCouple,
+                                  categoryofCouple: _editedAnniv.categoryofCouple,
+                                  phoneNumberofCouple:
+                                      _editedAnniv.phoneNumberofCouple,
+                                  emailofCouple: _editedAnniv.emailofCouple,
+                                  imageofCouple: _editedAnniv.imageofCouple,
+                                );
+                                FocusScope.of(context).requestFocus(new FocusNode());
+                                setState(() {});
+                              }
+                            },
+                          ),
+                          ElevatedButton(
+                              child:  _alarmTime != null?Text(
+                                _alarmTime.format(context),
+                                style: TextStyle(color: Colors.black),
                               ): Row(
                                 children: [
-                                  Icon(Icons.calendar_today_rounded,color: Colors.black,size: 15,),
+                                  Icon(Icons.notifications,color: Colors.black,size: 15,),
                                   SizedBox(width: 4,),
-                                  Text('Select Date',style: TextStyle(
+                                  Text('Notification Time',style: TextStyle(
                                     color: Colors.black,
                                   ),),
                                 ],
                               ),
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(140,40),
-                                primary:  MaterialStateColor.resolveWith((states) => Theme.of(context).accentColor),
-                              ),
-                              onPressed: () async {
-                                FocusScope.of(context).unfocus();
-                                dateTime = await PlatformDatePicker.showDate(
-                                  context: context,
-                                  initialEntryMode: DatePickerEntryMode.input,
-                                  firstDate: DateTime(DateTime.now().year - 100),
-                                  initialDate: DateTime.now(),
-                                  lastDate: DateTime(DateTime.now().year + 2),
-                                  builder: (context, child) => Theme(
-                                    data: ThemeData(
-                                      colorScheme: ColorScheme.light(
-                                        primary: Theme.of(context).primaryColor,
-                                      ),
-                                      buttonTheme: ButtonThemeData(
-                                          textTheme: ButtonTextTheme.primary),
-                                    ),
-                                    child: child,
-                                  ),
-                                );
-                                if (dateTime != null) {
-                                  _editedAnniv = Anniversary(
-                                    anniversaryId: Id,
-                                    husband_name: _editedAnniv.husband_name,
-                                    wife_name: _editedAnniv.wife_name,
-                                    dateofanniversary: dateTime,
-                                    // relation: _editedAnniv.relation,
-                                    notes: _editedAnniv.notes,
-                                    yearofmarriageProvided:
-                                        _editedAnniv.yearofmarriageProvided,
-                                    setAlarmforAnniversary:
-                                        _editedAnniv.setAlarmforAnniversary,
-                                    interestsofCouple: _editedAnniv.interestsofCouple,
-                                    categoryofCouple: _editedAnniv.categoryofCouple,
-                                    phoneNumberofCouple:
-                                        _editedAnniv.phoneNumberofCouple,
-                                    emailofCouple: _editedAnniv.emailofCouple,
-                                    imageofCouple: _editedAnniv.imageofCouple,
-                                  );
-                                  FocusScope.of(context).requestFocus(new FocusNode());
-                                  setState(() {});
-                                }
-                              },
-                            ),
-                            ElevatedButton(
-                                child:  _alarmTime != null?Text(
-                                  _alarmTime.format(context),
-                                  style: TextStyle(color: Colors.black),
-                                ): Row(
-                                  children: [
-                                    Icon(Icons.notifications,color: Colors.black,size: 15,),
-                                    SizedBox(width: 4,),
-                                    Text('Notification Time',style: TextStyle(
-                                      color: Colors.black,
-                                    ),),
-                                  ],
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: Size(140,40),
-                                  primary: MaterialStateColor.resolveWith((states) => Theme.of(context).accentColor),),                              onPressed: () async {
-                              _alarmTime = await tpw.showCustomTimePicker(
-                                  context: context,
-                                  initialEntryMode: tpw.TimePickerEntryMode.input,
-                                  // It is a must if you provide selectableTimePredicate
-                                  onFailValidation: (context) =>
-                                      print('Unavailable selection'),
-                                  initialTime: TimeOfDay(hour: 10, minute: 0));
+                                primary: MaterialStateColor.resolveWith((states) => Theme.of(context).accentColor),),                              onPressed: () async {
+                            _alarmTime = await tpw.showCustomTimePicker(
+                                context: context,
+                                initialEntryMode: tpw.TimePickerEntryMode.input,
+                                // It is a must if you provide selectableTimePredicate
+                                onFailValidation: (context) =>
+                                    print('Unavailable selection'),
+                                initialTime: TimeOfDay(hour: 10, minute: 0));
 
-                              _editedAnniv = Anniversary(
-                                anniversaryId: Id,
-                                husband_name: _editedAnniv.husband_name,
-                                wife_name: _editedAnniv.wife_name,
-                                dateofanniversary:
-                                _editedAnniv.dateofanniversary,
-                                // relation: _editedAnniv.relation,
-                                notes: _editedAnniv.notes,
-                                yearofmarriageProvided:
-                                _editedAnniv.yearofmarriageProvided,
-                                setAlarmforAnniversary: _alarmTime,
-                                interestsofCouple:
-                                _editedAnniv.interestsofCouple,
-                                categoryofCouple:
-                                _editedAnniv.categoryofCouple,
-                                phoneNumberofCouple:
-                                _editedAnniv.phoneNumberofCouple,
-                                emailofCouple: _editedAnniv.emailofCouple,
-                                imageofCouple: _editedAnniv.imageofCouple,
-                              );
-                              FocusScope.of(context).requestFocus(new FocusNode());
-                              setState(() {});
-                            }),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Switch(value: _yearofAnnivProvidedStat, onChanged: (status){
-                              _yearofAnnivProvidedStat = status;
-                              setState(() {
+                            // _editedAnniv = Anniversary(
+                            //   anniversaryId: Id,
+                            //   husband_name: _editedAnniv.husband_name,
+                            //   wife_name: _editedAnniv.wife_name,
+                            //   dateofanniversary:
+                            //   _editedAnniv.dateofanniversary,
+                            //   // relation: _editedAnniv.relation,
+                            //   notes: _editedAnniv.notes,
+                            //   yearofmarriageProvided:
+                            //   _editedAnniv.yearofmarriageProvided,
+                            //   // setAlarmforAnniversary: _alarmTime,
+                            //   interestsofCouple:
+                            //   _editedAnniv.interestsofCouple,
+                            //   categoryofCouple:
+                            //   _editedAnniv.categoryofCouple,
+                            //   phoneNumberofCouple:
+                            //   _editedAnniv.phoneNumberofCouple,
+                            //   emailofCouple: _editedAnniv.emailofCouple,
+                            //   imageofCouple: _editedAnniv.imageofCouple,
+                            // );
+                            FocusScope.of(context).requestFocus(new FocusNode());
+                            setState(() {});
+                          }),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Switch(value: _yearofAnnivProvidedStat, onChanged: (status){
+                            _yearofAnnivProvidedStat = status;
+                            setState(() {
 
-                              });
-                              _editedAnniv = Anniversary(
-                                anniversaryId: Id,
-                                husband_name: _editedAnniv.husband_name,
-                                wife_name: _editedAnniv.wife_name,
-                                dateofanniversary:
-                                _editedAnniv.dateofanniversary,
-                                // relation: _editedAnniv.relation,
-                                notes: _editedAnniv.notes,
-                                yearofmarriageProvided:
-                                !_yearofAnnivProvidedStat,
-                                setAlarmforAnniversary:
-                                _editedAnniv.setAlarmforAnniversary,
-                                interestsofCouple:
-                                _editedAnniv.interestsofCouple,
-                                categoryofCouple: _editedAnniv.categoryofCouple,
-                                phoneNumberofCouple:
-                                _editedAnniv.phoneNumberofCouple,
-                                emailofCouple: _editedAnniv.emailofCouple,
-                                imageofCouple: _editedAnniv.imageofCouple,
-                              );
-                            }),
-                            Text('Year of Marriage not known'),
-                          ],
-                        ),
-                        TextFormField(
-                          autofocus: false,
-                          decoration:
-                              InputDecoration(labelText: 'Husband\'s Name *'),
-                          textInputAction: TextInputAction.next,
-                          // focusNode: _husbandnameFocusNode,
-                          // onFieldSubmitted: (_) {
-                          //   FocusScope.of(context)
-                          //       .requestFocus(_wifenameFocusNode);
-                          // },
-                          textCapitalization: TextCapitalization.words,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please provide a valid name';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _editedAnniv = Anniversary(
-                              anniversaryId: Id,
-                              husband_name: value,
-                              wife_name: _editedAnniv.wife_name,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: _editedAnniv.notes,
-                              yearofmarriageProvided:
-                                  _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                                  _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _editedAnniv.interestsofCouple,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
-                              phoneNumberofCouple:
-                                  _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
-                            );
-                          },
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Wife\'s Name *',
-                              ),
-                          textInputAction: TextInputAction.next,
-
-                          // focusNode: _wifenameFocusNode,
-                          // onFieldSubmitted: (_) {
-                          //   FocusScope.of(context)
-                          //       .requestFocus(_relationFocusNode);
-                          // },
-                          textCapitalization: TextCapitalization.words,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please provide a valid name';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _editedAnniv = Anniversary(
-                              anniversaryId: Id,
-                              husband_name: _editedAnniv.husband_name,
-                              wife_name: value,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: _editedAnniv.notes,
-                              yearofmarriageProvided:
-                                  _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                                  _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _editedAnniv.interestsofCouple,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
-                              phoneNumberofCouple:
-                                  _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
-                            );
-                          },
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.contact_page_outlined),
-                              onPressed: () async {
-                                PermissionStatus permission = await Permission.contacts.status;
-                                if (permission != PermissionStatus.granted &&
-                                    permission != PermissionStatus.permanentlyDenied) {
-                                  PermissionStatus permissionStatus = await Permission.contacts.request();
-                                  permission = await Permission.contacts.status;
-                                }
-                                if(permission.isGranted) {
-                                  Contact contact =
-                                  await _contactPicker.selectContact();
-                                  setState(() {
-                                    _contact = contact;
-                                  });
-                                  phoneController.text = _contact.phoneNumber;
-                                }
-                              },
-                            )
-                          ),
-                          controller: phoneController,
-                          textInputAction: TextInputAction.next,
-                          // focusNode: _phoneFocusNode,
-                          // onFieldSubmitted: (_) {
-                          //   FocusScope.of(context).requestFocus(_emailFocusNode);
-                          // },
-                          keyboardType: TextInputType.number,
-                          onSaved: (value) {
+                            });
                             _editedAnniv = Anniversary(
                               anniversaryId: Id,
                               husband_name: _editedAnniv.husband_name,
                               wife_name: _editedAnniv.wife_name,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
+                              dateofanniversary:
+                              _editedAnniv.dateofanniversary,
                               // relation: _editedAnniv.relation,
                               notes: _editedAnniv.notes,
                               yearofmarriageProvided:
-                              _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                              _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _editedAnniv.interestsofCouple,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
-                              phoneNumberofCouple: value,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
-                            );
-                          },
-                          validator: (value) {
-                            if (value.isEmpty ) {
-                              return null;
-                            }
-                            if(value.contains('+91')&&value.length==13)
-                              return null;
-                            else if(value.length==10)
-                              return null;
-                            return 'Please enter a valid phone number';
-                          },
-                        ),
-                        TextFormField(
-                          decoration:
-                          InputDecoration(labelText: 'Email'),
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.emailAddress,
-                          // focusNode: _emailFocusNode,
-                          // onFieldSubmitted: (_) {
-                          //   FocusScope.of(context).dispose();
-                          // },
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return null;
-                            } else if (!value.contains('@')) {
-                              return 'Please provide a valid email';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _editedAnniv = Anniversary(
-                              anniversaryId: Id,
-                              husband_name: _editedAnniv.husband_name,
-                              wife_name: _editedAnniv.wife_name,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: _editedAnniv.notes,
-                              yearofmarriageProvided:
-                              _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                              _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _editedAnniv.interestsofCouple,
+                              !_yearofAnnivProvidedStat,
+                              // setAlarmforAnniversary:
+                              // _editedAnniv.setAlarmforAnniversary,
+                              interestsofCouple:
+                              _editedAnniv.interestsofCouple,
                               categoryofCouple: _editedAnniv.categoryofCouple,
                               phoneNumberofCouple:
                               _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: value,
+                              emailofCouple: _editedAnniv.emailofCouple,
                               imageofCouple: _editedAnniv.imageofCouple,
                             );
-                          },
+                          }),
+                          Text('Year of Marriage not known'),
+                        ],
+                      ),
+                      TextFormField(
+                        autofocus: false,
+                        decoration:
+                            InputDecoration(labelText: 'Husband\'s Name *'),
+                        textInputAction: TextInputAction.next,
+                        // focusNode: _husbandnameFocusNode,
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context)
+                        //       .requestFocus(_wifenameFocusNode);
+                        // },
+                        textCapitalization: TextCapitalization.words,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please provide a valid name';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: value,
+                            wife_name: _editedAnniv.wife_name,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: _editedAnniv.notes,
+                            yearofmarriageProvided:
+                                _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:
+                            //     _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _editedAnniv.interestsofCouple,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple:
+                                _editedAnniv.phoneNumberofCouple,
+                            emailofCouple: _editedAnniv.emailofCouple,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Wife\'s Name *',
+                            ),
+                        textInputAction: TextInputAction.next,
+
+                        // focusNode: _wifenameFocusNode,
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context)
+                        //       .requestFocus(_relationFocusNode);
+                        // },
+                        textCapitalization: TextCapitalization.words,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please provide a valid name';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: _editedAnniv.husband_name,
+                            wife_name: value,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: _editedAnniv.notes,
+                            yearofmarriageProvided:
+                                _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:/
+                            //     _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _editedAnniv.interestsofCouple,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple:
+                                _editedAnniv.phoneNumberofCouple,
+                            emailofCouple: _editedAnniv.emailofCouple,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.contact_page_outlined),
+                            onPressed: () async {
+                              PermissionStatus permission = await Permission.contacts.status;
+                              if (permission != PermissionStatus.granted &&
+                                  permission != PermissionStatus.permanentlyDenied) {
+                                PermissionStatus permissionStatus = await Permission.contacts.request();
+                                permission = await Permission.contacts.status;
+                              }
+                              if(permission.isGranted) {
+                                Contact contact =
+                                await _contactPicker.selectContact();
+                                setState(() {
+                                  _contact = contact;
+                                });
+                                phoneController.text = _contact.phoneNumber;
+                              }
+                            },
+                          )
                         ),
+                        controller: phoneController,
+                        textInputAction: TextInputAction.next,
+                        // focusNode: _phoneFocusNode,
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context).requestFocus(_emailFocusNode);
+                        // },
+                        keyboardType: TextInputType.number,
+                        onSaved: (value) {
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: _editedAnniv.husband_name,
+                            wife_name: _editedAnniv.wife_name,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: _editedAnniv.notes,
+                            yearofmarriageProvided:
+                            _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:
+                            // _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _editedAnniv.interestsofCouple,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple: value,
+                            emailofCouple: _editedAnniv.emailofCouple,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                        },
+                        validator: (value) {
+                          if (value.isEmpty ) {
+                            return null;
+                          }
+                          if(value.contains('+91')&&value.length==13)
+                            return null;
+                          else if(value.length==10)
+                            return null;
+                          return 'Please enter a valid phone number';
+                        },
+                      ),
+                      TextFormField(
+                        decoration:
+                        InputDecoration(labelText: 'Email'),
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.emailAddress,
+                        // focusNode: _emailFocusNode,
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context).dispose();
+                        // },
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return null;
+                          } else if (!value.contains('@')) {
+                            return 'Please provide a valid email';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: _editedAnniv.husband_name,
+                            wife_name: _editedAnniv.wife_name,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: _editedAnniv.notes,
+                            yearofmarriageProvided:
+                            _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:
+                            // _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _editedAnniv.interestsofCouple,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple:
+                            _editedAnniv.phoneNumberofCouple,
+                            emailofCouple: value,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                        },
+                      ),
 
 
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                          ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8.0,
                         ),
-                        Container(
-                            padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                            alignment: Alignment.centerLeft,
-                            child: Text('Select Category :',style: TextStyle(fontSize: 16),)),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 4.0,
-                          ),
+                      ),
+                      Container(
+                          padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          alignment: Alignment.centerLeft,
+                          child: Text('Select Category :',style: TextStyle(fontSize: 16),)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 4.0,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            GestureDetector(
-                              onTap: (){
-                                selectCategory(0);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Chip(label: Text('Family',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 0?Colors.amber:Colors.grey.shade100,
-                                ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: (){
+                              selectCategory(0);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Chip(label: Text('Family',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 0?Colors.amber:Colors.grey.shade100,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: (){
-                                selectCategory(1);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Chip(label: Text('Friend',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 1?Colors.amber:Colors.grey.shade100,
-                                ),
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              selectCategory(1);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Chip(label: Text('Friend',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 1?Colors.amber:Colors.grey.shade100,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: (){
-                                selectCategory(2);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Chip(label: Text('Work',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 2?Colors.amber:Colors.grey.shade100,
-                                ),
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              selectCategory(2);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Chip(label: Text('Work',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 2?Colors.amber:Colors.grey.shade100,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: (){
-                                selectCategory(3);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Chip(label: Text('Others',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 3?Colors.amber:Colors.grey.shade100,
-                                ),
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              selectCategory(3);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Chip(label: Text('Others',style: TextStyle(color: Colors.black),),elevation: 3.0,backgroundColor: categoryNumber == 3?Colors.amber:Colors.grey.shade100,
                               ),
                             ),
+                          ),
 
-                          ],
+                        ],
+                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.all(8.0),
+                      //   child: MenuButton(
+                      //     child:
+                      //         CategoryButton, // Widget displayed as the button
+                      //     items: _categories, // List of your items
+                      //     topDivider: true,
+                      //     popupHeight:
+                      //         165, // This popupHeight is optional. The default height is the size of items
+                      //     scrollPhysics:
+                      //         AlwaysScrollableScrollPhysics(), // Change the physics of opened menu (example: you can remove or add scroll to menu)
+                      //     itemBuilder: (value) => Container(
+                      //         width: 100,
+                      //         height: 40,
+                      //         alignment: Alignment.centerLeft,
+                      //         padding: const EdgeInsets.symmetric(
+                      //             horizontal: 16),
+                      //         child: Text(
+                      //             value)), // Widget displayed for each item
+                      //     toggledChild: Container(
+                      //       child:
+                      //           CategoryButton, // Widget displayed as the button,
+                      //     ),
+                      //     divider: Container(
+                      //       height: 1,
+                      //       color: Colors.grey,
+                      //     ),
+                      //     onItemSelected: (value) {
+                      //       FocusScope.of(context).unfocus();
+                      //       _categoryofCouple = getCategory(value);
+                      //       _selectedCategory = value.toString();
+                      //       setState(() {
+                      //         _categorySelected = true;
+                      //         _categoryColor = Colors.amber;
+                      //         _categoryBorder = false;
+                      //       });
+                      //       _editedAnniv = Anniversary(
+                      //         anniversaryId: Id,
+                      //         husband_name: _editedAnniv.husband_name,
+                      //         wife_name: _editedAnniv.wife_name,
+                      //         dateofanniversary:
+                      //             _editedAnniv.dateofanniversary,
+                      //         relation: _editedAnniv.relation,
+                      //         notes: _editedAnniv.notes,
+                      //         yearofmarriageProvided:
+                      //             _editedAnniv.yearofmarriageProvided,
+                      //         setAlarmforAnniversary:
+                      //             _editedAnniv.setAlarmforAnniversary,
+                      //         interestsofCouple:
+                      //             _editedAnniv.interestsofCouple,
+                      //         categoryofCouple: _categoryofCouple,
+                      //         phoneNumberofCouple:
+                      //             _editedAnniv.phoneNumberofCouple,
+                      //         emailofCouple: _editedAnniv.emailofCouple,
+                      //         imageofCouple: _editedAnniv.imageofCouple,
+                      //       );
+                      //       FocusScope.of(context).unfocus();
+                      //     },
+                      //     decoration: BoxDecoration(
+                      //         border: Border.all(color: Colors.grey[300]),
+                      //         borderRadius: const BorderRadius.all(
+                      //             Radius.circular(3.0))),
+                      //     itemBackgroundColor: Colors.amber.shade300,
+                      //     menuButtonBackgroundColor: Colors.amber,
+                      //     onMenuButtonToggle: (isToggle) {
+                      //       print(isToggle);
+                      //     },
+                      //   ),
+                      // ),
+                      Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                      MultiSelectBottomSheetField(
+                        listType: MultiSelectListType.CHIP,
+                        itemsTextStyle: TextStyle(
+                          color: Colors.black,
                         ),
-                        // Padding(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: MenuButton(
-                        //     child:
-                        //         CategoryButton, // Widget displayed as the button
-                        //     items: _categories, // List of your items
-                        //     topDivider: true,
-                        //     popupHeight:
-                        //         165, // This popupHeight is optional. The default height is the size of items
-                        //     scrollPhysics:
-                        //         AlwaysScrollableScrollPhysics(), // Change the physics of opened menu (example: you can remove or add scroll to menu)
-                        //     itemBuilder: (value) => Container(
-                        //         width: 100,
-                        //         height: 40,
-                        //         alignment: Alignment.centerLeft,
-                        //         padding: const EdgeInsets.symmetric(
-                        //             horizontal: 16),
-                        //         child: Text(
-                        //             value)), // Widget displayed for each item
-                        //     toggledChild: Container(
-                        //       child:
-                        //           CategoryButton, // Widget displayed as the button,
-                        //     ),
-                        //     divider: Container(
-                        //       height: 1,
-                        //       color: Colors.grey,
-                        //     ),
-                        //     onItemSelected: (value) {
-                        //       FocusScope.of(context).unfocus();
-                        //       _categoryofCouple = getCategory(value);
-                        //       _selectedCategory = value.toString();
-                        //       setState(() {
-                        //         _categorySelected = true;
-                        //         _categoryColor = Colors.amber;
-                        //         _categoryBorder = false;
-                        //       });
-                        //       _editedAnniv = Anniversary(
-                        //         anniversaryId: Id,
-                        //         husband_name: _editedAnniv.husband_name,
-                        //         wife_name: _editedAnniv.wife_name,
-                        //         dateofanniversary:
-                        //             _editedAnniv.dateofanniversary,
-                        //         relation: _editedAnniv.relation,
-                        //         notes: _editedAnniv.notes,
-                        //         yearofmarriageProvided:
-                        //             _editedAnniv.yearofmarriageProvided,
-                        //         setAlarmforAnniversary:
-                        //             _editedAnniv.setAlarmforAnniversary,
-                        //         interestsofCouple:
-                        //             _editedAnniv.interestsofCouple,
-                        //         categoryofCouple: _categoryofCouple,
-                        //         phoneNumberofCouple:
-                        //             _editedAnniv.phoneNumberofCouple,
-                        //         emailofCouple: _editedAnniv.emailofCouple,
-                        //         imageofCouple: _editedAnniv.imageofCouple,
-                        //       );
-                        //       FocusScope.of(context).unfocus();
-                        //     },
-                        //     decoration: BoxDecoration(
-                        //         border: Border.all(color: Colors.grey[300]),
-                        //         borderRadius: const BorderRadius.all(
-                        //             Radius.circular(3.0))),
-                        //     itemBackgroundColor: Colors.amber.shade300,
-                        //     menuButtonBackgroundColor: Colors.amber,
-                        //     onMenuButtonToggle: (isToggle) {
-                        //       print(isToggle);
-                        //     },
-                        //   ),
-                        // ),
-                        Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                        MultiSelectBottomSheetField(
-                          listType: MultiSelectListType.CHIP,
-                          itemsTextStyle: TextStyle(
-                            color: Colors.black,
-                          ),
-                          validator: (values) {
-                            if (values == null || values.length <= 3)
-                              return null;
-                            return 'Choose max 3 tags only';
-                          },
-                          autovalidateMode: AutovalidateMode.always,
-                          selectedItemsTextStyle: TextStyle(
-                            color: Colors.white,
-                          ),
-                          // searchable: true,
-                          items: _items,
-                          title: Text("Interests", style: TextStyle(
+                        validator: (values) {
+                          if (values == null || values.length <= 3)
+                            return null;
+                          return 'Choose max 3 tags only';
+                        },
+                        autovalidateMode: AutovalidateMode.always,
+                        selectedItemsTextStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        // searchable: true,
+                        items: _items,
+                        title: Text("Interests", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),),
+                        decoration: BoxDecoration(),
+                        selectedColor: Colors.amber,
+                        buttonIcon: Icon(
+                          Icons.add_circle,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        buttonText: Text(
+                          'Select interests :',
+                          style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
-                          ),),
-                          decoration: BoxDecoration(),
-                          selectedColor: Colors.amber,
-                          buttonIcon: Icon(
-                            Icons.add_circle,
-                            color: Theme.of(context).primaryColor,
                           ),
-                          buttonText: Text(
-                            'Select interests :',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            ),
-                          ),
-                          onConfirm: (results) {
-                            _selectedInterests = results;
-                            _editedAnniv = Anniversary(
-                              anniversaryId: Id,
-                              husband_name: _editedAnniv.husband_name,
-                              wife_name: _editedAnniv.wife_name,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: _editedAnniv.notes,
-                              yearofmarriageProvided:
-                              _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                              _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _selectedInterests,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
-                              phoneNumberofCouple:
-                              _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
-                            );
-                            FocusScope.of(context).requestFocus(new FocusNode());
-                          },
                         ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Notes',
-                          ),
-                          textCapitalization: TextCapitalization.sentences,
-                          // focusNode: _notesFocusNode,
-                          // onFieldSubmitted: (_) {
-                          //   FocusScope.of(context).requestFocus(_phoneFocusNode);
-                          // },
-                          keyboardType: TextInputType.multiline,
-                          maxLines: 2,
-                          onSaved: (value) {
-                            _editedAnniv = Anniversary(
-                              anniversaryId: Id,
-                              husband_name: _editedAnniv.husband_name,
-                              wife_name: _editedAnniv.wife_name,
-                              dateofanniversary: _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: value,
-                              yearofmarriageProvided:
-                              _editedAnniv.yearofmarriageProvided,
-                              setAlarmforAnniversary:
-                              _editedAnniv.setAlarmforAnniversary,
-                              interestsofCouple: _editedAnniv.interestsofCouple,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
-                              phoneNumberofCouple:
-                              _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
-                            );
-                          },
+                        onConfirm: (results) {
+                          _selectedInterests = results;
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: _editedAnniv.husband_name,
+                            wife_name: _editedAnniv.wife_name,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: _editedAnniv.notes,
+                            yearofmarriageProvided:
+                            _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:
+                            // _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _selectedInterests,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple:
+                            _editedAnniv.phoneNumberofCouple,
+                            emailofCouple: _editedAnniv.emailofCouple,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Notes',
                         ),
-                        Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                        ElevatedButton(
-                          onPressed: _saveForm,
-                          child: Text(
-                            'Add Anniversary',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                        textCapitalization: TextCapitalization.sentences,
+                        // focusNode: _notesFocusNode,
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context).requestFocus(_phoneFocusNode);
+                        // },
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 2,
+                        onSaved: (value) {
+                          _editedAnniv = Anniversary(
+                            anniversaryId: Id,
+                            husband_name: _editedAnniv.husband_name,
+                            wife_name: _editedAnniv.wife_name,
+                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            // relation: _editedAnniv.relation,
+                            notes: value,
+                            yearofmarriageProvided:
+                            _editedAnniv.yearofmarriageProvided,
+                            // setAlarmforAnniversary:
+                            // _editedAnniv.setAlarmforAnniversary,
+                            interestsofCouple: _editedAnniv.interestsofCouple,
+                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            phoneNumberofCouple:
+                            _editedAnniv.phoneNumberofCouple,
+                            emailofCouple: _editedAnniv.emailofCouple,
+                            imageofCouple: _editedAnniv.imageofCouple,
+                          );
+                        },
+                      ),
+                      Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+                      ElevatedButton(
+                        onPressed: _saveForm,
+                        child: Text(
+                          'Add Anniversary',
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(100,40),
-                            primary: MaterialStateColor.resolveWith((states) => Theme.of(context).primaryColor),),                      ),
-                      ],
-                    ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(100,40),
+                          primary: MaterialStateColor.resolveWith((states) => Theme.of(context).primaryColor),),                      ),
+                    ],
                   ),
                 ),
               ),
-          ),
+            ),
     );
   }
     void selectCategory(int catNumber){

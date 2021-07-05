@@ -99,7 +99,7 @@ class _TodaysFestivalWidgetState extends State<TodaysFestivalWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            ' Festivals',
+                            '    Festivals',
                             style: TextStyle(
                               fontSize: 20,
                               color: Theme.of(context).primaryColor,

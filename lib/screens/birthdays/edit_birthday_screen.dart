@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,7 +10,7 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:menu_button/menu_button.dart';
-import 'package:time_picker_widget/time_picker_widget.dart';
+import 'package:time_picker_widget/time_picker_widget.dart'as tpw;
 
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
@@ -18,6 +19,7 @@ import 'package:yday/screens/auth/login_page.dart';
 import 'package:yday/models/interests.dart';
 import 'package:yday/services/google_calender_repository.dart';
 import 'package:yday/services/google_signin_repository.dart';
+import 'package:yday/services/message_handler.dart';
 
 import '../homepage.dart';
 
@@ -47,7 +49,7 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
   String birthdayNotes = '';
   String birthdayPhone = '';
   String birthdayEmail = '';
-  TimeOfDay birthdayTime;
+  // TimeOfDay birthdayTime;
 
   var pickedFile;
   var isLoading = false;
@@ -55,15 +57,13 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
   final _items = interestsList
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
-  var _isInit = true;
-  bool _addToGoogleCalender = false;
   CategoryofPerson _categoryofPerson;
   BirthDay _editedBirthday;
   @override
   void initState() {
     _editedBirthday = widget.fetchedBirthday;
-    birthdayTime = _editedBirthday.setAlarmforBirthday;
-    _alarmTime = birthdayTime;
+    _alarmTime = TimeOfDay.fromDateTime(_editedBirthday.dateofbirth);
+    // _alarmTime = birthdayTime;
     birthdayId = _editedBirthday.birthdayId;
     super.initState();
   }
@@ -83,16 +83,24 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
       // if(_addToGoogleCalender){
       //   calenderId = await addCalender();
       // }
+      DateTime eventDate = _editedBirthday.dateofbirth;
+      if(_alarmTime!=null&&(_editedBirthday.dateofbirth.hour!=_alarmTime.hour||_editedBirthday.dateofbirth.minute!=_alarmTime.minute)){
+         eventDate = DateTimeField.combine(_editedBirthday.dateofbirth, _alarmTime);
+        await NotificationsHelper.cancelNotification(_editedBirthday.notifId);
+        String bdayWish = 'Happy Birthday '+_editedBirthday.nameofperson;
+        String payLoad = 'birthday'+_editedBirthday.birthdayId;
+        await NotificationsHelper.setNotification(currentTime:eventDate ,id:_editedBirthday.notifId,title:bdayWish,body:'Wish Happy Birthday',payLoad: payLoad);
+      }
       BirthDay updatedBirthday = BirthDay(
         birthdayId: birthdayId,
         interestsofPerson: _selectedInterests,
         phoneNumberofPerson: birthdayPhone,
-        dateofbirth: _editedBirthday.dateofbirth,
+        dateofbirth: eventDate,
         notes: birthdayNotes,
         emailofPerson: birthdayEmail,
         imageUrl: _editedBirthday.imageUrl,
         imageofPerson: pickedFile != null?_imageofPersonToAdd:null,
-        setAlarmforBirthday: birthdayTime,
+        // setAlarmforBirthday: birthdayTime,
       );
       await Provider.of<Birthdays>(context, listen: false)
           .editBirthday(updatedBirthday);
@@ -160,14 +168,15 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
-        // centerTitle: true,
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
       ),
       body: isLoading
           ? Center(
@@ -230,14 +239,18 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
                           child:  _alarmTime != null?Text(
                             _alarmTime.format(context),
                             style: TextStyle(color: Colors.black),
-                          ): Row(
-                            children: [
-                              Icon(Icons.notifications,color: Colors.black,size: 15,),
-                              SizedBox(width: 4,),
-                              Text('Notification Time',style: TextStyle(
-                                color: Colors.black,
-                              ),),
-                            ],
+                          ): Container(
+                            width: 130,
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                Icon(Icons.notifications,color: Colors.black,size: 15,),
+                                SizedBox(width: 4,),
+                                Text('Notification Time',style: TextStyle(
+                                  color: Colors.black,
+                                ),),
+                              ],
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 40),
@@ -245,12 +258,13 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
                                 (states) => Theme.of(context).accentColor),
                           ),
                           onPressed: () async {
-                            _alarmTime = await showCustomTimePicker(
+                            _alarmTime = await tpw.showCustomTimePicker(
                                 context: context,
+                                initialEntryMode: tpw.TimePickerEntryMode.input,
                                 onFailValidation: (context) =>
                                     print('Unavailable selection'),
                                 initialTime: TimeOfDay(hour: 0, minute: 0));
-                            birthdayTime = _alarmTime;
+                            // birthdayTime = _alarmTime;
                             setState(() {});
                           }),
                       ListTile(
@@ -401,48 +415,48 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
     );
   }
 
-  Future<String> addCalender() async {
-    GoogleSignInAccount account =
-        Provider.of<GoogleAccountRepository>(context, listen: false)
-            .googleSignInAccount;
-    String title = _editedBirthday.nameofperson + '\'s Birthday';
-    var currentTime = _editedBirthday.dateofbirth;
-    DateTime startTime, endTime, dt = currentTime;
-    DateTime dtnow = DateTime.now();
-    if (currentTime.year == dtnow.year &&
-        currentTime.month == dtnow.month &&
-        currentTime.day == dtnow.day) {
-      dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
-    } else {
-      if (currentTime.isBefore(dtnow)) {
-        dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
-      }
-      if (dt.isBefore(dtnow)) {
-        dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
-      }
-      // else if(currentTime){
-      //
-      // }
-      else if (dt.isBefore(dtnow)) {
-        dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
-      }
-    }
-    if (_editedBirthday.setAlarmforBirthday != null) {
-      var alarmTime = _editedBirthday.setAlarmforBirthday;
-      startTime =
-          DateTime(dt.year, dt.month, dt.day, alarmTime.hour, alarmTime.minute);
-    } else {
-      startTime = DateTime(dt.year, dt.month, dt.day, 10, 00);
-    }
-    endTime = DateTime(startTime.year, startTime.month, startTime.day,
-        (startTime.hour + 1), startTime.minute, 00);
-    GoogleCalenderModel calenderModel = GoogleCalenderModel(
-        title: title,
-        description: _editedBirthday.notes,
-        startTime: startTime,
-        endTime: endTime);
-    CalendarClient cal = CalendarClient();
-    String calId = await cal.insertCalender(account, calenderModel);
-    return calId;
-  }
+  // Future<String> addCalender() async {
+  //   GoogleSignInAccount account =
+  //       Provider.of<GoogleAccountRepository>(context, listen: false)
+  //           .googleSignInAccount;
+  //   String title = _editedBirthday.nameofperson + '\'s Birthday';
+  //   var currentTime = _editedBirthday.dateofbirth;
+  //   DateTime startTime, endTime, dt = currentTime;
+  //   DateTime dtnow = DateTime.now();
+  //   if (currentTime.year == dtnow.year &&
+  //       currentTime.month == dtnow.month &&
+  //       currentTime.day == dtnow.day) {
+  //     dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
+  //   } else {
+  //     if (currentTime.isBefore(dtnow)) {
+  //       dt = DateTime(dtnow.year, currentTime.month, currentTime.day);
+  //     }
+  //     if (dt.isBefore(dtnow)) {
+  //       dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
+  //     }
+  //     // else if(currentTime){
+  //     //
+  //     // }
+  //     else if (dt.isBefore(dtnow)) {
+  //       dt = DateTime(dtnow.year + 1, currentTime.month, currentTime.day);
+  //     }
+  //   }
+  //   if (_editedBirthday.setAlarmforBirthday != null) {
+  //     var alarmTime = _editedBirthday.setAlarmforBirthday;
+  //     startTime =
+  //         DateTime(dt.year, dt.month, dt.day, alarmTime.hour, alarmTime.minute);
+  //   } else {
+  //     startTime = DateTime(dt.year, dt.month, dt.day, 10, 00);
+  //   }
+  //   endTime = DateTime(startTime.year, startTime.month, startTime.day,
+  //       (startTime.hour + 1), startTime.minute, 00);
+  //   GoogleCalenderModel calenderModel = GoogleCalenderModel(
+  //       title: title,
+  //       description: _editedBirthday.notes,
+  //       startTime: startTime,
+  //       endTime: endTime);
+  //   CalendarClient cal = CalendarClient();
+  //   String calId = await cal.insertCalender(account, calenderModel);
+  //   return calId;
+  // }
 }

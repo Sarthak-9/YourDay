@@ -96,14 +96,15 @@ class _AddUserEventScreenState extends State<AddUserEventScreen> {
     var themeColor = Theme.of(context).primaryColor;
     return Scaffold(
         appBar: AppBar(
+          title:  GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+              child: Image.asset(
+                "assets/images/Main_logo.png",
+                height: 60,
+                width: 100,
+              )),
+          titleSpacing: 0.1,
           centerTitle: true,
-          title: Text(
-            'YourDay',
-            style: TextStyle(
-              // fontFamily: 'Kaushan Script',
-              fontSize: 28,
-            ),
-          ),
         ),
         body:driveStarted? SingleChildScrollView(
           child: Container(

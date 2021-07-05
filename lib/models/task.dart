@@ -14,9 +14,10 @@ class Task {
   final DateTime startdate;
   // final DateTime enddate;
   // final TimeOfDay setalarmfortask;
+  final int notifId;
   final PriorityLevel levelofpriority;
 
-  Task({this.taskId,this.calenderId,this.title, this.description,this.startdate,
+  Task({this.taskId,this.calenderId,this.title, this.description,this.startdate,this.notifId,
     // this.enddate,
     // this.setalarmfortask,
     this.levelofpriority});

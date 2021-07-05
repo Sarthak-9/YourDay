@@ -11,6 +11,7 @@ import 'package:yday/screens/frames/festival_frames_screen.dart';
 import 'package:yday/widgets/frames/festival_widget.dart';
 import 'package:yday/widgets/maindrawer.dart';
 
+import '../homepage.dart';
 import 'add_frames_category_screen.dart';
 
 class AllFestivalScreen extends StatefulWidget {
@@ -75,13 +76,15 @@ class _AllFestivalScreenState extends State<AllFestivalScreen> {
     return Scaffold(
       appBar: AppBar(
         // centerTitle: true,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: 'Kaushan Script',
-            fontSize: 28,
-          ),
-        ),
+        title:  GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(HomePage.routeName),
+            child: Image.asset(
+              "assets/images/Main_logo.png",
+              height: 60,
+              width: 100,
+            )),
+        titleSpacing: 0.1,
+        centerTitle: true,
       ),
       drawer: MainDrawer(),
       body: festivalEvent(),

@@ -126,40 +126,43 @@ class AnniversaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed(
-              AnniversaryDetailScreen.routeName,
-              arguments: anniversaryId),
-          child: ListTile(
-            // leading: CircleAvatar(
-            //   backgroundColor: categoryColor,
-            //   child: Text(
-            //     'A',
-            //     style: TextStyle(
-            //       color: Colors.white,
-            //     ),
-            //   ),
-            // ),
-            title: Text('$husband_name-$wife_name'),
-            trailing: Chip(
-              label: Text(categoryText(category)),
-              backgroundColor: Colors.amber,
-            ),
-            // Container(
-            //   decoration: BoxDecoration(
-            //     shape: BoxShape.rectangle,
-            //     borderRadius: BorderRadius.circular(5.0),
-            //     border: BoxBorder.
-            //   ),
-            //child: Text(priorityLevelText,style: TextStyle(
-            //),),
-            // ),
-            subtitle: Text(
-              DateFormat('EEEE, MMM dd').format(anniversaryDate),
+        Card(
+          color: Colors.blue.shade50,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>AnniversaryDetailScreen(anniversaryId))),
+            child: ListTile(
+              // leading: CircleAvatar(
+              //   backgroundColor: categoryColor,
+              //   child: Text(
+              //     'A',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
+              title: Text('$husband_name-$wife_name'),
+              trailing: TextButton(child: Text('View'),onPressed: () =>Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>AnniversaryDetailScreen(anniversaryId))) ),
+
+              // trailing: Chip(
+              //   label: Text(categoryText(category)),
+              //   backgroundColor: Colors.amber,
+              // ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     shape: BoxShape.rectangle,
+              //     borderRadius: BorderRadius.circular(5.0),
+              //     border: BoxBorder.
+              //   ),
+              //child: Text(priorityLevelText,style: TextStyle(
+              //),),
+              // ),
+              subtitle: Text(
+                DateFormat('EEEE, MMM dd').format(anniversaryDate),
+              ),
             ),
           ),
         ),
-        Divider(),
+        // Divider(),
       ],
     );
   }

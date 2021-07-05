@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/displayvideo/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
@@ -98,15 +99,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: "Kaushan Script",
-            fontSize: 28,
-          ),
-        ),
-        // centerTitle: true,
-        // automaticallyImplyLeading: false,
+        title: Image.asset("assets/images/Main_logo.png",height: 60,width: 100,),
+        titleSpacing: 0.1,
+        centerTitle: true,
+        // automaticallyImplyLeading: true,
         actions: [
           if (selectedTab == 2)
             IconButton(
@@ -145,16 +141,29 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         items: [
           CustomNavigationBarItem(
-            icon: Image.asset('assets/images/calender_icon.png'),//Icon(Icons.insert_drive_file_rounded),
-            title: Text("Calendar"),
+            icon: Column(
+              children: [
+                Image.asset('assets/images/calender_icon.png'),
+              ],
+            ),//Icon(Icons.insert_drive_file_rounded),
+            title: Text("Calendar",style: TextStyle(
+              color: selectedTab==0?primaryColor:Colors.black,
+              fontWeight:selectedTab==0? FontWeight.bold:FontWeight.normal
+            ),),
           ),
           CustomNavigationBarItem(
             icon: Image.asset('assets/images/greeting_icon.png'),//Icon(Icons.insert_drive_file_rounded),
-            title: Text("Greetings"),
+            title: Text("Greetings",style: TextStyle(
+                color: selectedTab==1?primaryColor:Colors.black,
+                fontWeight:selectedTab==1? FontWeight.bold:FontWeight.normal
+            ),),
           ),
           CustomNavigationBarItem(
             icon: Image.asset('assets/images/drive_icon.png'),//Icon(Icons.insert_drive_file_rounded),
-            title: Text("Photo Sharing"),
+            title: Text("Photo Sharing",style: TextStyle(
+                color: selectedTab==2?primaryColor:Colors.black,
+                fontWeight:selectedTab==2? FontWeight.bold:FontWeight.normal
+            ),),
           ),
         ],
         currentIndex: selectedTab,

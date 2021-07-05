@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yday/models/anniversaries/anniversary.dart';
-import 'package:http/http.dart' as http;
-import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/models/interests.dart';
 import 'package:yday/services/message_handler.dart';
@@ -18,6 +13,9 @@ import '../models/anniversaries/anniversary.dart';
 
 class Anniversaries with ChangeNotifier {
   List<Anniversary> _anniversaryList = [];
+  List<Anniversary> _upcomingAnniversaryList = [];
+
+  List<Anniversary> get upcomingAnniversaryList => _upcomingAnniversaryList;
 
   List<Anniversary> get anniversaryList => _anniversaryList;
 
@@ -43,12 +41,12 @@ class Anniversaries with ChangeNotifier {
     }
 
     try {
-      String str = DateFormat('ddyyhhmm')
-          .format(anniv.dateofanniversary);
+      final dtNow = DateTime.now();
+      String str = DateFormat('ddMMhhmm')
+          .format(dtNow);
       int dtInt= int.parse(str);
       String annivWish = 'Happy Anniversary '+anniv.husband_name+' & '+anniv.wife_name;
-      await NotificationsHelper.setNotification(anniv.dateofanniversary ,dtInt,annivWish,'Wish Happy Anniversary').then((value) => print(anniv.dateofanniversary));
-      final alarmstamp = anniv.setAlarmforAnniversary==null? null:DateTimeField.combine(anniv.dateofanniversary, anniv.setAlarmforAnniversary);
+      // final alarmstamp = anniv.setAlarmforAnniversary==null? null:DateTimeField.combine(anniv.dateofanniversary, anniv.setAlarmforAnniversary);
 
       // final alarmstamp = anniv.setAlarmforAnniversary == null
       //     ? null
@@ -63,12 +61,12 @@ class Anniversaries with ChangeNotifier {
         'calenderId': anniv.calenderId,
         'husband_name': anniv.husband_name,
         'wife_name': anniv.wife_name,
-        // 'relation': anniv.relation,
+        'notifId': dtInt,
         'notes': anniv.notes,
         'dateofanniversary': anniv.dateofanniversary.toIso8601String(),
         'yearofmarriageProvided': anniv.yearofmarriageProvided,
-        'setAlarmforAnniversary':
-            alarmstamp == null ? null : alarmstamp.toIso8601String(),
+        // 'setAlarmforAnniversary':
+        //     alarmstamp == null ? null : alarmstamp.toIso8601String(),
         'categoryofCouple': categoryText(anniv.categoryofCouple),
         'phoneNumberofCouple': anniv.phoneNumberofCouple,
         'emailofCouple': anniv.emailofCouple,
@@ -86,11 +84,11 @@ class Anniversaries with ChangeNotifier {
         calenderId: anniv.calenderId,
         husband_name: anniv.husband_name,
         wife_name: anniv.wife_name,
-        // relation: anniv.relation,
+        notifId: dtInt,
         notes: anniv.notes,
         dateofanniversary: anniv.dateofanniversary,
         yearofmarriageProvided: anniv.yearofmarriageProvided,
-        setAlarmforAnniversary: anniv.setAlarmforAnniversary,
+        // setAlarmforAnniversary: anniv.setAlarmforAnniversary,
         interestsofCouple: anniv.interestsofCouple,
         categoryofCouple: anniv.categoryofCouple,
         phoneNumberofCouple: anniv.phoneNumberofCouple,
@@ -98,7 +96,10 @@ class Anniversaries with ChangeNotifier {
         imageofCouple: anniv.imageofCouple,
         imageUrl: photoUrl,
       );
+      String payLoad = 'anniversary'+annivdatabasePush.key;
       _anniversaryList.add(newAnniv);
+      await NotificationsHelper.setNotification(
+          currentTime: anniv.dateofanniversary ,id:dtInt,title:annivWish,body:'Wish Happy Anniversary',payLoad: payLoad).then((value) => print(anniv.dateofanniversary));
       notifyListeners();
       return true;
     } catch (error) {
@@ -135,10 +136,10 @@ class Anniversaries with ChangeNotifier {
     // editAnniv.emailofCouple = anniv.emailofCouple;
 
     try {
-      final alarmstamp = anniv.setAlarmforAnniversary == null
-          ? null
-          : DateTimeField.combine(
-              anniv.dateofanniversary, anniv.setAlarmforAnniversary);
+      // final alarmstamp = anniv.setAlarmforAnniversary == null
+      //     ? null
+      //     : DateTimeField.combine(
+      //         anniv.dateofanniversary, anniv.setAlarmforAnniversary);
       final anninvdatabaseRef = FirebaseDatabase.instance
           .reference()
           .child('anniversaries')
@@ -147,8 +148,9 @@ class Anniversaries with ChangeNotifier {
         await anninvdatabaseRef.update({
           // 'calenderId': anniv.calenderId,
           'notes': anniv.notes,
-          'setAlarmforAnniversary':
-          alarmstamp == null ? null : alarmstamp.toIso8601String(),
+          'dateofanniversary': anniv.dateofanniversary.toIso8601String(),
+          // 'setAlarmforAnniversary':
+          // alarmstamp == null ? null : alarmstamp.toIso8601String(),
           'phoneNumberofCouple': anniv.phoneNumberofCouple,
           'emailofCouple': anniv.emailofCouple,
           'imageUrl': photoUrl,
@@ -157,8 +159,8 @@ class Anniversaries with ChangeNotifier {
         await anninvdatabaseRef.update({
           // 'calenderId': anniv.calenderId,
           'notes': anniv.notes,
-          'setAlarmforAnniversary':
-          alarmstamp == null ? null : alarmstamp.toIso8601String(),
+          // 'setAlarmforAnniversary':
+          // alarmstamp == null ? null : alarmstamp.toIso8601String(),
           'phoneNumberofCouple': anniv.phoneNumberofCouple,
           'emailofCouple': anniv.emailofCouple,
           'interestsofCouple': anniv.interestsofCouple
@@ -185,12 +187,14 @@ class Anniversaries with ChangeNotifier {
       return false;
     }
     var _userID = _auth.currentUser.uid;
+    DateTime dtnow = DateTime.now();
 
     // final url = Uri.parse('https://yourday-306218-default-rtdb.firebaseio.com/anniversaries/$_userID.json');
     // try {
       // final response = await http.get(url);
       final List<Anniversary> _loadedAnniversaries = [];
-      final databaseRef = FirebaseDatabase.instance
+    final List<Anniversary> _loadedUpcomingAnniversaries = [];
+    final databaseRef = FirebaseDatabase.instance
           .reference()
           .child('anniversaries')
           .child(_userID);
@@ -202,36 +206,43 @@ class Anniversaries with ChangeNotifier {
         return true;
       }
       extractedAnniversaries.value.forEach((annivId, anniv) {
-        var dt = anniv['setAlarmforAnniversary'] == null
-            ? null
-            : DateTime.parse(anniv['setAlarmforAnniversary']);
-        _loadedAnniversaries.add(Anniversary(
+        // var dt = anniv['setAlarmforAnniversary'] == null
+        //     ? null
+        //     : DateTime.parse(anniv['setAlarmforAnniversary']);
+        Anniversary fetchedAnniversary = Anniversary(
           anniversaryId: annivId,
           calenderId: anniv['calenderId'],
           husband_name: anniv['husband_name'],
           wife_name: anniv['wife_name'],
-          // relation: anniv['relation'],
+          notifId: anniv['notifId']!=null?anniv['notifId']:null,
           notes: anniv['notes'],
           yearofmarriageProvided: anniv['yearofmarriageProvided'],
           dateofanniversary: DateTime.parse(anniv['dateofanniversary']),
-          setAlarmforAnniversary:
-              dt == null ? null : TimeOfDay(hour: dt.hour, minute: dt.minute),
+          // setAlarmforAnniversary:
+          // dt == null ? null : TimeOfDay(hour: dt.hour, minute: dt.minute),
           categoryofCouple: getCategory(anniv['categoryofCouple']),
           interestsofCouple: anniv['interestsofCouple'] == null
               ? null
               : (anniv['interestsofCouple'] as List<dynamic>)
-                  .map((interest) =>
-                      Interest(id: interest['id'], name: interest['name']))
-                  .toList(),
+              .map((interest) =>
+              Interest(id: interest['id'], name: interest['name']))
+              .toList(),
           phoneNumberofCouple: anniv['phoneNumberofCouple'],
           emailofCouple: anniv['emailofCouple'],
           imageUrl: anniv['imageUrl'],
-        ));
+        );
+        _loadedAnniversaries.add(fetchedAnniversary);
+        Duration diff = fetchedAnniversary.dateofanniversary.difference(dtnow);
+        if(diff.inDays>0&&diff.inDays<=30){
+          _loadedUpcomingAnniversaries.add(fetchedAnniversary);
+        }
       });
       _anniversaryList = _loadedAnniversaries;
       _anniversaryList
           .sort((a, b) => a.dateofanniversary.compareTo(b.dateofanniversary));
-      notifyListeners();
+      _loadedUpcomingAnniversaries.sort((a, b) => a.dateofanniversary.compareTo(b.dateofanniversary));
+      _upcomingAnniversaryList = _loadedUpcomingAnniversaries;
+    notifyListeners();
       return true;
     // } catch (error) {
     //   print(error);

@@ -85,6 +85,7 @@ class ReceivedNotification {
 String selectedNotificationPayload;
 String initialRoute = HomePage.routeName1;//MaterialPageRoute(builder: (ctx)=> HomePage(tabNumber: 1,)) as String;
 int initialPage = 0;
+bool openNotification = false;
 Future<void> main() async {
   final storage = new FlutterSecureStorage();
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,10 +96,12 @@ Future<void> main() async {
   final NotificationAppLaunchDetails notificationAppLaunchDetails =
   await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   if (notificationAppLaunchDetails.didNotificationLaunchApp == false) {
+    openNotification = false;
     selectedNotificationPayload = notificationAppLaunchDetails.payload;
     initialRoute = HomePage.routeName;// MaterialPageRoute(builder: (ctx)=> HomePage(tabNumber: 1,)) as String;
     initialPage = 0;
   }else{
+    openNotification = true;
     selectedNotificationPayload = notificationAppLaunchDetails.payload;
     initialRoute = HomePage.routeName1;
     initialPage = 0;
@@ -152,11 +155,10 @@ class MyApp extends StatelessWidget {
               HomePage.routeName2:(ctx)=> HomePage(tabNumber: 2,),
               AllFestivalScreen.routeName :(ctx)=>AllFestivalScreen(),
               AddBirthday.routeName: (ctx)=>AddBirthday(),
-              BirthdayDetailScreen.routeName : (ctx)=> BirthdayDetailScreen(),
               AddAnniversary.routeName: (ctx)=> AddAnniversary(),
-              AnniversaryDetailScreen.routeName: (ctx)=> AnniversaryDetailScreen(),
+              // AnniversaryDetailScreen.routeName: (ctx)=> AnniversaryDetailScreen(),
               AddTask.routeName: (ctx)=> AddTask(),
-              TaskDetailScreen.routeName: (ctx)=> TaskDetailScreen(),
+              // TaskDetailScreen.routeName: (ctx)=> TaskDetailScreen(),
               // AllEvents.routeName: (ctx) => AllEvents(),
               AllBirthdayScreen.routeName:(ctx) => AllBirthdayScreen(),
               AllAnniversaryScreen.routeName:(ctx)=>AllAnniversaryScreen(),
@@ -167,7 +169,6 @@ class MyApp extends StatelessWidget {
               UserAccountEditScreen.routename: (ctx) => UserAccountEditScreen(),
               FullImageScreen.routename:(ctx)=> FullImageScreen(),
               AddImageToEventScreen.routeName:(ctx) => AddImageToEventScreen(),
-              EditFrameScreen.routeName:(ctx)=>EditFrameScreen(),
               AddFramesCategoryScreen.routeName:(ctx)=>AddFramesCategoryScreen(),
               AddImagesToCategoryScreen.routeName:(ctx)=>AddImagesToCategoryScreen(),
               // EditAnniversaryScreen.routeName:(ctx)=>EditAnniversaryScreen(),
@@ -197,7 +198,7 @@ class CheckLogin extends StatefulWidget {
 
 class _CheckLoginState extends State<CheckLogin> {
   bool isLoading = true;
-
+  var route;
   @override
   void initState() {
     setState(() {
@@ -216,16 +217,44 @@ class _CheckLoginState extends State<CheckLogin> {
           .loginWithGoogle();
       // await Provider.of<Festivals>(context, listen: false).fetchFestival();
     }
+    if(openNotification){
+      await checkNotifOpen();
+    }
     // Future.delayed(Duration.zero).then((value) => print(1));
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> checkNotifOpen()async{
+    if(selectedNotificationPayload.startsWith('birthday')){
+      List<String> split = selectedNotificationPayload.split('birthday');
+      await Provider.of<Birthdays>(context, listen: false).fetchBirthday();
+      route =BirthdayDetailScreen(split[1]);
+    }else if(selectedNotificationPayload.startsWith('anniversary')){
+      List<String> split = selectedNotificationPayload.split('anniversary');
+      await Provider.of<Anniversaries>(context, listen: false)
+          .fetchAnniversary();
+      route =AnniversaryDetailScreen(split[1]);
+    }else if(selectedNotificationPayload.startsWith('task')){
+      List<String> split = selectedNotificationPayload.split('task');
+      await Provider.of<Tasks>(context, listen: false).fetchTask();
+      route =TaskDetailScreen(split[1]);
+    }else if(selectedNotificationPayload.startsWith('selfbirthday')){
+      // List<String> split = selectedNotificationPayload.split('selfbirthday');
+      // await Provider.of<Tasks>(context, listen: false).fetchTask();
+      route =UserAccountScreen();
+    }else{
+      route = HomePage(tabNumber: 1,);
+    }
+    await Provider.of<Festivals>(context, listen: false).fetchFestival();
   }
   @override
   Widget build(BuildContext context) {
     return  isLoading ? Container(
         alignment: Alignment.center,
         color: Theme.of(context).primaryColor,
-        child: Image.asset("assets/images/YDFull.png"),):signin==true? HomePage(tabNumber: initialPage,) : LoginPage();
+        padding: EdgeInsets.all(16.0),
+        child: Image.asset("assets/images/Main_logo.png"),):signin==true?openNotification?route:HomePage(tabNumber: initialPage,) : LoginPage();
     }
 }

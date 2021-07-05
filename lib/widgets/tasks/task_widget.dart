@@ -120,55 +120,52 @@ class TaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context)
-              .pushNamed(TaskDetailScreen.routeName, arguments: taskId),
-          onLongPress: () async {
-            // Navigator.of(context).pop();
-            await showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: Text('Mark as complete'),
-                content: Text('Are you sure you have completed this task'),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('No'),
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: Text('Yes'),
-                    onPressed: () {
-                      Provider.of<Tasks>(context, listen: false)
-                          .completeEvent(taskId);
-                      Navigator.of(ctx).pop();
-                      //Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              ),
-            );
-            // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
-          },
-          child: ListTile(
-            title: Text(title),
-            trailing: Chip(
-              label: Text(taskLevelText),
-            ),
-            subtitle: Row(
-              children: [
-                Text(
-                  DateFormat('dd / MM / yyyy  --  HH:mm').format(startdate),
+        Card(
+          color: Colors.blue.shade50,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>TaskDetailScreen(taskId))),
+            onLongPress: () async {
+              // Navigator.of(context).pop();
+              await showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text('Mark as complete'),
+                  content: Text('Are you sure you have completed this task'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('No'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text('Yes'),
+                      onPressed: () {
+                        Provider.of<Tasks>(context, listen: false)
+                            .completeEvent(taskId);
+                        Navigator.of(ctx).pop();
+                        //Navigator.of(context).pop();
+                      },
+                    )
+                  ],
                 ),
-                // Text(
-                //   DateFormat('dd / MM').format(enddate),
-                // ),
-              ],
+              );
+              // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+            },
+            child: ListTile(
+              title: Text(title),
+              trailing: TextButton(child: Text('View'),onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (ctx)=>TaskDetailScreen(taskId)))),
+              // trailing: Chip(
+              //   label: Text(taskLevelText),
+              // ),
+              subtitle: Text(
+                DateFormat('dd / MM / yyyy  --  HH:mm').format(startdate),
+              ),
             ),
           ),
         ),
-        Divider(),
+        // Divider(),
       ],
     );
   }
