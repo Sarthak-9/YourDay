@@ -108,8 +108,9 @@ class UserEvents with ChangeNotifier {
         .toList():null;
     return membersList;
   }
+
   Future<List<String>> addMembersList(String friendId,String eventId,List<String> memberEmails)async{
-    final emailDataRef =await FirebaseDatabase.instance
+    final emailDataRef = await FirebaseDatabase.instance
         .reference()
         .child('userevents')
         .child(friendId).child(eventId).once();
@@ -146,10 +147,6 @@ class UserEvents with ChangeNotifier {
 
   Future<void> addFriendToDrive(UserEvent userEvent,String friendId)async{
 
-    // final ref =await emailDataRef.once();
-    // if(ref!=null){
-    //   ref.value;
-    // }
     if(friendId!=null){
       // userEvent.
       final eventdatabaseRef = FirebaseDatabase.instance.reference().child('userevents').child(friendId).child(userEvent.userEventId); //database reference object
@@ -173,7 +170,13 @@ class UserEvents with ChangeNotifier {
 
   Future<void> deleteEvent(int eventIndex,String eventId)async{
     FirebaseAuth _auth = FirebaseAuth.instance;
-    var _userID = _auth.currentUser.uid;
+    String _userID = _auth.currentUser.uid;
+    if(_userEventList[eventIndex].authorId == _userID){
+      await Future.forEach(_userEventList[eventIndex].memberEmails, (member)async {
+        String friendId = await checkExistingDriveUser(member);
+        await FirebaseDatabase.instance.reference().child('userevents').child(friendId).child(eventId).remove(); //database reference object
+      });
+    }
     await FirebaseDatabase.instance.reference().child('userevents').child(_userID).child(eventId).remove(); //database reference object
     _userEventList.removeAt(eventIndex);
     // await fetchUserEvent();

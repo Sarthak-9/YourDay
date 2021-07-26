@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
-import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:menu_button/menu_button.dart';
 import 'package:time_picker_widget/time_picker_widget.dart'as tpw;
@@ -17,8 +16,6 @@ import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/auth/login_page.dart';
 import 'package:yday/models/interests.dart';
-import 'package:yday/services/google_calender_repository.dart';
-import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/services/message_handler.dart';
 
 import '../homepage.dart';
@@ -49,21 +46,19 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
   String birthdayNotes = '';
   String birthdayPhone = '';
   String birthdayEmail = '';
-  // TimeOfDay birthdayTime;
-
+  String countryCode = '+91';
+  String phoneNumber;
   var pickedFile;
   var isLoading = false;
   List<Interest> _selectedInterests = [];
   final _items = interestsList
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
-  CategoryofPerson _categoryofPerson;
   BirthDay _editedBirthday;
   @override
   void initState() {
     _editedBirthday = widget.fetchedBirthday;
     _alarmTime = TimeOfDay.fromDateTime(_editedBirthday.dateofbirth);
-    // _alarmTime = birthdayTime;
     birthdayId = _editedBirthday.birthdayId;
     super.initState();
   }
@@ -79,10 +74,6 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
       isLoading = true;
     });
     try {
-      // String calenderId = null;
-      // if(_addToGoogleCalender){
-      //   calenderId = await addCalender();
-      // }
       DateTime eventDate = _editedBirthday.dateofbirth;
       if(_alarmTime!=null&&(_editedBirthday.dateofbirth.hour!=_alarmTime.hour||_editedBirthday.dateofbirth.minute!=_alarmTime.minute)){
          eventDate = DateTimeField.combine(_editedBirthday.dateofbirth, _alarmTime);
@@ -90,6 +81,11 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
         String bdayWish = 'Happy Birthday '+_editedBirthday.nameofperson;
         String payLoad = 'birthday'+_editedBirthday.birthdayId;
         await NotificationsHelper.setNotification(currentTime:eventDate ,id:_editedBirthday.notifId,title:bdayWish,body:'Wish Happy Birthday',payLoad: payLoad);
+      }
+      if(_editedBirthday.phoneNumberofPerson!=null){
+        phoneNumber = countryCode+_editedBirthday.phoneNumberofPerson;
+      }else{
+        phoneNumber = _editedBirthday.phoneNumberofPerson;
       }
       BirthDay updatedBirthday = BirthDay(
         birthdayId: birthdayId,
@@ -155,13 +151,6 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
     _phoneFocusNode.dispose();
     super.dispose();
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   // TODO: implement didChangeDependencies
-  //
-  //   super.didChangeDependencies();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -294,28 +283,28 @@ class _EditBirthdayScreenState extends State<EditBirthdayScreen> {
                         trailing: Text(categoryText(_editedBirthday.categoryofPerson)),
                       ),
                       TextFormField(
-                        initialValue: _editedBirthday.phoneNumberofPerson,
-                        decoration: InputDecoration(
-                          labelText: 'Phone Number',
+                          initialValue: _editedBirthday.phoneNumberofPerson,
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                          ),
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) {
+                            FocusScope.of(context).requestFocus(_emailFocusNode);
+                          },
+                          focusNode: _phoneFocusNode,
+                          keyboardType: TextInputType.number,
+                          onSaved: (value) {
+                            birthdayPhone = value;
+                          },
+                          // validator: (value) {
+                          //   if (value.isEmpty) {
+                          //     return null;
+                          //   } else if (value.length != 10) {
+                          //     return 'Please provide a valid phone number';
+                          //   }
+                          //   return null;
+                          // },
                         ),
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) {
-                          FocusScope.of(context).requestFocus(_emailFocusNode);
-                        },
-                        focusNode: _phoneFocusNode,
-                        keyboardType: TextInputType.number,
-                        onSaved: (value) {
-                          birthdayPhone = value;
-                        },
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return null;
-                          } else if (value.length != 10) {
-                            return 'Please provide a valid phone number';
-                          }
-                          return null;
-                        },
-                      ),
                       TextFormField(
                         initialValue: _editedBirthday.emailofPerson,
                         decoration:

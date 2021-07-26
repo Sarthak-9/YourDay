@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:native_contact_picker/native_contact_picker.dart';
@@ -14,15 +12,9 @@ import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:time_picker_widget/time_picker_widget.dart'as tpw;
 import 'package:yday/models/anniversaries/anniversary.dart';
-import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/models/interests.dart';
 import 'package:yday/providers/anniversaries.dart';
-import 'package:yday/services/google_signin_repository.dart';
-import '../all_event_screen.dart';
-import '../auth/login_page.dart';
-import 'package:yday/services/google_calender_repository.dart';
-
 import '../homepage.dart';
 
 class AddAnniversary extends StatefulWidget {
@@ -33,12 +25,7 @@ class AddAnniversary extends StatefulWidget {
 }
 
 class _AddAnniversaryState extends State<AddAnniversary> {
-  // final _husbandnameFocusNode = FocusNode();
-  // final _wifenameFocusNode = FocusNode();
-  // final _relationFocusNode = FocusNode();
-  // final _notesFocusNode = FocusNode();
-  // final _phoneFocusNode = FocusNode();
-  // final _emailFocusNode = FocusNode();
+
   final phoneController = TextEditingController();
 
   final _form = GlobalKey<FormState>();
@@ -51,28 +38,23 @@ class _AddAnniversaryState extends State<AddAnniversary> {
   var pickedFile;
   var isLoading = false;
   var _loggedIn = false;
-  // bool _addToGoogleCalender = false;
-  List<String> _categories = ['Family', 'Friend', 'Work','Others'];
-  Color _categoryColor = Colors.red.shade50;
-  bool _categoryBorder = true;
   List<Interest> _selectedInterests = [];
   final _items = interestsList
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
-  bool _categorySelected = false;
   bool _yearofAnnivProvidedStat = false;
   final NativeContactPicker _contactPicker = new NativeContactPicker();
   Contact _contact;
+  String countryCode = '+91';
   String _selectedCategory = 'Others';
   int categoryNumber = 3;
-  var _editedAnniv = Anniversary(
+  Anniversary newAnniversary = Anniversary(
     anniversaryId: '',
     husband_name: '',
     wife_name: '',
     dateofanniversary: null,
     notes: '',
     yearofmarriageProvided: true,
-    // setAlarmforAnniversary: null,
     interestsofCouple: [],
     categoryofCouple: null,
     phoneNumberofCouple: '',
@@ -89,18 +71,13 @@ class _AddAnniversaryState extends State<AddAnniversary> {
   @override
   void dispose() {
     // TODO: implement dispose
-    // _husbandnameFocusNode.dispose();
-    // _wifenameFocusNode.dispose();
-    // _relationFocusNode.dispose();
-    // _notesFocusNode.dispose();
-    // _phoneFocusNode.dispose();
-    // _emailFocusNode.dispose();
+
     super.dispose();
   }
 
   Future<void> _saveForm() async {
     FocusScope.of(context).unfocus();
-    if (_editedAnniv.dateofanniversary == null) {
+    if (newAnniversary.dateofanniversary == null) {
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -134,7 +111,8 @@ class _AddAnniversaryState extends State<AddAnniversary> {
           ],
         ),
       );
-      return;}
+      return;
+    }
     final isValid = _form.currentState.validate();
     if (!isValid) {
       return;
@@ -145,29 +123,23 @@ class _AddAnniversaryState extends State<AddAnniversary> {
     });
     try {
       String calenderId = null;
-      // print(_addToGoogleCalender);
-      // if(_addToGoogleCalender){
-      //   calenderId = await addCalender();
-      // }
       DateTime eventDate = DateTimeField.combine(dateTime, _alarmTime);
-      _editedAnniv = Anniversary(
+      newAnniversary = Anniversary(
         anniversaryId: Id,
         calenderId: calenderId,
-        husband_name: _editedAnniv.husband_name,
-        wife_name: _editedAnniv.wife_name,
+        husband_name: newAnniversary.husband_name,
+        wife_name: newAnniversary.wife_name,
         dateofanniversary: eventDate,
-        // relation: _editedAnniv.relation,
-        notes: _editedAnniv.notes,
-        yearofmarriageProvided: _editedAnniv.yearofmarriageProvided,
-        // setAlarmforAnniversary: _alarmTime,
-        interestsofCouple: _editedAnniv.interestsofCouple,
+        notes: newAnniversary.notes,
+        yearofmarriageProvided: newAnniversary.yearofmarriageProvided,
+        interestsofCouple: newAnniversary.interestsofCouple,
         categoryofCouple: getCategory(_selectedCategory),
-        phoneNumberofCouple: _editedAnniv.phoneNumberofCouple,
-        emailofCouple: _editedAnniv.emailofCouple,
-        imageofCouple: _editedAnniv.imageofCouple,
+        phoneNumberofCouple: newAnniversary.phoneNumberofCouple,
+        emailofCouple: newAnniversary.emailofCouple,
+        imageofCouple: newAnniversary.imageofCouple,
       );
       _loggedIn = await Provider.of<Anniversaries>(context, listen: false)
-          .addAnniversary(_editedAnniv);
+          .addAnniversary(newAnniversary);
     } catch (error) {
       print(error);
       await showDialog<Null>(
@@ -195,8 +167,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
       });
     Navigator.of(context).pushReplacementNamed(HomePage.routeName);
 
-    // Navigator.of(context).pushReplacementNamed(AllEvents.routeName,arguments: 2);
-
   }
 
   Future<void> _takePictureofCouple() async {
@@ -210,19 +180,17 @@ class _AddAnniversaryState extends State<AddAnniversary> {
     } else {
       print('No image selected.');
     }
-    _editedAnniv = Anniversary(
+    newAnniversary = Anniversary(
       anniversaryId: Id,
-      husband_name: _editedAnniv.husband_name,
-      wife_name: _editedAnniv.wife_name,
-      dateofanniversary: _editedAnniv.dateofanniversary,
-      // relation: _editedAnniv.relation,
-      notes: _editedAnniv.notes,
-      yearofmarriageProvided: _editedAnniv.yearofmarriageProvided,
-      // setAlarmforAnniversary: _editedAnniv.setAlarmforAnniversary,
-      interestsofCouple: _editedAnniv.interestsofCouple,
-      categoryofCouple:_editedAnniv.categoryofCouple,
-      phoneNumberofCouple: _editedAnniv.phoneNumberofCouple,
-      emailofCouple: _editedAnniv.emailofCouple,
+      husband_name: newAnniversary.husband_name,
+      wife_name: newAnniversary.wife_name,
+      dateofanniversary: newAnniversary.dateofanniversary,
+      notes: newAnniversary.notes,
+      yearofmarriageProvided: newAnniversary.yearofmarriageProvided,
+      interestsofCouple: newAnniversary.interestsofCouple,
+      categoryofCouple:newAnniversary.categoryofCouple,
+      phoneNumberofCouple:countryCode+ newAnniversary.phoneNumberofCouple,
+      emailofCouple: newAnniversary.emailofCouple,
       imageofCouple: _imageofCoupleToAdd,
     );
     setState(() {});
@@ -241,7 +209,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
             )),
         titleSpacing: 0.1,
         centerTitle: true,
-        // centerTitle: true,
       ),
       body:isLoading
           ? Center(
@@ -257,14 +224,7 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                      // Text(
-                      //   'Add Anniversary',
-                      //   style: TextStyle(
-                      //     fontSize: 24.0,
-                      //   ),
-                      // ),
-                      // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                      Padding(
+                     Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
                           alignment: Alignment.center,
@@ -281,23 +241,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                                       MediaQuery.of(context).size.width * 0.18,
                                 ),
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(
-                              //     horizontal: 4.0,
-                              //   ),
-                              // ),
-                              // CircleAvatar(
-                              //   backgroundColor: Colors.grey.withOpacity(0.25),
-                              //   radius:
-                              //       MediaQuery.of(context).size.width * 0.075,
-                              //   child: IconButton(
-                              //     icon: Icon(Icons.camera_alt_outlined),
-                              //     onPressed: _takePictureofCouple,
-                              //     iconSize:
-                              //         MediaQuery.of(context).size.width * 0.10,
-                              //     color: Colors.grey.withOpacity(0.3),
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -309,8 +252,8 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                           ElevatedButton(
                             child:  dateTime!=null?Text(
                               DateFormat('MMM dd').format(dateTime),style: TextStyle(
-                color: Colors.black,
-              ),
+                            color: Colors.black,
+                          ),
                             ): Row(
                               children: [
                                 Icon(Icons.calendar_today_rounded,color: Colors.black,size: 15,),
@@ -344,23 +287,20 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                                 ),
                               );
                               if (dateTime != null) {
-                                _editedAnniv = Anniversary(
+                                newAnniversary = Anniversary(
                                   anniversaryId: Id,
-                                  husband_name: _editedAnniv.husband_name,
-                                  wife_name: _editedAnniv.wife_name,
+                                  husband_name: newAnniversary.husband_name,
+                                  wife_name: newAnniversary.wife_name,
                                   dateofanniversary: dateTime,
-                                  // relation: _editedAnniv.relation,
-                                  notes: _editedAnniv.notes,
+                                  notes: newAnniversary.notes,
                                   yearofmarriageProvided:
-                                      _editedAnniv.yearofmarriageProvided,
-                                  // setAlarmforAnniversary:
-                                  //     _editedAnniv.setAlarmforAnniversary,
-                                  interestsofCouple: _editedAnniv.interestsofCouple,
-                                  categoryofCouple: _editedAnniv.categoryofCouple,
+                                      newAnniversary.yearofmarriageProvided,
+                                  interestsofCouple: newAnniversary.interestsofCouple,
+                                  categoryofCouple: newAnniversary.categoryofCouple,
                                   phoneNumberofCouple:
-                                      _editedAnniv.phoneNumberofCouple,
-                                  emailofCouple: _editedAnniv.emailofCouple,
-                                  imageofCouple: _editedAnniv.imageofCouple,
+                                      newAnniversary.phoneNumberofCouple,
+                                  emailofCouple: newAnniversary.emailofCouple,
+                                  imageofCouple: newAnniversary.imageofCouple,
                                 );
                                 FocusScope.of(context).requestFocus(new FocusNode());
                                 setState(() {});
@@ -386,31 +326,9 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                             _alarmTime = await tpw.showCustomTimePicker(
                                 context: context,
                                 initialEntryMode: tpw.TimePickerEntryMode.input,
-                                // It is a must if you provide selectableTimePredicate
                                 onFailValidation: (context) =>
                                     print('Unavailable selection'),
                                 initialTime: TimeOfDay(hour: 10, minute: 0));
-
-                            // _editedAnniv = Anniversary(
-                            //   anniversaryId: Id,
-                            //   husband_name: _editedAnniv.husband_name,
-                            //   wife_name: _editedAnniv.wife_name,
-                            //   dateofanniversary:
-                            //   _editedAnniv.dateofanniversary,
-                            //   // relation: _editedAnniv.relation,
-                            //   notes: _editedAnniv.notes,
-                            //   yearofmarriageProvided:
-                            //   _editedAnniv.yearofmarriageProvided,
-                            //   // setAlarmforAnniversary: _alarmTime,
-                            //   interestsofCouple:
-                            //   _editedAnniv.interestsofCouple,
-                            //   categoryofCouple:
-                            //   _editedAnniv.categoryofCouple,
-                            //   phoneNumberofCouple:
-                            //   _editedAnniv.phoneNumberofCouple,
-                            //   emailofCouple: _editedAnniv.emailofCouple,
-                            //   imageofCouple: _editedAnniv.imageofCouple,
-                            // );
                             FocusScope.of(context).requestFocus(new FocusNode());
                             setState(() {});
                           }),
@@ -424,25 +342,22 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                             setState(() {
 
                             });
-                            _editedAnniv = Anniversary(
+                            newAnniversary = Anniversary(
                               anniversaryId: Id,
-                              husband_name: _editedAnniv.husband_name,
-                              wife_name: _editedAnniv.wife_name,
+                              husband_name: newAnniversary.husband_name,
+                              wife_name: newAnniversary.wife_name,
                               dateofanniversary:
-                              _editedAnniv.dateofanniversary,
-                              // relation: _editedAnniv.relation,
-                              notes: _editedAnniv.notes,
+                              newAnniversary.dateofanniversary,
+                              notes: newAnniversary.notes,
                               yearofmarriageProvided:
                               !_yearofAnnivProvidedStat,
-                              // setAlarmforAnniversary:
-                              // _editedAnniv.setAlarmforAnniversary,
                               interestsofCouple:
-                              _editedAnniv.interestsofCouple,
-                              categoryofCouple: _editedAnniv.categoryofCouple,
+                              newAnniversary.interestsofCouple,
+                              categoryofCouple: newAnniversary.categoryofCouple,
                               phoneNumberofCouple:
-                              _editedAnniv.phoneNumberofCouple,
-                              emailofCouple: _editedAnniv.emailofCouple,
-                              imageofCouple: _editedAnniv.imageofCouple,
+                              newAnniversary.phoneNumberofCouple,
+                              emailofCouple: newAnniversary.emailofCouple,
+                              imageofCouple: newAnniversary.imageofCouple,
                             );
                           }),
                           Text('Year of Marriage not known'),
@@ -453,11 +368,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                         decoration:
                             InputDecoration(labelText: 'Husband\'s Name *'),
                         textInputAction: TextInputAction.next,
-                        // focusNode: _husbandnameFocusNode,
-                        // onFieldSubmitted: (_) {
-                        //   FocusScope.of(context)
-                        //       .requestFocus(_wifenameFocusNode);
-                        // },
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
                           if (value.isEmpty) {
@@ -466,23 +376,20 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                           return null;
                         },
                         onSaved: (value) {
-                          _editedAnniv = Anniversary(
+                          newAnniversary = Anniversary(
                             anniversaryId: Id,
                             husband_name: value,
-                            wife_name: _editedAnniv.wife_name,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
-                            // relation: _editedAnniv.relation,
-                            notes: _editedAnniv.notes,
+                            wife_name: newAnniversary.wife_name,
+                            dateofanniversary: newAnniversary.dateofanniversary,
+                            notes: newAnniversary.notes,
                             yearofmarriageProvided:
-                                _editedAnniv.yearofmarriageProvided,
-                            // setAlarmforAnniversary:
-                            //     _editedAnniv.setAlarmforAnniversary,
-                            interestsofCouple: _editedAnniv.interestsofCouple,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
+                                newAnniversary.yearofmarriageProvided,
+                            interestsofCouple: newAnniversary.interestsofCouple,
+                            categoryofCouple: newAnniversary.categoryofCouple,
                             phoneNumberofCouple:
-                                _editedAnniv.phoneNumberofCouple,
-                            emailofCouple: _editedAnniv.emailofCouple,
-                            imageofCouple: _editedAnniv.imageofCouple,
+                                newAnniversary.phoneNumberofCouple,
+                            emailofCouple: newAnniversary.emailofCouple,
+                            imageofCouple: newAnniversary.imageofCouple,
                           );
                         },
                       ),
@@ -491,11 +398,6 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                             ),
                         textInputAction: TextInputAction.next,
 
-                        // focusNode: _wifenameFocusNode,
-                        // onFieldSubmitted: (_) {
-                        //   FocusScope.of(context)
-                        //       .requestFocus(_relationFocusNode);
-                        // },
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
                           if (value.isEmpty) {
@@ -504,85 +406,94 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                           return null;
                         },
                         onSaved: (value) {
-                          _editedAnniv = Anniversary(
+                          newAnniversary = Anniversary(
                             anniversaryId: Id,
-                            husband_name: _editedAnniv.husband_name,
+                            husband_name: newAnniversary.husband_name,
                             wife_name: value,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
-                            // relation: _editedAnniv.relation,
-                            notes: _editedAnniv.notes,
+                            dateofanniversary: newAnniversary.dateofanniversary,
+                            notes: newAnniversary.notes,
                             yearofmarriageProvided:
-                                _editedAnniv.yearofmarriageProvided,
-                            // setAlarmforAnniversary:/
-                            //     _editedAnniv.setAlarmforAnniversary,
-                            interestsofCouple: _editedAnniv.interestsofCouple,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
+                                newAnniversary.yearofmarriageProvided,
+                            interestsofCouple: newAnniversary.interestsofCouple,
+                            categoryofCouple: newAnniversary.categoryofCouple,
                             phoneNumberofCouple:
-                                _editedAnniv.phoneNumberofCouple,
-                            emailofCouple: _editedAnniv.emailofCouple,
-                            imageofCouple: _editedAnniv.imageofCouple,
+                                newAnniversary.phoneNumberofCouple,
+                            emailofCouple: newAnniversary.emailofCouple,
+                            imageofCouple: newAnniversary.imageofCouple,
                           );
                         },
                       ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Phone Number',
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.contact_page_outlined),
-                            onPressed: () async {
-                              PermissionStatus permission = await Permission.contacts.status;
-                              if (permission != PermissionStatus.granted &&
-                                  permission != PermissionStatus.permanentlyDenied) {
-                                PermissionStatus permissionStatus = await Permission.contacts.request();
-                                permission = await Permission.contacts.status;
-                              }
-                              if(permission.isGranted) {
-                                Contact contact =
-                                await _contactPicker.selectContact();
-                                setState(() {
-                                  _contact = contact;
-                                });
-                                phoneController.text = _contact.phoneNumber;
-                              }
+                      ListTile(
+                        leading: SizedBox(
+                          width: 50,
+                          child: TextFormField(
+                            initialValue: '+91',
+                            keyboardType: TextInputType.number,
+                            onSaved: (value){
+                              countryCode = value;
                             },
-                          )
+                          ),
                         ),
-                        controller: phoneController,
-                        textInputAction: TextInputAction.next,
-                        // focusNode: _phoneFocusNode,
-                        // onFieldSubmitted: (_) {
-                        //   FocusScope.of(context).requestFocus(_emailFocusNode);
-                        // },
-                        keyboardType: TextInputType.number,
-                        onSaved: (value) {
-                          _editedAnniv = Anniversary(
-                            anniversaryId: Id,
-                            husband_name: _editedAnniv.husband_name,
-                            wife_name: _editedAnniv.wife_name,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
-                            // relation: _editedAnniv.relation,
-                            notes: _editedAnniv.notes,
-                            yearofmarriageProvided:
-                            _editedAnniv.yearofmarriageProvided,
-                            // setAlarmforAnniversary:
-                            // _editedAnniv.setAlarmforAnniversary,
-                            interestsofCouple: _editedAnniv.interestsofCouple,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
-                            phoneNumberofCouple: value,
-                            emailofCouple: _editedAnniv.emailofCouple,
-                            imageofCouple: _editedAnniv.imageofCouple,
-                          );
-                        },
-                        validator: (value) {
-                          if (value.isEmpty ) {
-                            return null;
-                          }
-                          if(value.contains('+91')&&value.length==13)
-                            return null;
-                          else if(value.length==10)
-                            return null;
-                          return 'Please enter a valid phone number';
-                        },
+                        title: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.contact_page_outlined),
+                              onPressed: () async {
+                                PermissionStatus permission = await Permission.contacts.status;
+                                if (permission != PermissionStatus.granted &&
+                                    permission != PermissionStatus.permanentlyDenied) {
+                                  PermissionStatus permissionStatus = await Permission.contacts.request();
+                                  permission = await Permission.contacts.status;
+                                }
+                                if(permission.isGranted) {
+                                  Contact contact =
+                                  await _contactPicker.selectContact();
+                                  setState(() {
+                                    _contact = contact;
+                                  });
+                                  phoneController.text = _contact.phoneNumber;
+                                }
+                              },
+                            )
+                          ),
+                          controller: phoneController,
+                          textInputAction: TextInputAction.next,
+                          // focusNode: _phoneFocusNode,
+                          // onFieldSubmitted: (_) {
+                          //   FocusScope.of(context).requestFocus(_emailFocusNode);
+                          // },
+                          keyboardType: TextInputType.number,
+                          onSaved: (value) {
+                            newAnniversary = Anniversary(
+                              anniversaryId: Id,
+                              husband_name: newAnniversary.husband_name,
+                              wife_name: newAnniversary.wife_name,
+                              dateofanniversary: newAnniversary.dateofanniversary,
+                              // relation: _editedAnniv.relation,
+                              notes: newAnniversary.notes,
+                              yearofmarriageProvided:
+                              newAnniversary.yearofmarriageProvided,
+                              // setAlarmforAnniversary:
+                              // _editedAnniv.setAlarmforAnniversary,
+                              interestsofCouple: newAnniversary.interestsofCouple,
+                              categoryofCouple: newAnniversary.categoryofCouple,
+                              phoneNumberofCouple: value,
+                              emailofCouple: newAnniversary.emailofCouple,
+                              imageofCouple: newAnniversary.imageofCouple,
+                            );
+                          },
+                          // validator: (value) {
+                          //   if (value.isEmpty ) {
+                          //     return null;
+                          //   }
+                          //   if(value.contains('+91')&&value.length==13)
+                          //     return null;
+                          //   else if(value.length==10)
+                          //     return null;
+                          //   return 'Please enter a valid phone number';
+                          // },
+                        ),
                       ),
                       TextFormField(
                         decoration:
@@ -602,23 +513,23 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                           return null;
                         },
                         onSaved: (value) {
-                          _editedAnniv = Anniversary(
+                          newAnniversary = Anniversary(
                             anniversaryId: Id,
-                            husband_name: _editedAnniv.husband_name,
-                            wife_name: _editedAnniv.wife_name,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            husband_name: newAnniversary.husband_name,
+                            wife_name: newAnniversary.wife_name,
+                            dateofanniversary: newAnniversary.dateofanniversary,
                             // relation: _editedAnniv.relation,
-                            notes: _editedAnniv.notes,
+                            notes: newAnniversary.notes,
                             yearofmarriageProvided:
-                            _editedAnniv.yearofmarriageProvided,
+                            newAnniversary.yearofmarriageProvided,
                             // setAlarmforAnniversary:
                             // _editedAnniv.setAlarmforAnniversary,
-                            interestsofCouple: _editedAnniv.interestsofCouple,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            interestsofCouple: newAnniversary.interestsofCouple,
+                            categoryofCouple: newAnniversary.categoryofCouple,
                             phoneNumberofCouple:
-                            _editedAnniv.phoneNumberofCouple,
+                            newAnniversary.phoneNumberofCouple,
                             emailofCouple: value,
-                            imageofCouple: _editedAnniv.imageofCouple,
+                            imageofCouple: newAnniversary.imageofCouple,
                           );
                         },
                       ),
@@ -789,23 +700,23 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                         ),
                         onConfirm: (results) {
                           _selectedInterests = results;
-                          _editedAnniv = Anniversary(
+                          newAnniversary = Anniversary(
                             anniversaryId: Id,
-                            husband_name: _editedAnniv.husband_name,
-                            wife_name: _editedAnniv.wife_name,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            husband_name: newAnniversary.husband_name,
+                            wife_name: newAnniversary.wife_name,
+                            dateofanniversary: newAnniversary.dateofanniversary,
                             // relation: _editedAnniv.relation,
-                            notes: _editedAnniv.notes,
+                            notes: newAnniversary.notes,
                             yearofmarriageProvided:
-                            _editedAnniv.yearofmarriageProvided,
+                            newAnniversary.yearofmarriageProvided,
                             // setAlarmforAnniversary:
                             // _editedAnniv.setAlarmforAnniversary,
                             interestsofCouple: _selectedInterests,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            categoryofCouple: newAnniversary.categoryofCouple,
                             phoneNumberofCouple:
-                            _editedAnniv.phoneNumberofCouple,
-                            emailofCouple: _editedAnniv.emailofCouple,
-                            imageofCouple: _editedAnniv.imageofCouple,
+                            newAnniversary.phoneNumberofCouple,
+                            emailofCouple: newAnniversary.emailofCouple,
+                            imageofCouple: newAnniversary.imageofCouple,
                           );
                           FocusScope.of(context).requestFocus(new FocusNode());
                         },
@@ -822,23 +733,23 @@ class _AddAnniversaryState extends State<AddAnniversary> {
                         keyboardType: TextInputType.multiline,
                         maxLines: 2,
                         onSaved: (value) {
-                          _editedAnniv = Anniversary(
+                          newAnniversary = Anniversary(
                             anniversaryId: Id,
-                            husband_name: _editedAnniv.husband_name,
-                            wife_name: _editedAnniv.wife_name,
-                            dateofanniversary: _editedAnniv.dateofanniversary,
+                            husband_name: newAnniversary.husband_name,
+                            wife_name: newAnniversary.wife_name,
+                            dateofanniversary: newAnniversary.dateofanniversary,
                             // relation: _editedAnniv.relation,
                             notes: value,
                             yearofmarriageProvided:
-                            _editedAnniv.yearofmarriageProvided,
+                            newAnniversary.yearofmarriageProvided,
                             // setAlarmforAnniversary:
                             // _editedAnniv.setAlarmforAnniversary,
-                            interestsofCouple: _editedAnniv.interestsofCouple,
-                            categoryofCouple: _editedAnniv.categoryofCouple,
+                            interestsofCouple: newAnniversary.interestsofCouple,
+                            categoryofCouple: newAnniversary.categoryofCouple,
                             phoneNumberofCouple:
-                            _editedAnniv.phoneNumberofCouple,
-                            emailofCouple: _editedAnniv.emailofCouple,
-                            imageofCouple: _editedAnniv.imageofCouple,
+                            newAnniversary.phoneNumberofCouple,
+                            emailofCouple: newAnniversary.emailofCouple,
+                            imageofCouple: newAnniversary.imageofCouple,
                           );
                         },
                       ),

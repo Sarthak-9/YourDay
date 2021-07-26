@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/userdata.dart';
-import 'package:yday/screens/all_event_screen.dart';
+import 'package:yday/models/userevents/user_event.dart';
+import 'package:yday/providers/userevents/user_events.dart';
 import 'package:yday/screens/anniversaries/all_anniversary_screen.dart';
 import 'package:yday/screens/auth/login_page.dart';
 import 'package:yday/screens/auth/user_account.dart';
@@ -72,16 +73,7 @@ class MainDrawer extends StatelessWidget {
               ),
               // Divider(),
               ListTile(
-                leading: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.green,
-                  child: Text(
-                    'A',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                leading: SizedBox(height: 30,width: 30,child: Image.asset('assets/images/anniversary.png'),),
                 title: Text(
                   "Anniversaries",
                   style: TextStyle(fontSize: 16),
@@ -92,16 +84,7 @@ class MainDrawer extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: CircleAvatar(
-                  radius: 15,
-                  // backgroundColor: Colors.red,
-                  child: Text(
-                    'B',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                leading: SizedBox(height: 30,width: 30,child: Image.asset('assets/images/cake.png'),),
                 title: Text(
                   "Birthdays",
                   style: TextStyle(fontSize: 16),
@@ -112,16 +95,7 @@ class MainDrawer extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.amber,
-                  child: Text(
-                    'T',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                leading: SizedBox(height: 30,width: 30,child: Image.asset('assets/images/completed-task.png'),),
                 title: Text(
                   "Tasks",
                   style: TextStyle(fontSize: 16),
@@ -148,7 +122,7 @@ class MainDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.of(context)
-                      .pushReplacementNamed(AllFestivalScreen.routeName);
+                      .pushNamed(AllFestivalScreen.routeName);
                 },
               ),
               Divider(),
@@ -205,7 +179,7 @@ class MainDrawer extends StatelessWidget {
                 ),
                 applicationLegalese:
                     'This Application is designed and developed by YourDay.',
-                applicationVersion: '0.0.0.1',
+                applicationVersion: '1.0.0+1',
                 child: Text(
                   'About',
                   style: TextStyle(fontSize: 16),
@@ -246,6 +220,8 @@ class MainDrawer extends StatelessWidget {
       FirebaseAuth _auth = FirebaseAuth.instance;
       await Provider.of<GoogleAccountRepository>(context, listen: false).googleLogout();
       await _auth.signOut();
+      Provider.of<UserEvents>(context, listen: false).userEventList.clear();
+
       await storage.write(key: "signedIn", value: "false");
       Navigator.of(context)
           .pushNamedAndRemoveUntil(LoginPage.routename, (route) => false);

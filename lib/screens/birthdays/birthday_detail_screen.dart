@@ -20,8 +20,6 @@ import 'package:yday/services/google_calender_repository.dart';
 import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/services/message_handler.dart';
 import 'package:yday/testfile.dart';
-
-import '../all_event_screen.dart';
 import '../homepage.dart';
 import 'edit_birthday_screen.dart';
 
@@ -201,7 +199,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (ctx) => FestivalImageScreen(
-                                  festivalId: 'uPH2o2eH5rxai7msQ7yi',
+                                  festivalId: 'y1LJ9lNBEFVOnjXpjAiN',
                                   year: DateTime.now().year.toString(),
                                 )));
 
@@ -254,8 +252,9 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                             onPressed: () async {
                               String phoneNumber =
                                   loadedBirthday.phoneNumberofPerson;
-                              var whatsappUrl =
-                                  "whatsapp://send?phone=+91$phoneNumber";
+                              print(phoneNumber);
+                              String whatsappUrl =
+                                  "whatsapp://send?phone=$phoneNumber";
                               if (await canLaunch(whatsappUrl)) {
                                 await launch(whatsappUrl);
                               } else {
@@ -358,20 +357,6 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      // Column(
-                                      //   children: [
-                                      //     Text(
-                                      //       'Months',
-                                      //       style: TextStyle(
-                                      //           fontWeight: FontWeight.bold,
-                                      //           fontSize: 16),
-                                      //     ),
-                                      //     SizedBox(
-                                      //       height: 10,
-                                      //     ),
-                                      //     Text(snapshot.data.month.toString())
-                                      //   ],
-                                      // ),
                                       Column(
                                         children: [
                                           Text(
@@ -495,13 +480,8 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen> {
                                 ? Text(
                                     DateFormat('HH : mm')
                                         .format(loadedBirthday.dateofbirth),
-                                    //textScaleFactor: 1.4,
-
                                     style: TextStyle(fontSize: 20),
-                                    //textScaleFactor: 1.4,
                                     textAlign: TextAlign.start,
-                                    // overflow: TextOverflow.ellipsis,
-                                    // maxLines: 5,
                                   )
                                 : Text(
                                     'None',

@@ -1,9 +1,12 @@
+import 'package:dot_pagination_swiper/dot_pagination_swiper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flat_icons_flutter/flat_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:provider/provider.dart';
 import 'package:scaled_list/scaled_list.dart';
 import 'package:yday/models/userdata.dart';
@@ -29,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _passwordController = TextEditingController();
-  final _loginkey = GlobalKey<FormState>();
+  // final _loginkey = GlobalKey<FormState>();
   final storage = new FlutterSecureStorage();
 
   String _userEmail = '';
@@ -41,105 +44,162 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-        // backgroundColor: primaryColor,
-        body: Container(
-          height: deviceHeight,
+    return SafeArea(
+      child: Scaffold(
+          // appBar: AppBar(
+          //   backgroundColor: Colors.transparent
+          // ),
+          // backgroundColor: primaryColor,
+          body: Container(
+        padding: EdgeInsets.all(10.0),
+        height: deviceHeight,
+        width: MediaQuery.of(context).size.width,
+        // color: Theme.of(context).primaryColor,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: ExactAssetImage('assets/images/bg7.jpg'),
+            fit: BoxFit.fill,
+            alignment:Alignment.topCenter,
+          ),
+        ),
+        // margin: EdgeInsets.symmetric(horizontal: 30),
+        child: Column(
+          // alignment: Alignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  height: 50,
+                  // width: MediaQuery.of(context).size.width,
+                  alignment: Alignment.centerLeft,
+                  child: Image.asset(
+                    "assets/images/Main_logo.png",
+                    // height: 80,
+                    // width: 200,
+                  ),
+                ),
+                ElevatedButton(onPressed: (){}, child: Text('Help',style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w400,
+                ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Theme.of(context).primaryColor
+                ),)
+              ],
+            ),
+        SizedBox(height: 10,),
+        Container(
           width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: ExactAssetImage('assets/images/bg4.jpg'),
-              fit: BoxFit.fill,
-              // alignment:Alignment.topCenter,
+          height: MediaQuery.of(context).size.height*0.75,
+          child: DotPaginationSwiper(
+          children: <Widget>[
+          Card(
+          elevation:5.0,
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              child: FadeInImage.assetNetwork(
+                    placeholder: 'assets/images/1498.gif',
+                    placeholderScale: 3,
+                    imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                      return Icon(Icons.do_not_disturb);
+                    },
+                    image: categories[0].image, // After image load
+                  ),
             ),
           ),
-          // margin: EdgeInsets.symmetric(horizontal: 30),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _loginkey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: 70),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Image.asset(
-                        'assets/images/YD.png',
-                        height: 100,
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    Text(
-                      'Explore Features',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    ScaledList(
-                      cardWidthRatio: 0.8,
-                      selectedCardHeightRatio: 0.8,
-                      unSelectedCardHeightRatio: 0.75,
-                      itemCount: categories.length,
-                      itemColor: (index) {
-                        return kMixedColors[index % kMixedColors.length];
-                      },
-                      itemBuilder: (index, selectedIndex) {
-                        final category = categories[index];
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: selectedIndex == index ? deviceHeight*0.35 : deviceHeight*0.35,
-                              child: Image.asset(category.image),
-                            ),
-                            SizedBox(height: 15),
-                            Text(
-                              category.name,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: selectedIndex == index ? 25 : 25),
-                            )
-                          ],
-                        );
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    MaterialButton(
-                      elevation: 0,
-                      minWidth: double.maxFinite,
-                      height: 50,
-                      onPressed: _signInWithGoogle,
-                      color: Theme.of(context).primaryColor,
-                      child: _isLoading
-                          ? CircularProgressIndicator()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.assignment_ind),
-                                SizedBox(width: 10),
-                                Text('Sign-in using Google',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16)),
-                              ],
-                            ),
-                      textColor: Colors.white,
-                    ),
-                    // OutlinedButton(onPressed: (){}),
-                    SizedBox(height: 10),
-                  ],
+            Card(
+              elevation:5.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/1498.gif',
+                  placeholderScale: 3,
+                  imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                    return Icon(Icons.do_not_disturb);
+                  },
+                  image: categories[1].image, // After image load
                 ),
               ),
             ),
-          ),
-        ));
+            Card(
+              elevation:5.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/1498.gif',
+                  placeholderScale: 3,
+                  imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                    return Icon(Icons.do_not_disturb);
+                  },
+                  image: categories[2].image, // After image load
+                ),
+              ),
+            ),
+            Card(
+              elevation:5.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/1498.gif',
+                  placeholderScale: 3,
+                  imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                    return Icon(Icons.do_not_disturb);
+                  },
+                  image: categories[3].image, // After image load
+                ),
+              ),
+            ),
+
+          ],
+      ),
+        ),
+            // LiquidSwipe.builder(
+            //   waveType: WaveType.circularReveal,
+            //   itemCount: categories.length,
+            //   itemBuilder: (context, index) {
+            //     final category = categories[index];
+            //     return FadeInImage.assetNetwork(
+            //       placeholder: 'assets/images/1498.gif',
+            //       placeholderScale: 3,
+            //       imageErrorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+            //         return Icon(Icons.do_not_disturb);
+            //       },
+            //       image: category.image, // After image load
+            //     );
+            //   },
+            // ),
+            SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              child: MaterialButton(
+                elevation: 5.0,
+                minWidth: MediaQuery.of(context).size.width * 0.8,
+                height: 50,
+                onPressed: _signInWithGoogle,
+                color: Theme.of(context).primaryColor,
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.account_circle),
+                          SizedBox(width: 10),
+                          Text('Sign-in using Google',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16)),
+                        ],
+                      ),
+                textColor: Colors.white,
+              ),
+            ),
+
+          ],
+        ),
+      )),
+    );
   }
 
   _signInWithGoogle() async {
@@ -152,6 +212,12 @@ class _LoginPageState extends State<LoginPage> {
       final GoogleSignInAccount googleUser =
           Provider.of<GoogleAccountRepository>(context, listen: false)
               .googleSignInAccount;
+      if(googleUser == null){
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
       final AuthCredential loginCredential = GoogleAuthProvider.credential(
@@ -159,14 +225,14 @@ class _LoginPageState extends State<LoginPage> {
       final authResult =
           await _firebaseAuthLogin.signInWithCredential(loginCredential);
       // final User user = authResult.user;
-      bool userStatus = await Provider.of<UserData>(context,listen: false).fetchUser();
-      if(userStatus){
+      bool userStatus =
+          await Provider.of<UserData>(context, listen: false).fetchUser();
+      if (userStatus) {
         await storage.write(key: "signedIn", value: "true");
         Navigator.of(context).pushReplacementNamed(HomePage.routeName);
         // await Provider.of<Festivals>(context, listen: false).fetchFestival();
-      }
-      else{
-      Navigator.of(context).pushReplacementNamed(SignUp.routename);
+      } else {
+        Navigator.of(context).pushReplacementNamed(SignUp.routename);
       }
       setState(() {
         _isLoading = false;
@@ -175,98 +241,6 @@ class _LoginPageState extends State<LoginPage> {
     } catch (error) {
       print(error);
     }
-  }
-
-  void _submitAuthFormLogin() async {
-    FocusScope.of(context).unfocus();
-    var isValid = _loginkey.currentState.validate();
-    if (isValid) {
-      _loginkey.currentState.save();
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    var message = 'An error occured, please check your credentials';
-    UserCredential authResult;
-    try {
-      if (isValid) {
-        authResult = await _firebaseAuthLogin.signInWithEmailAndPassword(
-            email: _userEmail, password: _userPassword);
-        await storage.write(key: "signedIn", value: "true");
-        // await storage.write(key: "emailsignin",value: "true");
-
-        // storage.write(key: "driveStarted", value: "false");
-        // final prefs = await SharedPreferences.getInstance();
-        // if(!prefs.containsKey('userData')){
-        //   prefs.setString('userData', _emailController.text);
-        // }
-        Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-      }
-    } on PlatformException catch (error) {
-      if (error.message != null) message = error.message;
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Failed to Sign-in'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                // if (Navigator.canPop(context)) {
-                //   Navigator.of(ctx).pop();
-                // }
-              },
-            )
-          ],
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided for that user.';
-      }
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Failed to Sign-in'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                // if (Navigator.canPop(context)) {
-                //   Navigator.of(ctx).pop();
-                // }
-              },
-            )
-          ],
-        ),
-      );
-    } catch (err) {
-      message = 'An error occured. Please try again';
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Failed to Sign-in'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            )
-          ],
-        ),
-      );
-    }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   final List<Color> kMixedColors = [
@@ -280,11 +254,22 @@ class _LoginPageState extends State<LoginPage> {
   ];
 
   final List<Category> categories = [
-    Category(image: "assets/images/bday.jpg", name: "Feature"),
-    Category(image: "assets/images/bday.jpg", name: "Feature"),
-    Category(image: "assets/images/bday.jpg", name: "Feature"),
-    Category(image: "assets/images/bday.jpg", name: "Feature"),
-    Category(image: "assets/images/bday.jpg", name: "Feature"),
+    Category(
+        image:
+            "https://firebasestorage.googleapis.com/v0/b/yourday-306218.appspot.com/o/App%20Data%2F20210720_161103_0000.png?alt=media&token=0706a69e-6cfc-49ae-a3e3-bae684cf97e5",
+        name: "Feature"),
+    Category(
+        image:
+            "https://firebasestorage.googleapis.com/v0/b/yourday-306218.appspot.com/o/App%20Data%2F20210720_161103_0001.png?alt=media&token=b2ce7a8b-7634-4645-ac9e-b3ec9a9016d9",
+        name: "Feature"),
+    Category(
+        image:
+            "https://firebasestorage.googleapis.com/v0/b/yourday-306218.appspot.com/o/App%20Data%2F20210720_161103_0002.png?alt=media&token=e30bf34f-11a7-45f8-8534-5298a947317e",
+        name: "Feature"),
+    Category(
+        image:
+            "https://firebasestorage.googleapis.com/v0/b/yourday-306218.appspot.com/o/App%20Data%2F20210720_161103_0003.png?alt=media&token=ab8c997e-54b2-4917-a120-7813ab74fafc",
+        name: "Feature"),
   ];
 }
 

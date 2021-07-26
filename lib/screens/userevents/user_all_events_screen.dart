@@ -95,35 +95,6 @@ class _UserAllEventsScreenState extends State<UserAllEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // appBar: AppBar(
-        //   backgroundColor: Theme.of(context).primaryColor,
-        //   title: Text(
-        //     'YourDay',
-        //     style: TextStyle(
-        //       fontFamily: "Kaushan Script",
-        //       fontSize: 28,
-        //     ),
-        //   ),
-        //   centerTitle: true,
-        //   // automaticallyImplyLeading: false,
-        //   actions: [
-        //     // if (selectedTab == 0)
-        //     IconButton(
-        //         icon: Icon(Icons.add),
-        //         onPressed: ()async {
-        //
-        //           Navigator.of(context).pushNamed(AddUserEventScreen.routeName);
-        //         }),
-        //     // if (selectedTab == 4)
-        //     //   IconButton(
-        //     //       icon: Icon(Icons.edit),
-        //     //       onPressed: () {
-        //     //         Navigator.of(context)
-        //     //             .pushNamed(UserAccountEditScreen.routename);
-        //     //       }),
-        //   ],
-        // ),
-        // drawer: MainDrawer(),
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(),
@@ -206,13 +177,9 @@ class _UserAllEventsScreenState extends State<UserAllEventsScreen> {
   }
 
   Future<void> fetchAllEvents() async {
-    // var currentUser = Provider.of<UserData>(context, listen: false).userData;
-    // String userRootDriveId = currentUser.userRootDriveId;
-    // GoogleDriveRepository googleDriveRepository =
-    //     GoogleDriveRepository(googleUser);
-    // userAllEvents =
-    //     await googleDriveRepository.findFilesInFolder(userRootDriveId);
-
+    setState(() {
+      _isLoading = true;
+    });
     await Provider.of<UserEvents>(context, listen: false).fetchUserEvent();
     allEvents = Provider.of<UserEvents>(context, listen: false).userEventList;
     setState(() {

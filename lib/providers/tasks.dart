@@ -107,6 +107,7 @@ class Tasks with ChangeNotifier {
         'description': task.description,
         'startdate': task.startdate.toIso8601String(),
         'notifId': dtInt,
+        'frequency': task.frequency,
         // 'enddate': task.enddate.toIso8601String(),
         'levelofpriority': task.priorityLevelText,
         // 'setAlarmforTask': alarmstamp == null? null:alarmstamp.toIso8601String(),
@@ -118,13 +119,12 @@ class Tasks with ChangeNotifier {
       description: task.description,
       startdate: task.startdate,
       notifId: dtInt,
-      // enddate: task.enddate,
+      frequency: task.frequency,
       levelofpriority: task.levelofpriority,
-      // setalarmfortask: task.setalarmfortask,
     );
     _taskList.add(newTask);
       String payLoad = 'task'+res.key;
-      await NotificationsHelper.setNotificationForTask(currentTime:task.startdate ,id:dtInt,title:task.title,body:task.description,payLoad: payLoad);
+      await NotificationsHelper.setNotificationForTask(currentTime:task.startdate ,id:dtInt,title:task.title,body:task.description,payLoad: payLoad,frequency: task.frequency);
       notifyListeners();
     return true;
     } catch (error) {

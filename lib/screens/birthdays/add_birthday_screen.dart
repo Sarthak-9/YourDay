@@ -6,24 +6,17 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:native_contact_picker/native_contact_picker.dart';
 import 'package:platform_date_picker/platform_date_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:menu_button/menu_button.dart';
 import 'package:time_picker_widget/time_picker_widget.dart' as tpw;
-
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/auth/login_page.dart';
 import 'package:yday/models/interests.dart';
-import 'package:yday/services/google_calender_repository.dart';
-import 'package:yday/services/google_signin_repository.dart';
-import 'package:yday/services/message_handler.dart';
-
 import '../homepage.dart';
 
 class AddBirthday extends StatefulWidget {
@@ -34,11 +27,6 @@ class AddBirthday extends StatefulWidget {
 }
 
 class _AddBirthdayState extends State<AddBirthday> {
-  // final _nameFocusNode = FocusNode();
-  // final _relationFocusNode = FocusNode();
-  // final _notesFocusNode = FocusNode();
-  // final _phoneFocusNode = FocusNode();
-  // final _emailFocusNode = FocusNode();
   final phoneController = TextEditingController();
   final _form = GlobalKey<FormState>();
   String Id = DateTime.now().toString();
@@ -47,18 +35,16 @@ class _AddBirthdayState extends State<AddBirthday> {
   File _imageofPersonToAdd = File(
     'assets/images/userimage.png',
   );
+  String countryCode = '+91';
+  String phoneNumber;
 
   var pickedFile;
-  var isLoading = false;
-  List<String> _categories = ['Family', 'Friend', 'Work', 'Others'];
-  Color _categoryColor = Colors.red.shade50;
-  bool _categoryBorder = true;
+  bool isLoading = false;
   List<Interest> _selectedInterests = [];
   final _items = interestsList
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
-  var _isInit = true;
-  var _loggedIn = false;
+  bool _loggedIn = false;
   bool _yearofBirthProvidedStat = false;
   CategoryofPerson _categoryofPerson;
   final NativeContactPicker _contactPicker = new NativeContactPicker();
@@ -79,7 +65,6 @@ class _AddBirthdayState extends State<AddBirthday> {
     phoneNumberofPerson: '',
     emailofPerson: '',
     imageofPerson: null,
-    // setAlarmforBirthday: null,
   );
 
   @override
@@ -134,14 +119,14 @@ class _AddBirthdayState extends State<AddBirthday> {
       isLoading = true;
     });
     try {
-      // String calenderId = null;
-      // if (_addToGoogleCalender) {
-      //   calenderId = await addCalender();
-      // }
+      if(_editedBirthday.phoneNumberofPerson!=null){
+        phoneNumber = countryCode+_editedBirthday.phoneNumberofPerson;
+      }else{
+        phoneNumber = _editedBirthday.phoneNumberofPerson;
+      }
       DateTime eventDate = DateTimeField.combine(dateTime, _alarmTime);
       _editedBirthday = BirthDay(
         birthdayId: Id,
-        // calenderId: calenderId,
         nameofperson: _editedBirthday.nameofperson,
         gender: _selectedGender,
         dateofbirth: eventDate,
@@ -149,14 +134,12 @@ class _AddBirthdayState extends State<AddBirthday> {
         categoryofPerson: getCategory(_selectedCategory),
         interestsofPerson: _editedBirthday.interestsofPerson,
         yearofbirthProvided: _editedBirthday.yearofbirthProvided,
-        phoneNumberofPerson: _editedBirthday.phoneNumberofPerson,
+        phoneNumberofPerson: phoneNumber,
         emailofPerson: _editedBirthday.emailofPerson,
         imageofPerson: _editedBirthday.imageofPerson,
-        // setAlarmforBirthday: _alarmTime,
       );
       _loggedIn = await Provider.of<Birthdays>(context, listen: false)
           .addBirthday(_editedBirthday);
-      // await NotificationsHelper.showNotif();
       if (_loggedIn == false) {
         await showDialog<Null>(
           context: context,
@@ -213,7 +196,7 @@ class _AddBirthdayState extends State<AddBirthday> {
     pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
       imageQuality: 60,
-    ); //ImagePicker.pickImage(source: ImageSource.gallery,maxWidth: 600,maxHeight: 600,);
+    );
     if (pickedFile != null) {
       _imageofPersonToAdd = File(pickedFile.path);
     } else {
@@ -231,7 +214,6 @@ class _AddBirthdayState extends State<AddBirthday> {
       phoneNumberofPerson: _editedBirthday.phoneNumberofPerson,
       emailofPerson: _editedBirthday.emailofPerson,
       imageofPerson: _imageofPersonToAdd,
-      // setAlarmforBirthday: _editedBirthday.setAlarmforBirthday,
     );
     FocusScope.of(context).requestFocus(new FocusNode());
     setState(() {});
@@ -239,12 +221,6 @@ class _AddBirthdayState extends State<AddBirthday> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    // _nameFocusNode.dispose();
-    // _notesFocusNode.dispose();
-    // _relationFocusNode.dispose();
-    // _emailFocusNode.dispose();
-    // _phoneFocusNode.dispose();
     super.dispose();
   }
 
@@ -365,8 +341,6 @@ class _AddBirthdayState extends State<AddBirthday> {
                                       _editedBirthday.phoneNumberofPerson,
                                   emailofPerson: _editedBirthday.emailofPerson,
                                   imageofPerson: _editedBirthday.imageofPerson,
-                                  // setAlarmforBirthday:
-                                  //     _editedBirthday.setAlarmforBirthday,
                                 );
                                 FocusScope.of(context)
                                     .requestFocus(new FocusNode());
@@ -412,24 +386,6 @@ class _AddBirthdayState extends State<AddBirthday> {
                                         print('Unavailable selection'),
                                     initialTime:
                                         TimeOfDay(hour: 10, minute: 0));
-                                // _editedBirthday = BirthDay(
-                                //   birthdayId: Id,
-                                //   nameofperson: _editedBirthday.nameofperson,
-                                //   gender: _editedBirthday.gender,
-                                //   dateofbirth: _editedBirthday.dateofbirth,
-                                //   notes: _editedBirthday.notes,
-                                //   categoryofPerson:
-                                //       _editedBirthday.categoryofPerson,
-                                //   // setAlarmforBirthday: _alarmTime,
-                                //   interestsofPerson:
-                                //       _editedBirthday.interestsofPerson,
-                                //   yearofbirthProvided:
-                                //       _editedBirthday.yearofbirthProvided,
-                                //   phoneNumberofPerson:
-                                //       _editedBirthday.phoneNumberofPerson,
-                                //   emailofPerson: _editedBirthday.emailofPerson,
-                                //   imageofPerson: _editedBirthday.imageofPerson,
-                                // );
                                 FocusScope.of(context)
                                     .requestFocus(new FocusNode());
                                 setState(() {});
@@ -460,8 +416,6 @@ class _AddBirthdayState extends State<AddBirthday> {
                                       _editedBirthday.phoneNumberofPerson,
                                   emailofPerson: _editedBirthday.emailofPerson,
                                   imageofPerson: _editedBirthday.imageofPerson,
-                                  // setAlarmforBirthday:
-                                  //     _editedBirthday.setAlarmforBirthday,
                                 );
                               }),
                           Text('Year of Birth not known'),
@@ -470,12 +424,7 @@ class _AddBirthdayState extends State<AddBirthday> {
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Name *'),
                         textInputAction: TextInputAction.next,
-                        // onFieldSubmitted: (_) {
-                        //   FocusScope.of(context)
-                        //       .requestFocus(_relationFocusNode);
-                        // },
                         textCapitalization: TextCapitalization.words,
-                        // focusNode: _nameFocusNode,
                         onSaved: (value) {
                           _editedBirthday = BirthDay(
                             birthdayId: Id,
@@ -492,8 +441,6 @@ class _AddBirthdayState extends State<AddBirthday> {
                                 _editedBirthday.phoneNumberofPerson,
                             emailofPerson: _editedBirthday.emailofPerson,
                             imageofPerson: _editedBirthday.imageofPerson,
-                            // setAlarmforBirthday:
-                            //     _editedBirthday.setAlarmforBirthday,
                           );
                         },
                         validator: (value) {
@@ -503,81 +450,64 @@ class _AddBirthdayState extends State<AddBirthday> {
                           return null;
                         },
                       ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.contact_page_outlined),
-                              onPressed: () async {
-                                PermissionStatus permission =
-                                    await Permission.contacts.status;
-                                if (permission != PermissionStatus.granted &&
-                                    permission !=
-                                        PermissionStatus.permanentlyDenied) {
-                                  PermissionStatus permissionStatus =
-                                      await Permission.contacts.request();
-                                  permission = await Permission.contacts.status;
-                                }
-                                if (permission.isGranted) {
-                                  Contact contact =
-                                      await _contactPicker.selectContact();
-                                  setState(() {
-                                    _contact = contact;
-                                  });
-                                  phoneController.text = _contact.phoneNumber;
-                                }
-                              },
-                            )),
-                        // onTap:  () async {
-                        //   PermissionStatus permission = await Permission.contacts.status;
-                        //   if (permission != PermissionStatus.granted &&
-                        //       permission != PermissionStatus.permanentlyDenied) {
-                        //     PermissionStatus permissionStatus = await Permission.contacts.request();
-                        //     permission = await Permission.contacts.status;
-                        //   }
-                        //   if(permission.isGranted) {
-                        //     Contact contact =
-                        //     await _contactPicker.selectContact();
-                        //     setState(() {
-                        //       _contact = contact;
-                        //     });
-                        //     phoneController.text = _contact.phoneNumber;
-                        //   } },
-                        controller: phoneController,
-                        textInputAction: TextInputAction.next,
-                        // onFieldSubmitted: (_) {
-                        //   FocusScope.of(context).requestFocus(_emailFocusNode);
-                        // },
-                        // focusNode: _phoneFocusNode,
-                        keyboardType: TextInputType.number,
-                        onSaved: (value) {
-                          _editedBirthday = BirthDay(
-                            birthdayId: Id,
-                            nameofperson: _editedBirthday.nameofperson,
-                            gender: _editedBirthday.gender,
-                            dateofbirth: _editedBirthday.dateofbirth,
-                            notes: _editedBirthday.notes,
-                            categoryofPerson: _editedBirthday.categoryofPerson,
-                            interestsofPerson:
-                                _editedBirthday.interestsofPerson,
-                            yearofbirthProvided:
-                                _editedBirthday.yearofbirthProvided,
-                            phoneNumberofPerson: value,
-                            emailofPerson: _editedBirthday.emailofPerson,
-                            imageofPerson: _editedBirthday.imageofPerson,
-                            // setAlarmforBirthday:
-                            //     _editedBirthday.setAlarmforBirthday,
-                          );
-                        },
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return null;
-                          }
-                          if (value.contains('+91') && value.length == 13)
-                            return null;
-                          else if (value.length == 10) return null;
-                          return 'Please enter a valid phone number';
-                        },
+                      ListTile(
+                        leading: SizedBox(
+                          width: 50,
+                          child: TextFormField(
+                            initialValue: '+91',
+                            keyboardType: TextInputType.number,
+                            onSaved: (value){
+                              countryCode = value;
+                            },
+                          ),
+                        ),
+                        title: TextFormField(
+                            decoration: InputDecoration(
+                                labelText: 'Phone Number',
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.contact_page_outlined),
+                                  onPressed: () async {
+                                    PermissionStatus permission =
+                                        await Permission.contacts.status;
+                                    if (permission != PermissionStatus.granted &&
+                                        permission !=
+                                            PermissionStatus.permanentlyDenied) {
+                                      PermissionStatus permissionStatus =
+                                          await Permission.contacts.request();
+                                      permission = await Permission.contacts.status;
+                                    }
+                                    if (permission.isGranted) {
+                                      Contact contact =
+                                          await _contactPicker.selectContact();
+                                      setState(() {
+                                        _contact = contact;
+                                      });
+                                      phoneController.text = _contact.phoneNumber;
+                                    }
+                                  },
+                                )),
+                            controller: phoneController,
+                            textInputAction: TextInputAction.next,
+                            keyboardType: TextInputType.number,
+                            onSaved: (value) {
+                              _editedBirthday = BirthDay(
+                                birthdayId: Id,
+                                nameofperson: _editedBirthday.nameofperson,
+                                gender: _editedBirthday.gender,
+                                dateofbirth: _editedBirthday.dateofbirth,
+                                notes: _editedBirthday.notes,
+                                categoryofPerson: _editedBirthday.categoryofPerson,
+                                interestsofPerson:
+                                    _editedBirthday.interestsofPerson,
+                                yearofbirthProvided:
+                                    _editedBirthday.yearofbirthProvided,
+                                phoneNumberofPerson: value,
+                                emailofPerson: _editedBirthday.emailofPerson,
+                                imageofPerson: _editedBirthday.imageofPerson,
+                                );
+                            },
+
+                          ),
                       ),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Email'),

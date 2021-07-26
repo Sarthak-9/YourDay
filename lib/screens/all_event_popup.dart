@@ -7,9 +7,6 @@ import 'package:yday/screens/anniversaries/add_anniversary.dart';
 import 'package:yday/screens/birthdays/add_birthday_screen.dart';
 import 'package:yday/screens/tasks/add_task.dart';
 import 'package:yday/screens/calender.dart';
-import 'package:flat_icons_flutter/flat_icons_flutter.dart';
-
-import '../widgets/maindrawer.dart';
 
 class AllEventPopUp extends StatefulWidget {
   @override
@@ -22,79 +19,7 @@ class _AllEventPopUpState extends State<AllEventPopUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).primaryColor,
-      //   title: Text(
-      //     'YourDay',
-      //     style: TextStyle(
-      //       fontFamily: "Kaushan Script",
-      //       fontSize: 28,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      //   // automaticallyImplyLeading: false,
-      //   actions: [
-      //     // if (selectedTab == 0)
-      //     // IconButton(
-      //     //     icon: Icon(Icons.add),
-      //     //     onPressed: ()async {
-      //     //
-      //     //       Navigator.of(context).pushNamed(AddUserEventScreen.routeName);
-      //     //     }),
-      //     // if (selectedTab == 4)
-      //     //   IconButton(
-      //     //       icon: Icon(Icons.edit),
-      //     //       onPressed: () {
-      //     //         Navigator.of(context)
-      //     //             .pushNamed(UserAccountEditScreen.routename);
-      //     //       }),
-      //   ],
-      // ),
-      //   drawer: MainDrawer(),
-      // body: Builder(
-      //   builder: (BuildContext context) => HawkFabMenu(
-      //     icon: AnimatedIcons.add_event,
-      //     fabColor: Theme.of(context).primaryColor,
-      //     iconColor: Colors.white,
-      //     items: [
-      //       HawkFabMenuItem(
-      //           label: 'Birthday',
-      //           ontap: () {
-      //             Navigator.of(context).pushNamed(AddBirthday.routeName);
-      //           },
-      //           icon: Icon(
-      //             // FlatIcons.g
-      //             Icons.person_rounded,
-      //             color: Theme.of(context).primaryColor,
-      //           ),
-      //           color: Colors.white),
-      //       HawkFabMenuItem(
-      //           label: 'Anniversary',
-      //           ontap: () {
-      //             Navigator.of(context).pushNamed(AddAnniversary.routeName);
-      //           },
-      //           icon: Icon(
-      //             Icons.people,
-      //             color: Theme.of(context).primaryColor,
-      //           ),
-      //           color: Colors.white),
-      //       HawkFabMenuItem(
-      //           label: 'Task',
-      //           ontap: () {
-      //             Navigator.of(context).pushNamed(AddTask.routeName);
-      //           },
-      //           icon: Icon(
-      //             Icons.work_rounded,
-      //             color: Theme.of(context).primaryColor,
-      //           ),
-      //           color: Colors.white),
-      //     ],
-      //     body: Calendar(),
-      //   ),
-      //   //),
-      // ),
       floatingActionButton: FloatingActionButton(
-        // radius: 25.0,
         backgroundColor: Colors.amber,
         child: IconButton(icon: Icon(ispop?Icons.close:Icons.add,color: Colors.black,),
         onPressed: (){
@@ -114,7 +39,6 @@ class _AllEventPopUpState extends State<AllEventPopUp> {
               });
             },
             child: Container(
-
               padding: EdgeInsets.symmetric(horizontal: 8.0),
               decoration: BoxDecoration(
                 image: DecorationImage(

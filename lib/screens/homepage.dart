@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import 'package:yday/models/userdata.dart';
 import 'package:yday/screens/calender.dart';
-import 'package:yday/screens/eventscreen.dart';
 import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/widgets/maindrawer.dart';
 import 'package:yday/screens/all_event_popup.dart';
@@ -39,7 +38,7 @@ class _HomePageState extends State<HomePage> {
   int selectedTab = 0;
   var _pageController;
   bool isLoading = true;
-  bool driveStarted = false;
+  // bool driveStarted = false;
   PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
   @override
@@ -51,7 +50,7 @@ class _HomePageState extends State<HomePage> {
 
     // fetchUser();
     _controller.index = selectedTab;
-    driveStarted = currentUser.userRootDriveId != null;
+    // driveStarted = currentUser.userRootDriveId != null;
     // var str = FirebaseMessaging.instance.getToken();
     // print(str);
     selectedTab = widget.tabNumber;
@@ -59,27 +58,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   // TODO: implement didChangeDependencies
-  //   // initsignin();
-  //   // fetchUser();
-  //
-  //   super.didChangeDependencies();
-  // }
-  void fetchUser() async {
-    // await Provider.of<Festivals>(context, listen: false).fetchFestival();
-
-    // await Provider.of<UserData>(context, listen: false).fetchUser();
-    // await Provider.of<GoogleAccountRepository>(context, listen: false)
-    //     .loginWithGoogle();
-    // setState(() {
-    //   isLoading = false;
-    // });
-    // await Provider.of<Birthdays>(context,listen: false).fetchBirthday();
-    // await Provider.of<Anniversaries>(context,listen: false).fetchAnniversary();
-    // await Provider.of<Tasks>(context, listen: false).fetchTask();
-  }
 
   void initsignin() async {
     // var str =await FirebaseMessaging.instance.getToken();

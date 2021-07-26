@@ -36,25 +36,14 @@ class NotificationsHelper {
 // set Notification methoud
   static Future<void> setNotification(
       {DateTime currentTime, int id, String title, String body,String payLoad}) async {
-    // final scheduledDate = tz.TZDateTime.from(dateTime, location);
-    // await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, RepeatInterval., notificationDetails)
-    // int dtYear = DateTime.now().year;
-    // DateTime currentTime = dateTime;
     DateTime dt=currentTime;
     DateTime dtnow = DateTime.now();
-    // if(currentTime.year==dtnow.year&&currentTime.month==dtnow.month&&currentTime.day==dtnow.day){
-    //   dt = DateTime(dtnow.year,currentTime.month,currentTime.day);
-    //
-    // }else
       if(dt.isAfter(dtnow)){
       dt = currentTime;
     }
     else{
       if(currentTime.isBefore(dtnow)){
         dt = DateTime(dtnow.year,currentTime.month,currentTime.day);
-        // if(currentTime.month<dtnow.month||currentTime.day<dtnow.day){
-        //   calyear++;
-        // }
       }
       if(dt.isBefore(dtnow)){
         dt = DateTime(dtnow.year+1,currentTime.month,currentTime.day);
@@ -62,13 +51,10 @@ class NotificationsHelper {
     }
     for(int i=0;i<10;i++){
       DateTime notifTime = DateTime(dt.year+i,dt.month,dt.day,dt.hour,dt.minute);
-      // print(notifTime);
-     // await _flutterLocalNotificationsPlugin
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         id+i,
         title,
         body,
-        // dateTime,
         tz.TZDateTime.from(notifTime, tz.local),
         _notificationDetails,
         androidAllowWhileIdle: true,
@@ -80,9 +66,32 @@ class NotificationsHelper {
   }
 
   static Future<void> setNotificationForTask(
-      {DateTime currentTime, int id, String title, String body, String payLoad}) async {
+      {DateTime currentTime, int id, String title, String body, String payLoad,String frequency}) async {
+    if(frequency=='Daily'){
+      await _flutterLocalNotificationsPlugin.showDailyAtTime(
+        id,
+        title,
+        body,
+        Time(currentTime.hour,currentTime.minute),
+        _notificationDetails,
+        payload: payLoad,
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
+      );
+    }
+    else if(frequency=='Weekly'){
+      await _flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
+        id,
+        title,
+        body,
+        Day(currentTime.day),
+        Time(currentTime.hour,currentTime.minute),
+        _notificationDetails,
+        payload: payLoad,
+
+      );
+    }
+    else{
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         body,
@@ -94,6 +103,8 @@ class NotificationsHelper {
         uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
       );
+    }
+
   }
 
 // cancel Notification methoud

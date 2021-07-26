@@ -38,7 +38,7 @@ class _UserEventDetailScreenState extends State<UserEventDetailScreen> {
   List<ga.File> eventImages = [];
   final emailController = TextEditingController();
   final snackBar = SnackBar(content: Text('Friend Added Successfully'));
-  final snackBar2 = SnackBar(content: Text('Invalid Email'));
+  final snackBar2 = SnackBar(content: Text('Your email should end with @gmail.com'));
 
   GoogleSignInAccount account;
   List<UserEvent> userEventList;

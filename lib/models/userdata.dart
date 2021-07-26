@@ -67,7 +67,7 @@ class UserData with ChangeNotifier {
       String payLoad = 'selfbirthday'+_userID;
       await NotificationsHelper.setNotification(currentTime:newUser.dateofBirth ,id:dtInt,title:bdayWish,body:bdayWish,payLoad: payLoad);
       String userEmail = _auth.currentUser.email;
-      String splitEmail = userEmail.replaceAll( RegExp('@gmail.com'),'' );
+      String splitEmail = userEmail.replaceAll( RegExp('@gmail.com'),'');
       // print(userEmail);
       final emailDataRef = FirebaseDatabase.instance
           .reference()

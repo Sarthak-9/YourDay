@@ -12,8 +12,6 @@ import 'package:yday/providers/tasks.dart';
 import 'package:yday/screens/tasks/all_task_screen.dart';
 import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/services/message_handler.dart';
-
-import '../all_event_screen.dart';
 import '../homepage.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -108,162 +106,173 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                // Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                // Text(
-                //   'Task Details',
-                //   style: TextStyle(
-                //     fontSize: 24.0,
-                //   ),
-                // ),
-                Padding(padding: EdgeInsets.symmetric(vertical: 8.0)),
-                Chip(
-                  label: Text(
-                    loadedTask.priorityLevelText,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                    ),
-                  ),
-                  backgroundColor: _categoryColor,
-                ),
-                Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-                Text(getAge()!=0&&isToday
-                    ? 'Today'
-                    : '${getAge().toString()} days left'),
-                Padding(padding: EdgeInsets.all(8.0)),
-                ListTile(
-                  leading: Icon(
-                    Icons.person_outline_rounded,
-                    color: _categoryColor,
-                    size: 28.0,
-                  ),
-                  title: Text(
-                    'Title',
-                    textAlign: TextAlign.left,
-                    textScaleFactor: 1.3,
-                    style: TextStyle(
-                      color: _categoryColor,
-                    ),
-                  ),
-                  subtitle: Text(
-                    loadedTask.title,
-                    //textScaleFactor: 1.4,
-                    textAlign: TextAlign.start,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(
-                    Icons.note_outlined,
-                    color: _categoryColor,
-                    size: 28.0,
-                  ),
-                  title: Text(
-                    'Description',
-                    textAlign: TextAlign.left,
-                    textScaleFactor: 1.3,
-                    style: TextStyle(
-                      color: _categoryColor,
-                    ),
-                  ),
-                  subtitle: Text(
-                    loadedTask.description.isNotEmpty?loadedTask.description:'None',
-                    //textScaleFactor: 1.4,
-                    textAlign: TextAlign.start,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                ListTile(
-                    leading: Icon(
-                      Icons.calendar_today_rounded,
-                      color: _categoryColor,
-                      size: 28.0,
-                    ),
-                    title: Text(
-                      'Start Time',
-                      textAlign: TextAlign.left,
-                      textScaleFactor: 1.3,
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: MediaQuery.of(context).size.height*0.85,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Theme.of(context).primaryColor, width: 2.0),
+                  borderRadius: BorderRadius.circular(5.0)),
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Padding(padding: EdgeInsets.symmetric(vertical: 8.0)),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).primaryColor, width: 2.0),
+                        borderRadius: BorderRadius.circular(5.0)),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      loadedTask.title,
                       style: TextStyle(
-                        color: _categoryColor,
+                        color: Colors.black,
+                        fontSize: 20.0,
                       ),
                     ),
-                    subtitle: Text(
-                      DateFormat('EEEE, dd / MM / yyyy  --  HH:mm')
-                          .format(loadedTask.startdate),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            'Category : ',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                          Text(
+                            'Date : ',//DateFormat('EEEE, MMM dd, yyyy')
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                          Text(
+                            'Notification Time : ',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                        Column(
+                          children: [
+                            Text(
+                              loadedTask.priorityLevelText,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('EE, MMM dd, yyyy').format(loadedTask.startdate),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('HH : mm').format(loadedTask.startdate),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  if(loadedTask.description.isNotEmpty)
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Description',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                        ),
+                      ),
+                    ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                    if(loadedTask.description.isNotEmpty)
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).primaryColor, width: 2.0),
+                        borderRadius: BorderRadius.circular(5.0)),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      loadedTask.description,
                       //textScaleFactor: 1.4,
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
-                    )),
-                // ListTile(
-                //     leading: Icon(
-                //       Icons.calendar_today_rounded,
-                //       color: _categoryColor,
-                //       size: 28.0,
-                //     ),
-                //     title: Text(
-                //       'End Time',
-                //       textAlign: TextAlign.left,
-                //       textScaleFactor: 1.3,
-                //       style: TextStyle(
-                //         color: _categoryColor,
-                //       ),
-                //     ),
-                //     subtitle: Text(
-                //       DateFormat('dd / MM / yyyy  --  HH:mm')
-                //           .format(loadedTask.enddate),
-                //       //textScaleFactor: 1.4,
-                //       textAlign: TextAlign.start,
-                //       overflow: TextOverflow.ellipsis,
-                //     )),
-                ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (states) => Theme.of(context).primaryColor)),
-                  // color: Theme.of(context).primaryColor,
-                  // textColor: Colors.white,
-                  onPressed: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text('Mark as complete'),
-                        content:
-                            Text('Are you sure you have completed this task ?'),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text('No'),
-                            onPressed: () {
-                              Navigator.of(ctx).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: Text('Yes'),
-                            onPressed: () async {
-                              Navigator.of(ctx).pop();
-                              String str = DateFormat('ddyyhhmm')
-                                  .format(loadedTask.startdate);
-                              int dtInt= int.parse(str);
-                              await NotificationsHelper.cancelTaskNotification(dtInt);
-                              Provider.of<Tasks>(context, listen: false)
-                                  .completeEvent(widget.taskId);
-                              Navigator.of(context)
-                                  .pushReplacementNamed(AllTaskScreen.routeName);                             },
-                          )
-                        ],
-                      ),
-                    );
-                    // Navigator.of(context).pop();
-                    // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
-                    // Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    'Mark as Completed',
+                    ),
                   ),
-                ),
-                // Divider(),
-              ],
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (states) => Theme.of(context).primaryColor)),
+                    // color: Theme.of(context).primaryColor,
+                    // textColor: Colors.white,
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text('Mark as complete'),
+                          content:
+                              Text('Are you sure you have completed this task ?'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('No'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Yes'),
+                              onPressed: () async {
+                                Navigator.of(ctx).pop();
+                                String str = DateFormat('ddyyhhmm')
+                                    .format(loadedTask.startdate);
+                                int dtInt= int.parse(str);
+                                await NotificationsHelper.cancelTaskNotification(dtInt);
+                                Provider.of<Tasks>(context, listen: false)
+                                    .completeEvent(widget.taskId);
+                                Navigator.of(context)
+                                    .pushReplacementNamed(AllTaskScreen.routeName);                             },
+                            )
+                          ],
+                        ),
+                      );
+                      // Navigator.of(context).pop();
+                      // Provider.of<Tasks>(context,listen: false).completeEvent(taskId);
+                      // Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Mark as Completed',
+                    ),
+                  ),
+                  // Divider(),
+                ],
+              ),
             ),
           ),
         ));

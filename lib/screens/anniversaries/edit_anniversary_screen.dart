@@ -6,26 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:menu_button/menu_button.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
-import 'package:platform_date_picker/platform_date_picker.dart';
+import 'package:native_contact_picker/native_contact_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:time_picker_widget/time_picker_widget.dart'as tpw;
 import 'package:yday/models/anniversaries/anniversary.dart';
-import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/models/interests.dart';
 import 'package:yday/providers/anniversaries.dart';
-import 'package:yday/screens/anniversaries/anniversary_detail.dart';
-import 'package:yday/services/google_signin_repository.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:yday/services/message_handler.dart';
-import '../all_event_screen.dart';
-import '../auth/login_page.dart';
-import 'package:yday/services/google_calender_repository.dart';
-
 import '../homepage.dart';
 
 class EditAnniversaryScreen extends StatefulWidget {
@@ -42,6 +34,7 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
   final _notesFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
   final _emailFocusNode = FocusNode();
+  final phoneController = TextEditingController();
 
   final _form = GlobalKey<FormState>();
   String Id = DateTime.now().toString();
@@ -52,18 +45,17 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
   var pickedFile;
   var isLoading = false;
   var _loggedIn = false;
-  bool _addToGoogleCalender = false;
   List<Interest> _selectedInterests = [];
   final _items = interestsList
       .map((inter) => MultiSelectItem<Interest>(inter, inter.name))
       .toList();
-
   String anniversaryId = '';
   String anniversaryNotes = '';
   String anniversaryPhone = '';
   String anniversaryEmail = '';
-  // TimeOfDay anniversaryTime;
   Anniversary _editedAnniv;
+  final NativeContactPicker _contactPicker = new NativeContactPicker();
+  Contact _contact;
 
   @override
   void initState() {
@@ -71,7 +63,6 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
     _editedAnniv = widget.fetchedAnniversary;
     _alarmTime = TimeOfDay.fromDateTime(_editedAnniv.dateofanniversary);
     anniversaryId = _editedAnniv.anniversaryId;
-    // anniversaryTime = _editedAnniv.setAlarmforAnniversary;
     anniversaryEmail = _editedAnniv.emailofCouple;
     anniversaryPhone = _editedAnniv.phoneNumberofCouple;
     _selectedInterests = _editedAnniv.interestsofCouple;
@@ -99,11 +90,6 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
       isLoading = true;
     });
     try {
-      // String calenderId = '';
-      // print(_addToGoogleCalender);
-      // if (_addToGoogleCalender) {
-      //   calenderId = await addCalender();
-      // }
       DateTime eventDate = _editedAnniv.dateofanniversary;
       if(_alarmTime!=null&&(_editedAnniv.dateofanniversary.hour!=_alarmTime.hour||_editedAnniv.dateofanniversary.minute!=_alarmTime.minute)){
          eventDate = DateTimeField.combine(_editedAnniv.dateofanniversary, _alarmTime);
@@ -118,7 +104,6 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
         phoneNumberofCouple: anniversaryPhone,
         emailofCouple: anniversaryEmail,
         imageUrl: _editedAnniv.imageUrl,
-        // setAlarmforAnniversary: anniversaryTime,
         dateofanniversary: eventDate,
         interestsofCouple: _selectedInterests,
         imageofCouple: pickedFile!=null?_imageofCoupleToAdd:null,
@@ -150,9 +135,6 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
     setState(() {
       isLoading = false;
     });
-    // Navigator.of(context).pushReplacementNamed(
-    //     AnniversaryDetailScreen.routeName,
-    //     arguments: anniversaryId);
     Navigator.of(context).pushReplacementNamed(HomePage.routeName);
   }
 
@@ -266,7 +248,6 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
                                 onFailValidation: (context) =>
                                     print('Unavailable selection'),
                                 initialTime: TimeOfDay(hour: 0, minute: 0));
-                            // anniversaryTime = _alarmTime;
                             setState(() {});
                           }),
                       ListTile(
@@ -277,17 +258,12 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
                         title: Text('Wife\'s Name'),
                         trailing: Text(_editedAnniv.wife_name),
                       ),
-                      // ListTile(
-                      //   title: Text('Relation'),
-                      //   trailing: Text(_editedAnniv.relation),
-                      // ),
                       ListTile(
                         title: Text('Date'),
                         trailing: _editedAnniv.yearofmarriageProvided
                             ? Text(
                           DateFormat('EEEE, MMM dd, yyyy')
                               .format(_editedAnniv.dateofanniversary),
-                          //textScaleFactor: 1.4,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.ellipsis,
                         )
@@ -302,7 +278,27 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
                       TextFormField(
                         initialValue: _editedAnniv.phoneNumberofCouple,
                         decoration: InputDecoration(
-                            labelText: 'Phone Number'),
+                            labelText: 'Phone Number',
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.contact_page_outlined),
+                              onPressed: () async {
+                                PermissionStatus permission = await Permission.contacts.status;
+                                if (permission != PermissionStatus.granted &&
+                                    permission != PermissionStatus.permanentlyDenied) {
+                                  PermissionStatus permissionStatus = await Permission.contacts.request();
+                                  permission = await Permission.contacts.status;
+                                }
+                                if(permission.isGranted) {
+                                  Contact contact =
+                                  await _contactPicker.selectContact();
+                                  setState(() {
+                                    _contact = contact;
+                                  });
+                                  phoneController.text = _contact.phoneNumber;
+                                }
+                              },
+                            )
+                        ),
                         textInputAction: TextInputAction.next,
                         focusNode: _phoneFocusNode,
                         onFieldSubmitted: (_) {
@@ -312,16 +308,16 @@ class _EditAnniversaryScreenState extends State<EditAnniversaryScreen> {
                         onSaved: (value) {
                           anniversaryPhone = value;
                         },
-                        validator: (value) {
-                          if (value.isEmpty ) {
-                            return null;
-                          }
-                          if(value.contains('+91')&&value.length==13)
-                            return null;
-                          else if(value.length==10)
-                            return null;
-                          return 'Please enter a valid phone number';
-                        },
+                        // validator: (value) {
+                        //   if (value.isEmpty ) {
+                        //     return null;
+                        //   }
+                        //   if(value.contains('+91')&&value.length==10)
+                        //     return null;
+                        //   // else if(value.length==10)
+                        //   //   return null;
+                        //   return 'Please enter a valid phone number';
+                        // },
                       ),
                       TextFormField(
                         initialValue: _editedAnniv.emailofCouple,

@@ -18,12 +18,7 @@ import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/providers/birthdays.dart';
 import 'package:yday/screens/anniversaries/all_anniversary_screen.dart';
 import 'package:yday/screens/frames/festival_frames_screen.dart';
-import 'package:yday/services/google_calender_repository.dart';
-import 'package:yday/services/google_signin_repository.dart';
 import 'package:yday/services/message_handler.dart';
-import 'package:yday/testfile.dart';
-
-import '../all_event_screen.dart';
 import '../homepage.dart';
 import 'edit_anniversary_screen.dart';
 
@@ -264,9 +259,9 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                             onPressed: () async {
                               String phoneNumber =
                                   loadedAnniversary.phoneNumberofCouple;
-                              if (!phoneNumber.contains('+91')) {
-                                phoneNumber = '+91' + phoneNumber;
-                              }
+                              // if (!phoneNumber.contains('+91')) {
+                              //   phoneNumber = '+91' + phoneNumber;
+                              // }
                               var whatsappUrl =
                                   "whatsapp://send?phone=$phoneNumber";
                               if (await canLaunch(whatsappUrl)) {
@@ -371,20 +366,6 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      // Column(
-                                      //   children: [
-                                      //     Text(
-                                      //       'Months',
-                                      //       style: TextStyle(
-                                      //           fontWeight: FontWeight.bold,
-                                      //           fontSize: 16),
-                                      //     ),
-                                      //     SizedBox(
-                                      //       height: 10,
-                                      //     ),
-                                      //     Text(snapshot.data.month.toString())
-                                      //   ],
-                                      // ),
                                       Column(
                                         children: [
                                           Text(
@@ -586,9 +567,7 @@ class _AnniversaryDetailScreenState extends State<AnniversaryDetailScreen> {
   }
 
   Path drawStar(Size size) {
-    // Method to convert degree to radians
     double degToRad(double deg) => deg * (pi / 180.0);
-
     const numberOfPoints = 5;
     final halfWidth = size.width / 2;
     final externalRadius = halfWidth;

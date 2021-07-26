@@ -337,8 +337,8 @@ class _SignUpState extends State<SignUp> {
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Invalid Date of Birth'),
-          content: Text('Please enter a valid Date of Birth'),
+          title: Text('Invalid Date of Birth !!'),
+          content: Text('Please enter a valid Date of Birth.'),
           actions: <Widget>[
             TextButton(
               child: Text('Okay'),

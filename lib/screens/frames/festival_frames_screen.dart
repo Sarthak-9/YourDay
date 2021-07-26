@@ -25,14 +25,12 @@ class FestivalImageScreen extends StatefulWidget {
 
 class _FestivalImageScreenState extends State<FestivalImageScreen> {
   UserDataModel currentUser;
-  // String _festivalId;
   List<Festival> festivalList;
   Festival currentFestival;
   List<String> festivalsImages;
   List<DateTime> festivalsDates;
-  // String festivalId;
-
   bool isLoading = true;
+
   @override
   void initState() {
     setState(() {
@@ -45,11 +43,7 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    // _festivalId = ModalRoute.of(context).settings.arguments as String;
     currentFestival = Provider.of<Festivals>(context).findById(widget.festivalId);
-    // currentFestival = festivalList[_festivalIndex];
-    // festivalId = currentFestival.festivalId;
     festivalsImages = currentFestival.festivalImageUrl;
     festivalsDates = currentFestival.festivalDate.values.toList();
     setState(() {
@@ -57,12 +51,6 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
     });
     super.didChangeDependencies();
   }
-  // Row(
-  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //   children: [
-  //     CircleAvatar(radius: 25,child: IconButton(icon: Icon(Icons.add),onPressed: ()=>Navigator.of(context).pushNamed(AddImagesToCategoryScreen.routeName,arguments: festivalId),)),
-  //     CircleAvatar(radius: 25,child: IconButton(icon: Icon(Icons.add),onPressed: ()=>Navigator.of(context).pushNamed(AddImagesToCategoryScreen.routeName,arguments: festivalId),)),
-  //   ],
 
   @override
   Widget build(BuildContext context) {
@@ -81,86 +69,106 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
         body:isLoading?Center(child: CircularProgressIndicator(),): SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
-                height: 20,
-              ),
-              Card(
-                elevation: 8,
-                shadowColor: Theme.of(context).primaryColor,
-                child: Container(
-                  // color: Colors.black12,
-                  alignment: Alignment.center,
-                  width: MediaQuery.of(context).size.width*0.9,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 10,),
-                      Text(
-                        currentFestival.festivalName,
-                        style: TextStyle(
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor
-                        ),
+              Container(
+                color: Colors.grey.shade300,
+                alignment: Alignment.center,
+                // width: MediaQuery.of(context).size.width*0.9,
+                child: Column(
+                  children: [
+                    SizedBox(height: 10,),
+                    Text(
+                      currentFestival.festivalName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 21.0,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor
                       ),
-                      if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              currentFestival.festivalDate[widget.year]!=null?DateFormat('EEEE, MMM dd, yyyy')
-                                .format(currentFestival.festivalDate[widget.year]):'',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.black87
-                            ),
-                            // textAlign: TextAlign.center,
-                          ),
-                        ),
-                      if(currentFestival.festivalDescription!=null)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            currentFestival.festivalDescription,
-                            style: TextStyle(
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ),
-                      if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
-                      ElevatedButton(
-                          onPressed: () async {
-                            await showDialog(
-                                context: context,
-                                builder: (ctx) => Dialog(
-                                  elevation: 5.0,
-                                  insetAnimationCurve:
-                                  Curves.slowMiddle,
-                                  child: Padding(
-                                    padding:
-                                    const EdgeInsets.all(8.0),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemBuilder: (ctx, i) =>
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.all(
-                                                8.0),
-                                            child: Text(DateFormat('EEEE, MMM dd, yyyy').format(
-                                                festivalsDates[i]),style: TextStyle(
+                    ),
+                    if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
+                      TextButton(
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              builder: (ctx) => Dialog(
+                                elevation: 5.0,
+                                insetAnimationCurve:
+                                Curves.slowMiddle,
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.all(8.0),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemBuilder: (ctx, i) =>
+                                        Padding(
+                                          padding:
+                                          const EdgeInsets.all(
+                                              8.0),
+                                          child: Text(DateFormat('EEEE, MMM dd, yyyy').format(
+                                              festivalsDates[i]),style: TextStyle(
                                               fontSize: 18
-                                            ),),
-                                          ),
-                                      itemCount: festivalsDates.length,
-                                    ),
+                                          ),),
+                                        ),
+                                    itemCount: festivalsDates.length,
                                   ),
-                                ));
-
-                          },
-                          child: Text('Festival Dates')),
-                      SizedBox(
-                        height: 20,
+                                ),
+                              ));
+                        },
+                        child: Text(
+                            currentFestival.festivalDate[widget.year]!=null?DateFormat('EEEE, MMM dd, yyyy')
+                              .format(currentFestival.festivalDate[widget.year]):'',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.black87
+                          ),
+                          // textAlign: TextAlign.center,
+                        ),
                       ),
-                    ],
-                  ),
+                    if(currentFestival.festivalDescription!=null)
+                      Text('\ "'+
+                        currentFestival.festivalDescription+'.\"',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontFamily: 'Dancing Script'
+                        ),
+                      ),
+                    SizedBox(height: 10,),
+                    // Divider(
+                    //   thickness: 5.0,
+                    // ),
+                    // if(currentFestival.festivalDate!=null&&currentFestival.festivalDate.isNotEmpty)
+                    // TextButton(
+                        // onPressed: () async {
+                        //   await showDialog(
+                        //       context: context,
+                        //       builder: (ctx) => Dialog(
+                        //         elevation: 5.0,
+                        //         insetAnimationCurve:
+                        //         Curves.slowMiddle,
+                        //         child: Padding(
+                        //           padding:
+                        //           const EdgeInsets.all(8.0),
+                        //           child: ListView.builder(
+                        //             shrinkWrap: true,
+                        //             itemBuilder: (ctx, i) =>
+                        //                 Padding(
+                        //                   padding:
+                        //                   const EdgeInsets.all(
+                        //                       8.0),
+                        //                   child: Text(DateFormat('EEEE, MMM dd, yyyy').format(
+                        //                       festivalsDates[i]),style: TextStyle(
+                        //                     fontSize: 18
+                        //                   ),),
+                        //                 ),
+                        //             itemCount: festivalsDates.length,
+                        //           ),
+                        //         ),
+                        //       ));
+                        //
+                        // },
+                        // child: Text('Festival Dates',textScaleFactor: 1.3,)),
+                  ],
                 ),
               ),
               // Divider(),
@@ -174,7 +182,7 @@ class _FestivalImageScreenState extends State<FestivalImageScreen> {
                     AddImagesToCategoryScreen.routeName,
                     arguments: widget.festivalId),
               ),
-              Divider(),
+
               ListView.builder(
                 // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                 physics: ScrollPhysics(),

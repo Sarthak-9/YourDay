@@ -47,14 +47,8 @@ class _AllBirthdayScreenState extends State<AllBirthdayScreen> {
     final birthdaylist = Provider.of<Birthdays>(context).birthdayList;
     return Scaffold(
       appBar: AppBar(
-        // centerTitle: true,
-        title: Text(
-          'YourDay',
-          style: TextStyle(
-            // fontFamily: 'Kaushan Script',
-            fontSize: 28,
-          ),
-        ),
+        centerTitle: true,
+        title: Image.asset("assets/images/Main_logo.png",height: 60,width: 100,),
       ),
       drawer: MainDrawer(),
       body: SingleChildScrollView(

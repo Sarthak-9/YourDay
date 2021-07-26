@@ -12,14 +12,12 @@ class Task {
   final String title;
   final String description;
   final DateTime startdate;
-  // final DateTime enddate;
-  // final TimeOfDay setalarmfortask;
+  final String frequency;
   final int notifId;
   final PriorityLevel levelofpriority;
 
   Task({this.taskId,this.calenderId,this.title, this.description,this.startdate,this.notifId,
-    // this.enddate,
-    // this.setalarmfortask,
+    this.frequency,
     this.levelofpriority});
 
   String get priorityLevelText {

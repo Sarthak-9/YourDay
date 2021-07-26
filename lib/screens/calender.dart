@@ -14,8 +14,6 @@ import 'package:yday/widgets/frames/todays_festival_widget.dart';
 import 'package:yday/widgets/frames/upcoming_festivals_widgets.dart';
 import 'package:yday/widgets/tasks/todays_task_widget.dart';
 
-import 'todays_events.dart';
-
 class Calendar extends StatefulWidget {
   static const routeName = '/calender-screen-dart';
 
@@ -30,14 +28,11 @@ class _CalendarState extends State<Calendar> {
   Map<DateTime, List<dynamic>> _events = {};
   bool _isLoading = true;
   void initState() {
-    // _calendarController = CalendarController();
     _fetch();
     super.initState();
-    // _calendarController = CalendarController();
   }
 
   Future<void> _fetch() async {
-    // Future.delayed(Duration.zero).then((_) async {
       setState(() {
         _isLoading = true;
       });
@@ -50,16 +45,7 @@ class _CalendarState extends State<Calendar> {
       setState(() {
         _isLoading = false;
       });
-    // });
   }
-  // @override
-  // void didUpdateWidget(covariant Calendar oldWidget) {
-  //   _fetch();
-  //
-  //   // TODO: implement didUpdateWidget
-  //   super.didUpdateWidget(oldWidget);
-  //
-  // }
 
   void dispose() {
     _calendarController.dispose();
@@ -131,19 +117,12 @@ class _CalendarState extends State<Calendar> {
             titleTextStyle: TextStyle(
               color: Colors.white,
             ),
-            //     titleTextStyle: GoogleFonts.montserrat(
-            // color: Colors.white,
-            // fontSize: 16)
-            //     ,
 
             formatButtonDecoration: BoxDecoration(
               color: Colors.white60,
               borderRadius: BorderRadius.circular(20),
             ),
-            //     formatButtonTextStyle: TextStyle(
-            // color: Colors.red,
-            // fontSize: 13,
-            // fontWeight: FontWeight.bold),
+
           ),
         ));
   }
@@ -151,61 +130,29 @@ class _CalendarState extends State<Calendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-          // height: MediaQuery.of(context).size.height*1.2,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // SizedBox(
-              //   height: 20,
-              // ),
-              // Container(
-              //   alignment: Alignment.center,
-              //   //padding: EdgeInsets.all(5),
-              //   child: Text(
-              //     "Calendar",
-              //     style:
-              //         TextStyle(fontSize: 30.0, fontFamily: 'Libre Baskerville'
-              //             //color: Colors.white
-              //             ),
-              //   ),
-              // ),
-              SizedBox(
-                height: 20,
-              ),
-              calendar(),
-              //eventTitle(),
-              //Column(children:_eventWidgets),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 10.0),
-              // ),
-              // Text(
-              //   'Events of the Day',
-              //   style: TextStyle(
-              //     fontSize: 25,
-              //   ),
-              // ),
-              // SizedBox(height: 20,),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 10.0),
-              // ),
-              // loggedIn ?
-              _isLoading
-                  ? Container(
-                      height: 200,
-                      alignment: Alignment.center,
-                      child: CircularProgressIndicator(),
-                    )
-                  : todaysevents(),
-              // : Center(
-              // child: Text('No events',style: TextStyle(
-              //   fontSize: 16,
-              // ),),
-              // ),
-            ],
+      body: RefreshIndicator(
+        onRefresh: _fetch,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
+            // height: MediaQuery.of(context).size.height*1.2,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(
+                  height: 20,
+                ),
+                calendar(),
+                _isLoading
+                    ? Container(
+                        height: 200,
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      )
+                    : todaysevents(),
+              ],
+            ),
           ),
         ),
       ),

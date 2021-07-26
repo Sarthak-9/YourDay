@@ -1,7 +1,6 @@
 // import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:googleapis/run/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yday/models/frames/festival.dart';
@@ -102,39 +101,36 @@ class _AllFestivalScreenState extends State<AllFestivalScreen> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
-                Text(
-                  'Festivals of the Year',
-                  style:
-                      TextStyle(fontSize: 26.0, fontFamily: 'Libre Baskerville'
-                          //color: Colors.white
+                Container(
+                  width: MediaQuery.of(context).size.width*0.9,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).primaryColor, width: 2.0),
+                      borderRadius: BorderRadius.circular(5.0)),
+
+                  child: TextButton(
+                      onPressed: () {
+                        showSearch(
+                            context: context,
+                            delegate: FestivalSearch(festivalList));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search,color: Theme.of(context).primaryColor,),
+                          Text(
+                            '  Search',
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 22.0,
+                            ),
                           ),
+                        ],
+                      )),
                 ),
-                SizedBox(
-                  height: 15,
-                ),
-                Divider(),
-                //
-                TextButton(
-                    onPressed: () {
-                      showSearch(
-                          context: context,
-                          delegate: FestivalSearch(festivalList));
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.search),
-                        Text(
-                          '  Search Festival',
-                          style: TextStyle(
-                            fontSize: 22.0,
-                          ),
-                        ),
-                      ],
-                    )),
                 Divider(),
                 (searchResult.length != 0 ||
                         searchTextController.text.isNotEmpty)

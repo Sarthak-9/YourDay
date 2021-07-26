@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 import 'package:yday/models/task.dart';
 import 'package:yday/providers/tasks.dart';
-import 'package:yday/screens/all_event_screen.dart';
 import 'package:yday/screens/tasks/all_task_screen.dart';
 import 'package:yday/screens/tasks/task_detail_screen.dart';
 import 'package:yday/widgets/tasks/task_widget.dart';
@@ -21,34 +20,12 @@ class TodaysTaskWidget extends StatefulWidget {
 class _TodaysTaskWidgetState extends State<TodaysTaskWidget> {
   var _isLoading = false;
 
-  Future<void> _fetch()async{
-    // Future.delayed(Duration.zero).then((_) async {
-    //   setState(() {
-    //     _isLoading = true;
-    //   });
-    //   await Provider.of<Tasks>(context, listen: false).fetchTask();
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // });
-  }
-  void didUpdate()async{
-    await _fetch();
-  }
-
   @override
   void initState() {
     // didUpdate();
     super.initState();
   }
-  // @override
-  // void didUpdateWidget(covariant TodaysTaskWidget oldWidget) {
-  //   // TODO: implement didUpdateWidget
-  //   // this.widget.
-  //   // if(_loggedIn){
-  //     didUpdate();
-  //   super.didUpdateWidget(oldWidget);
-  // }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -61,18 +38,9 @@ class _TodaysTaskWidgetState extends State<TodaysTaskWidget> {
     return  LimitedBox(
       child: _isLoading
           ? Center(
-        // child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(),
       )
           : tasks.isEmpty?SizedBox()
-          // ? Container(
-          //     alignment: Alignment.center,
-          //     child: Text(
-          //       'No Tasks',
-          //       style: TextStyle(
-          //         fontSize: 16,
-          //       ),
-          //     ),
-          //   )
           : Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Column(

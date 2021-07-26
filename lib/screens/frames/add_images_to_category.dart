@@ -242,41 +242,14 @@ class _AddImagesToCategoryScreenState extends State<AddImagesToCategoryScreen> {
   }
 
   Future<void> saveForm() async {
-    // if (images.isEmpty) {
-    //   await showDialog(
-    //     context: context,
-    //     builder: (ctx) => AlertDialog(
-    //       title: Text('Select Photos'),
-    //       content: Text('Please select at least one photo.'),
-    //       actions: <Widget>[
-    //         TextButton(
-    //           child: Text('Okay'),
-    //           onPressed: () {
-    //             Navigator.of(ctx).pop();
-    //           },
-    //         )
-    //       ],
-    //     ),
-    //   );
-    //   return;
-    // }
-
     setState(() {
       isLoading = true;
     });
     await uploadImage();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomePage(tabNumber: 1,)), (route) => false);
-
-    // Navigator.of(context).pushReplacement(
-    //   MaterialPageRoute(
-    //       builder: (context) => HomePage(
-    //         tabNumber: 0,
-    //       ),),
-    // );
     setState(() {
       isLoading = false;
     });
-
   }
 
   Future<void> uploadImage() async {
@@ -321,7 +294,7 @@ class _AddImagesToCategoryScreenState extends State<AddImagesToCategoryScreen> {
     Festival updateFestival = Festival(
       festivalId: festivalId,
       festivalImageUrl: photoUrl,
-      festivalDescription: festivalDescriptionController.text,
+      festivalDescription: festivalDescriptionController.text.isNotEmpty?festivalDescriptionController.text:fetchFestival.festivalDescription,
       // festivalDate: dtMap,
     );
     await Provider.of<Festivals>(context, listen: false).addFramesInFestival(updateFestival,dtMap);

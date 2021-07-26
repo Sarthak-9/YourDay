@@ -170,11 +170,10 @@ class _AddUserEventScreenState extends State<AddUserEventScreen> {
                           initialDate: DateTime.now(),
                           lastDate: DateTime(DateTime.now().year + 2),
                           builder: (context, child) => Theme(
-                            data: ThemeData.light().copyWith(
-                              primaryColor: const Color(0xFF8CE7F1),
-                              accentColor: const Color(0xFF8CE7F1),
+                            data: ThemeData(
                               colorScheme: ColorScheme.light(
-                                  primary: const Color(0xFF8CE7F1)),
+                                primary: Theme.of(context).primaryColor,
+                              ),
                               buttonTheme: ButtonThemeData(
                                   textTheme: ButtonTextTheme.primary),
                             ),

@@ -7,7 +7,6 @@ import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/providers/anniversaries.dart';
 import 'package:yday/providers/birthdays.dart';
-import 'package:yday/screens/all_event_screen.dart';
 import 'package:yday/screens/anniversaries/all_anniversary_screen.dart';
 import 'package:yday/screens/birthdays/add_birthday_screen.dart';
 import 'package:yday/screens/anniversaries/anniversary_detail.dart';

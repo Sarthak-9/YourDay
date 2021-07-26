@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:yday/models/birthday.dart';
 import 'package:yday/models/constants.dart';
 import 'package:yday/providers/birthdays.dart';
-import 'package:yday/screens/all_event_screen.dart';
 import 'package:yday/screens/birthdays/add_birthday_screen.dart';
 import 'package:yday/screens/birthdays/all_birthday_screen.dart';
 import 'package:yday/screens/birthdays/birthday_detail_screen.dart';
@@ -71,18 +70,6 @@ class _TodaysBirthdayWidgetState extends State<TodaysBirthdayWidget> {
               // child: CircularProgressIndicator(),
             )
           : todaysBirthdayList.isEmpty?SizedBox()
-              // ? Padding(
-              //     padding: const EdgeInsets.all(4.0),
-              //     child: Container(
-              //       alignment: Alignment.center,
-              //       child: Text(
-              //         'No Birthdays',
-              //         style: TextStyle(
-              //           fontSize: 16,
-              //         ),
-              //       ),
-              //     ),
-              //   )
               : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Column(
